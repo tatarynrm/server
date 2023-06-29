@@ -127,14 +127,14 @@ app.post("/mail-send", async (req, res) => {
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
-  // cors: {
-  //   origin: "http://192.168.5.180",
-  //   methods: ["GET", "POST"],
-  // },
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://192.168.5.180",
     methods: ["GET", "POST"],
   },
+  // cors: {
+  //   origin: "http://localhost:3000",
+  //   methods: ["GET", "POST"],
+  // },
 });
 // ...
 let onlineUsers = [];
@@ -165,11 +165,11 @@ io.on("connection", (socket) => {
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
-    // bot.telegram.sendMessage(
-    //   -1001894284480,
-    //   `👉Користувач ${data.PIP} щойно добавив\nнову заявку: ✅<code><b>${data.ZAP_KOD}</b></code>\nЗавантаження: ${data.pZav}\nВивантаження: ${data.pRozv}\nІнформація: ${data.pZapText}\nПереглянути заявку: http://192.168.5.180`,
-    //   { parse_mode: "HTML" }
-    // );
+    bot.telegram.sendMessage(
+      -1001894284480,
+      `👉Користувач ${data.PIP} щойно добавив\nнову заявку: ✅<code><b>${data.ZAP_KOD}</b></code>\nЗавантаження: ${data.pZav}\nВивантаження: ${data.pRozv}\nІнформація: ${data.pZapText}\nПереглянути заявку: http://192.168.5.180`,
+      { parse_mode: "HTML" }
+    );
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -225,20 +225,20 @@ io.on("connection", (socket) => {
 
 // WEB SOCKETS END.........................................................
 
-// const { Telegraf } = require("telegraf");
-// const { message } = require("telegraf/filters");
+const { Telegraf } = require("telegraf");
+const { message } = require("telegraf/filters");
 
-// const bot = new Telegraf(process.env.BOT_TOKEN);
-// bot.start((ctx) => ctx.reply("Вітаю"));
-// bot.hears("ok", (ctx) => {
-//   console.log(ctx.message.from.id);
-// });
+const bot = new Telegraf(process.env.BOT_TOKEN);
+bot.start((ctx) => ctx.reply("Вітаю"));
+bot.hears("ok", (ctx) => {
+  console.log(ctx.message.from.id);
+});
 
-// bot.launch();
+bot.launch();
 
-// // Enable graceful stop
-// process.once("SIGINT", () => bot.stop("SIGINT"));
-// process.once("SIGTERM", () => bot.stop("SIGTERM"));
+// Enable graceful stop
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 // // VPN
 // const opts = {
