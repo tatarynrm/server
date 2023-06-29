@@ -1,0 +1,14 @@
+.title {
+  font-size: 14px;
+  background: red;
+  color: blue;
+  width: 100%;
+  margin: 0 auto;
+}
+.name {
+  display: flex;
+  width: 30%;
+  margin: 0 auto;
+  height: 200px;
+  background-color: red;
+}
