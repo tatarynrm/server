@@ -25,9 +25,9 @@ const usersRoute = require("./routes/users");
 const cargosRoute = require("./routes/cargos");
 const zasRoute = require("./routes/zas");
 const UrRoute = require("./routes/UR");
-// const chatRoute = require("./routes/chat");
 const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
+const eventsRoutes = require("./routes/events");
 // Middlewares------------------------------------------------------------------------------------------------------
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
@@ -42,9 +42,9 @@ app.use("/users", usersRoute);
 app.use("/cargos", cargosRoute);
 app.use("/zas", zasRoute);
 app.use("/ur", UrRoute);
-// app.use("/chat", chatRoute);
 app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
+app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 
 // NODEMAILER
@@ -210,9 +210,11 @@ io.on("connection", (socket) => {
     io.emit("windowReloadAllUsers", 1);
   });
   socket.on("textToAllUsers", (data) => {
+    console.log(data);
     io.emit("showTextToAllUsers", data);
   });
   socket.on("admin_msg_user", (data) => {
+    console.log(data);
     io.emit("show_msg_from_admin", data);
   });
   // ADMIN

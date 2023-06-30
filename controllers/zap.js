@@ -151,6 +151,29 @@ const refreshZap = async (req, res) => {
   }
 };
 
+
+const getAllTimeZap = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    // const result = await connection.execute(
+    //   `SELECT a.*,
+    //           b.pip,
+    //    FROM zap a
+    //    JOIN OS b on a.kod_os = b.kod`
+    // );
+    const result = await connection.execute(
+      `SELECT a.*,b.pip
+       FROM zap a
+       JOIN os b on a.kod_os = b.kod
+       WHERE a.status = 0`
+    );
+    console.log(result);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log("1---", error);
+  }
+};
 module.exports = {
   createZap,
   getAllZap,
@@ -159,4 +182,5 @@ module.exports = {
   getClosedZap,
   refreshZap,
   editZap,
+  getAllTimeZap
 };
