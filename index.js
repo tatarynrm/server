@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
-    console.log(onlineUsers);
+
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
@@ -192,7 +192,7 @@ io.on("connection", (socket) => {
     io.emit("deleteCommAllUsers", data);
   });
   socket.on("myZapComment", (data) => {
-    console.log("my__comment", data);
+   
     const userToSend = onlineUsers.filter(
       (item) => item.userId === data.pKodAuthor
     );
@@ -220,7 +220,7 @@ io.on("connection", (socket) => {
   // ADMIN
   // ВИЙТИ
   socket.on("disconnect", () => {
-    // removeUser(socket.id);
+    removeUser(socket.id);
     console.log("disconnect");
   });
 });

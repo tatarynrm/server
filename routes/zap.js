@@ -19,6 +19,6 @@ router.route("/groups").post(getGroups);
 router.route("/delete").post(deleteZap);
 router.route("/refresh").post(refreshZap);
 router.route("/edit").post(editZap);
-router.route("/all").get(getAllTimeZap);
+router.route("/all").post(getAllTimeZap);
 
 module.exports = router;

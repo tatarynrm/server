@@ -70,7 +70,6 @@ const login = async (req, res) => {
         AND b.DB_PASSWD = '${password}'
     ORDER BY
         a.pip ASC`);
-    console.log(user.rows);
 
     const token = jwt.sign(
       {
@@ -81,7 +80,6 @@ const login = async (req, res) => {
         expiresIn: "30d",
       }
     );
-    console.log(user);
     if (user.rows.length > 0) {
       console.log(token);
       res.status(200).json({ ...user, token: token });
@@ -97,7 +95,7 @@ const login = async (req, res) => {
       });
     }
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     res.status(500).json({
       message: "Не вдалось авторизуватись",
     });
