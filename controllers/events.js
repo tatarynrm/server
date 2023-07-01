@@ -10,14 +10,14 @@ const getEvents = async (req, res) => {
     from
       (
       select *
-      from v_zapevent
+      from ictdat.v_zapevent
       where kod_osto = ${KOD_OS}
       order by dat desc
       )
-    where rownum <= 10`);
+    where rownum <= 1000`);
 
 console.log(result);
-    res.status(200).json(user);
+    res.status(200).json(result.rows);
  
   } catch (error) {
     console.log(error);
