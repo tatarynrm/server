@@ -37,9 +37,11 @@ let corsOptions = {
 // Middlewares------------------------------------------------------------------------------------------------------
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors({
-  origin:"http://ict.lviv.ua"
-}));
+app.use(cors(
+//   {
+//   origin:"http://ict.lviv.ua"
+// }
+));
 app.use(express.json());
 // .s
 
