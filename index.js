@@ -79,14 +79,14 @@ app.use(express.json());
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
-app.use("/auth", authRouter);
-app.use("/users", usersRoute);
-app.use("/cargos", cargosRoute);
-app.use("/zas", zasRoute);
-app.use("/ur", UrRoute);
-app.use("/zap", zapRoute);
-app.use("/comments", commentsRoute);
-app.use("/events", eventsRoutes);
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRoute);
+app.use("/api/cargos", cargosRoute);
+app.use("/api/zas", zasRoute);
+app.use("/api/ur", UrRoute);
+app.use("/api/zap", zapRoute);
+app.use("/api/comments", commentsRoute);
+app.use("/api/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 
 // NODEMAILER
@@ -160,18 +160,18 @@ app.post("/mail-send", async (req, res) => {
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
-  // cors: {
-  //   origin: "http://192.168.5.180",
-  //   methods: ["GET", "POST"],
-  // },
+  cors: {
+    origin: "http://192.168.5.180",
+    methods: ["GET", "POST"],
+  },
   // cors: {
   //   origin: "http://localhost:3000",
   //   methods: ["GET", "POST"],
   // },
-  cors: {
-    origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua"],
-    methods: ["GET", "POST"],
-  },
+  // cors: {
+  //   origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua"],
+  //   methods: ["GET", "POST"],
+  // },
 });
 // ...
 let onlineUsers = [];
