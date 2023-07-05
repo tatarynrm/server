@@ -12,13 +12,13 @@ const server = http.createServer(app);
 // const io = socketIo(server);
 const { Server } = require("socket.io");
 // const io = new Server(server);
+const anywhere = require("express-cors-anywhere")
 const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
-// const EventEmitter = require("events");
 const pool = require("./db/pool");
 const authRouter = require("./routes/auth");
 const usersRoute = require("./routes/users");
@@ -29,15 +29,17 @@ const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 
-// let corsOptions = {
-//   origin : ['http://localhost:8800']
-// }
+let corsOptions = {
+  origin : ['http://ict.lviv.ua']
+}
  
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors());
+app.use(cors({
+  origin:"http://ict.lviv.ua"
+}));
 app.use(express.json());
 
 // Middlewares------------------------------------------------------------------------------------------------------
@@ -124,14 +126,18 @@ app.post("/mail-send", async (req, res) => {
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
-  cors: {
-    origin: "http://192.168.5.180",
-    methods: ["GET", "POST"],
-  },
+  // cors: {
+  //   origin: "http://192.168.5.180",
+  //   methods: ["GET", "POST"],
+  // },
   // cors: {
   //   origin: "http://localhost:3000",
   //   methods: ["GET", "POST"],
   // },
+  cors: {
+    origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua"],
+    methods: ["GET", "POST"],
+  },
 });
 // ...
 let onlineUsers = [];
@@ -262,6 +268,7 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 // // VPN
 
 // Server run------------------------------------------------------------------------------------------------------
+
 server.listen(process.env.PORT,'0.0.0.0', () => {
   console.log(`Listen ${process.env.PORT}`);
 });
