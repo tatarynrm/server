@@ -169,7 +169,7 @@ const io = new Server(server, {
   //   methods: ["GET", "POST"],
   // },
   cors: {
-    origin: "http://localhost",
+    origin: "http://194.44.241.122:80",
     methods: ["GET", "POST"],
   },
   // cors: {
