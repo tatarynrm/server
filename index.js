@@ -165,7 +165,7 @@ const io = new Server(server, {
   //   methods: ["GET", "POST"],
   // },
   cors: {
-    origin: "http://www.ict.lviv.ua",
+    origin: "http://localhost",
     methods: ["GET", "POST"],
   },
   // cors: {
@@ -197,7 +197,7 @@ io.on("connection", (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
-
+console.log(userId);
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
