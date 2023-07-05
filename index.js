@@ -160,8 +160,12 @@ app.post("/mail-send", async (req, res) => {
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
+  // cors: {
+  //   origin: "http://192.168.5.180",
+  //   methods: ["GET", "POST"],
+  // },
   cors: {
-    origin: "http://192.168.5.180",
+    origin: "http://ict.lviv.ua",
     methods: ["GET", "POST"],
   },
   // cors: {
