@@ -43,7 +43,7 @@ const corsOptionsDelegate = function (req, callback) {
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
 app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
-  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
+  res.json({msg: 'Андрій Боровенко'})
 })
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
