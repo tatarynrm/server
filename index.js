@@ -29,10 +29,22 @@ const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 
-let corsOptions = {
-  origin : ['http://ict.lviv.ua']
+// let corsOptions = {
+//   origin : ['http://ict.lviv.ua']
+// }
+const allowlist = ['http://ict.lviv.ua', 'http://192.168.5.180']
+const corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (allowlist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+  } else {
+    corsOptions = { origin: false } // disable CORS for this request
+  }
+  callback(null, corsOptions) // callback expects two parameters: error and options
 }
- 
+app.get('/noris', cors(corsOptionsDelegate), function (req, res, next) {
+  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
+})
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
