@@ -42,14 +42,16 @@ const corsOptionsDelegate = function (req, callback) {
   }
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
-
+app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
+  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
+})
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
 
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'http://ict.lviv.ua');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -67,9 +69,9 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors(
-  {
-  origin:"http://ict.lviv.ua"
-}
+//   {
+//   origin:"http://ict.lviv.ua"
+// }
 ));
 app.use(express.json());
 // .s
@@ -86,9 +88,7 @@ app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
-app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
-  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
-})
+
 // NODEMAILER
 
 // const transporter = nodemailer.createTransport({
