@@ -42,9 +42,7 @@ const corsOptionsDelegate = function (req, callback) {
   }
   callback(null, corsOptions) // callback expects two parameters: error and options
 }
-app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
-  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
-})
+
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 // Add headers before the routes are defined
@@ -88,7 +86,9 @@ app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
-
+app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
+  res.json({msg: 'This is CORS-enabled for an allowed domain.'})
+})
 // NODEMAILER
 
 // const transporter = nodemailer.createTransport({
