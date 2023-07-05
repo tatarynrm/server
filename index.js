@@ -164,10 +164,10 @@ const io = new Server(server, {
   //   origin: "http://192.168.5.180",
   //   methods: ["GET", "POST"],
   // },
-  cors: {
-    origin: "http://ict.lviv.ua",
-    methods: ["GET", "POST"],
-  },
+  // cors: {
+  //   origin: "http://ict.lviv.ua",
+  //   methods: ["GET", "POST"],
+  // },
   // cors: {
   //   origin: "http://localhost:3000",
   //   methods: ["GET", "POST"],
