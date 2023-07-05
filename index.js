@@ -28,6 +28,12 @@ const UrRoute = require("./routes/UR");
 const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
+
+// let corsOptions = {
+//   origin : ['http://localhost:8800']
+// }
+ 
+// app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
@@ -114,16 +120,7 @@ app.post("/mail-send", async (req, res) => {
   }
 });
 
-//# Connect to the Oracle database
-// oracleEmitter.connect();
 
-// Execute a sample query
-// oracleEmitter.executeQuery("SELECT * FROM employees");
-
-// Disconnect from the Oracle database
-// oracleEmitter.disconnect();
-
-// oracleEmitter.executeQuery(`SELECT * FROM ICTDAT.OS`);
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
@@ -231,9 +228,13 @@ const { Telegraf } = require("telegraf");
 const { message } = require("telegraf/filters");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+const firstName = (ctx) => ctx.message.from.first_name
 bot.start((ctx) => ctx.reply("Вітаю"));
 bot.hears("ok", (ctx) => {
+//  roman - 282039969
   console.log(ctx.message.from.id);
+  bot.telegram.sendMessage(941236974,'OK')
+  // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
 });
 
 bot.launch();
@@ -261,6 +262,6 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 // // VPN
 
 // Server run------------------------------------------------------------------------------------------------------
-server.listen(process.env.PORT, () => {
+server.listen(process.env.PORT,'0.0.0.0', () => {
   console.log(`Listen ${process.env.PORT}`);
 });
