@@ -67,9 +67,9 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors(
-//   {
-//   origin:"http://ict.lviv.ua"
-// }
+  {
+  origin:"http://ict.lviv.ua"
+}
 ));
 app.use(express.json());
 // .s
