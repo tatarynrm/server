@@ -32,61 +32,61 @@ const eventsRoutes = require("./routes/events");
 // let corsOptions = {
 //   origin : ['http://ict.lviv.ua']
 // }
-const allowlist = ['http://ict.lviv.ua', 'http://192.168.5.180']
-const corsOptionsDelegate = function (req, callback) {
-  var corsOptions;
-  if (allowlist.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-  } else {
-    corsOptions = { origin: false } // disable CORS for this request
-  }
-  callback(null, corsOptions) // callback expects two parameters: error and options
-}
-app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
-  res.json({msg: 'Андрій Боровенко'})
-})
+// const allowlist = ['http://ict.lviv.ua', 'http://192.168.5.180']
+// const corsOptionsDelegate = function (req, callback) {
+//   var corsOptions;
+//   if (allowlist.indexOf(req.header('Origin')) !== -1) {
+//     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+//   } else {
+//     corsOptions = { origin: false } // disable CORS for this request
+//   }
+//   callback(null, corsOptions) // callback expects two parameters: error and options
+// }
+// app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
+//   res.json({msg: 'Андрій Боровенко'})
+// })
 // app.use(cors(corsOptions))
 // Middlewares------------------------------------------------------------------------------------------------------
 // Add headers before the routes are defined
-app.use(function (req, res, next) {
+// app.use(function (req, res, next) {
 
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
+//   // Website you wish to allow to connect
+//   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//   // Request methods you wish to allow
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+//   // Request headers you wish to allow
+//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
+//   // Set to true if you need the website to include cookies in the requests sent
+//   // to the API (e.g. in case you use sessions)
+//   res.setHeader('Access-Control-Allow-Credentials', true);
 
-  // Pass to next layer of middleware
-  next();
-});
+//   // Pass to next layer of middleware
+//   next();
+// });
+
+app.use(cors(
+  //   {
+  //   origin:"http://ict.lviv.ua"
+  // }
+  ));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors(
-//   {
-//   origin:"http://ict.lviv.ua"
-// }
-));
 app.use(express.json());
-// .s
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
-app.use("/api/auth", authRouter);
-app.use("/api/users", usersRoute);
-app.use("/api/cargos", cargosRoute);
-app.use("/api/zas", zasRoute);
-app.use("/api/ur", UrRoute);
-app.use("/api/zap", zapRoute);
-app.use("/api/comments", commentsRoute);
-app.use("/api/events", eventsRoutes);
+app.use("/auth", authRouter);
+app.use("/users", usersRoute);
+app.use("/cargos", cargosRoute);
+app.use("/zas", zasRoute);
+app.use("/ur", UrRoute);
+app.use("/zap", zapRoute);
+app.use("/comments", commentsRoute);
+app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 
 // NODEMAILER
@@ -160,22 +160,22 @@ app.post("/mail-send", async (req, res) => {
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
-  cors: {
-    origin: "http://192.168.5.180/",
-    methods: ["GET", "POST"],
-  },
   // cors: {
-  //   origin: "http://localhost",
+  //   origin: "http://192.168.5.180/",
+  //   methods: ["GET", "POST"],
+  // },
+  // cors: {
+  //   origin: "http://localhost:3000",
   //   methods: ["GET", "POST"],
   // },
   // cors: {
   //   origin: "http://194.44.241.122:80",
   //   methods: ["GET", "POST"],
   // },
-  // cors: {
-  //   origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua"],
-  //   methods: ["GET", "POST"],
-  // },
+  cors: {
+    origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua","http://localhost:3000","http://194.44.241.122:80","http://194.44.241.122/"],
+    methods: ["GET", "POST"],
+  },
 });
 // ...
 let onlineUsers = [];
