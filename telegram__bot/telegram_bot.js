@@ -4,9 +4,12 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 const path = require('path')
 const fs = require("fs");
 const firstName = (ctx) => ctx.message.from.first_name
+
+
+
 bot.start(async(ctx) => {
-  if (ctx.message.from.id === 282039969 || 941236974) {
-    await ctx.telegram.sendMessage(ctx.chat.id, 'Головне меню', {
+  if (ctx.message.from.id === 282039969 || ctx.message.from.id === 941236974) {
+    await ctx.telegram.sendMessage(ctx.chat.id,'Головне меню', {
       parse_mode: 'html',
       reply_markup: {
           keyboard: [
@@ -14,14 +17,14 @@ bot.start(async(ctx) => {
                   {text: 'Активні користувачі', callback_data: 'activeUsers'},
                   {text: 'Перезавантажити дані', callback_data: 'reloadData'}
               ],
-              // [{text: 'راه‌های ارتباطی', callback_data: 'contactUs'}],
-              // [{text: 'بستن منو', callback_data: 'close'}],
+              [{text: 'Звіт по роботі менеджерів', callback_data: 'managersWorkData'}],
+  
           ],
           resize_keyboard:true
       }
   })
   }else {
-    await ctx.telegram.sendMessage('У вас немає прав використовувати бота.')
+    await ctx.telegram.sendMessage(ctx.chat.id,'У вас немає прав використовувати бота.')
   }
 
 }
