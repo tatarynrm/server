@@ -8,11 +8,13 @@ const EventEmitter = require("events");
 const openvpnmanager = require("node-openvpn");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
+const compression = require('compression')
+const {bot} = require("./telegram__bot/telegram_bot");
 // const socketIo = require("socket.io");
 // const io = socketIo(server);
 const { Server } = require("socket.io");
 // const io = new Server(server);
-const anywhere = require("express-cors-anywhere")
+const anywhere = require("express-cors-anywhere");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
@@ -28,53 +30,40 @@ const UrRoute = require("./routes/UR");
 const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
+const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
 
-// let corsOptions = {
-//   origin : ['http://ict.lviv.ua']
-// }
-// const allowlist = ['http://ict.lviv.ua', 'http://192.168.5.180']
-// const corsOptionsDelegate = function (req, callback) {
-//   var corsOptions;
-//   if (allowlist.indexOf(req.header('Origin')) !== -1) {
-//     corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
-//   } else {
-//     corsOptions = { origin: false } // disable CORS for this request
-//   }
-//   callback(null, corsOptions) // callback expects two parameters: error and options
-// }
-// app.get('/api/noris', cors(corsOptionsDelegate), function (req, res, next) {
-//   res.json({msg: 'Андрій Боровенко'})
-// })
-// app.use(cors(corsOptions))
+
+const allowedOrigins = ["http://localhost:3000",'http://ict.lviv.ua', 'http://192.168.5.180',"http://localhost"];
+
+
 // Middlewares------------------------------------------------------------------------------------------------------
-// Add headers before the routes are defined
-// app.use(function (req, res, next) {
+function shouldCompress (req, res) {
+  if (req.headers['x-no-compression']) {
+    // don't compress responses with this request header
+    return false
+  }
 
-//   // Website you wish to allow to connect
-//   res.setHeader('Access-Control-Allow-Origin', '*');
+  // fallback to standard filter function
+  return compression.filter(req, res)
+}
 
-//   // Request methods you wish to allow
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-//   // Request headers you wish to allow
-//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-//   // Set to true if you need the website to include cookies in the requests sent
-//   // to the API (e.g. in case you use sessions)
-//   res.setHeader('Access-Control-Allow-Credentials', true);
-
-//   // Pass to next layer of middleware
-//   next();
-// });
-
-app.use(cors(
-  //   {
-  //   origin:"http://ict.lviv.ua"
-  // }
-  ));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
+app.use(compression({filter:shouldCompress}))
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -127,9 +116,6 @@ const transporter = nodemailer.createTransport({
 // NODEMAILER
 app.post("/mail-send", async (req, res) => {
   const { from, to, theme, text } = req.body;
-  console.log("====================================");
-  console.log(req.body);
-  console.log("====================================");
   try {
     const mailOptions = {
       from: `${from}`,
@@ -156,8 +142,6 @@ app.post("/mail-send", async (req, res) => {
   }
 });
 
-
-
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
   // cors: {
@@ -173,7 +157,8 @@ const io = new Server(server, {
   //   methods: ["GET", "POST"],
   // },
   cors: {
-    origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua","http://localhost:3000","http://194.44.241.122:80","http://194.44.241.122/"],
+    // origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua","http://localhost:3000","http://194.44.241.122:80","http://194.44.241.122/"],
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -197,7 +182,7 @@ io.on("connection", (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
-console.log(userId);
+    // console.log(userId);
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
@@ -206,11 +191,7 @@ console.log(userId);
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
-    bot.telegram.sendMessage(
-      -1001894284480,
-      `👉Користувач ${data.PIP} щойно добавив\nнову заявку: ✅<code><b>${data.ZAP_KOD}</b></code>\nЗавантаження: ${data.pZav}\nВивантаження: ${data.pRozv}\nІнформація: ${data.pZapText}\nПереглянути заявку: http://192.168.5.180`,
-      { parse_mode: "HTML" }
-    );
+    sendMessageToGroup(bot,data)
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -233,7 +214,6 @@ console.log(userId);
     io.emit("deleteCommAllUsers", data);
   });
   socket.on("myZapComment", (data) => {
-   
     const userToSend = onlineUsers.filter(
       (item) => item.userId === data.pKodAuthor
     );
@@ -249,9 +229,10 @@ console.log(userId);
 
   socket.on("windowReload", () => {
     io.emit("windowReloadAllUsers", 1);
+
   });
   socket.on("textToAllUsers", (data) => {
-    console.log(data);
+    // console.log(data);
     io.emit("showTextToAllUsers", data);
   });
   socket.on("admin_msg_user", (data) => {
@@ -266,26 +247,37 @@ console.log(userId);
   });
 });
 
+bot.hears('Активні користувачі',async ctx =>{
+  if (onlineUsers.length <= 0) {
+    await ctx.sendMessage('Користувачі онлайн: 0')
+  }else {
+    for (let i = 0; i < onlineUsers.length; i++) {
+      const element = onlineUsers[i];
+      await ctx.sendMessage(element.PIP)
+    }
+  }   
+})
+
 // WEB SOCKETS END.........................................................
 
-const { Telegraf } = require("telegraf");
-const { message } = require("telegraf/filters");
+// const { Telegraf } = require("telegraf");
+// const { message } = require("telegraf/filters");
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
-const firstName = (ctx) => ctx.message.from.first_name
-bot.start((ctx) => ctx.reply("Вітаю"));
-bot.hears("ok", (ctx) => {
-//  roman - 282039969
-  console.log(ctx.message.from.id);
-  bot.telegram.sendMessage(941236974,'OK')
-  // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
-});
+// const bot = new Telegraf(process.env.BOT_TOKEN);
+// const firstName = (ctx) => ctx.message.from.first_name
+// bot.start((ctx) => ctx.reply("Вітаю"));
+// bot.hears("ok", (ctx) => {
+// //  roman - 282039969
+//   console.log(ctx.message.from.id);
+//   bot.telegram.sendMessage(941236974,'OK')
+//   // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
+// });
 
-bot.launch();
+// bot.launch();
 
-// Enable graceful stop
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+// // Enable graceful stop
+// process.once("SIGINT", () => bot.stop("SIGINT"));
+// process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
 // // VPN
 // const opts = {
@@ -304,9 +296,16 @@ process.once("SIGTERM", () => bot.stop("SIGTERM"));
 //   openvpnmanager.authorize(auth);
 // });
 // // VPN
+bot.hears("Перезавантажити дані",async ctx =>{
+  ctx.sendMessage('Перезавантажив')
+ io.emit("windowReloadAllUsers", 1);
+})
+
 
 // Server run------------------------------------------------------------------------------------------------------
 
-server.listen(process.env.PORT,'0.0.0.0', () => {
+server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
+
+

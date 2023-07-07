@@ -81,7 +81,7 @@ const login = async (req, res) => {
       }
     );
     if (user.rows.length > 0) {
-      console.log(token);
+
       res.status(200).json({ ...user, token: token });
     }
     if (!user) {
