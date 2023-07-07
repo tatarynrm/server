@@ -239,11 +239,10 @@ bot.hears('Активні користувачі',async ctx =>{
   if (onlineUsers.length <= 0) {
     await ctx.sendMessage('Користувачі онлайн: 0')
   }else {
-    for (let i = 0; i < onlineUsers.length; i++) {
-      const element = onlineUsers[i];
-      await ctx.sendMessage(element.PIP)
+      const mappedString = onlineUsers.map(obj => obj.PIP).join('\n');
+      await ctx.sendMessage(`Користувачів онлайн: ${onlineUsers.length}`)
+      await ctx.sendMessage(`Список активних користувачів: ${onlineUsers.length}\n<b>${mappedString}</b>`,{parse_mode:"HTML"})
     }
-  }   
 })
 
 // WEB SOCKETS END.........................................................
