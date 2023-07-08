@@ -9,18 +9,18 @@ const {
 } = require("../queries/user");
 // const { sendBuhTransport } = require("../index");
 
-const getAllUsers = async (req, res) => {
-  try {
-    const connection = await oracledb.getConnection(pool);
-    const result = await connection.execute(GET_ALL_USERS);
-    res.status(200).json(result.rows);
-    if (!result) {
-      res.status(401).json({ message: "error" });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+// const getAllUsers = async (req, res) => {
+//   try {
+//     const connection = await oracledb.getConnection(pool);
+//     const result = await connection.execute(GET_ALL_USERS);
+//     res.status(200).json(result.rows);
+//     if (!result) {
+//       res.status(401).json({ message: "error" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 const getActiveUsers = async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
