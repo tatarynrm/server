@@ -11,12 +11,14 @@ const getAllZap = async (req, res) => {
     const result = await connection.execute(
       `SELECT a.*,
               b.pip,
+              c.TELEGRAMID,
               p_zap.CountComm(a.kod) as countcomm,
               p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
               p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
               p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew
        FROM zap a
        JOIN OS b on a.kod_os = b.kod
+       JOIN US c on a.kod_os = c.kod_os
        WHERE a.status = 0`
     );
     res.status(200).json(result.rows);

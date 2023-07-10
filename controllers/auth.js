@@ -58,6 +58,7 @@ const login = async (req, res) => {
         a.PIP,
         a.CODE_SEX,
         b.DB_PASSWD,
+        b.TELEGRAMID,
         c.MAIL
     FROM
         ictdat.os a
@@ -113,6 +114,7 @@ const getMe = async (req, res) => {
     a.PIP,
     a.CODE_SEX,
     b.DB_PASSWD,
+    b.TELEGRAMID,
     c.MAIL,
     d.TEL
 FROM

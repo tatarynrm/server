@@ -17,7 +17,7 @@ const getCommentsById = async (req, res) => {
 };
 
 const addZapComment = async (req, res) => {
-  const { pKodAuthor, pKodZap, pComment } = req.body;
+  const { pKodAuthor, pKodZap, pComment,telegramId } = req.body;
 
   try {
     const connection = await oracledb.getConnection(pool);
