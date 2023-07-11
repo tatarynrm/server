@@ -5,6 +5,7 @@ const pool = require("../db/pool");
 const getAllZap = async (req, res) => {
   const { KOD_OS } = req.body;
   console.log("----getAllZap--", KOD_OS);
+  // p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
@@ -16,8 +17,7 @@ const getAllZap = async (req, res) => {
               p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
               p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
               p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
-              p_zap.IsMemberGroup(${KOD_OS}, a.kod_group, 0) as ismember,
-              p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm
+              p_zap.IsMemberGroup(${KOD_OS}, a.kod_group, 0) as ismember
        FROM zap a
        JOIN OS b on a.kod_os = b.kod
        JOIN US c on a.kod_os = c.kod_os
