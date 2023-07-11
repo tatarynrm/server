@@ -9,7 +9,7 @@ const checkAuth = require("../middleware/checkAuth");
 
 const router = express.Router();
 
-router.route("/").get(getAllUsers);
+router.route("/").get(checkAuth,getAllUsers);
 router.route("/active").get(getActiveUsers);
 router.route("/fired").get(getFiredUsers);
 router.route("/:id").get(checkAuth, getUserById);
