@@ -179,7 +179,7 @@ io.on("connection", (socket) => {
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
-    sendMessageToGroup(bot,data)
+    // sendMessageToGroup(bot,data)
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -193,10 +193,10 @@ io.on("connection", (socket) => {
   });
   socket.on("newComment", (data) => {
     // console.log(socket.userId);
-    console.log(data);
-    if (data.telegramId !== null) {
-      bot.telegram.sendMessage(data.telegramId,`💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`)
-    }
+    // console.log(data);
+    // if (data.telegramId !== null) {
+    //   bot.telegram.sendMessage(data.telegramId,`💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`)
+    // }
     io.emit("showNewComment", data);
     // io.sockets.emit("showNewComment", data);
   });
