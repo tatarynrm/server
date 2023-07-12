@@ -37,34 +37,39 @@ const allowedOrigins = ["http://localhost:3000",'http://ict.lviv.ua', 'http://19
 
 
 // Middlewares------------------------------------------------------------------------------------------------------
-function shouldCompress (req, res) {
-  if (req.headers['x-no-compression']) {
-    // don't compress responses with this request header
-    return false
-  }
+// function shouldCompress (req, res) {
+//   if (req.headers['x-no-compression']) {
+//     // don't compress responses with this request header
+//     return false
+//   }
 
-  // fallback to standard filter function
-  return compression.filter(req, res)
-}
+//   // fallback to standard filter function
+//   return compression.filter(req, res)
+// }
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-  })
-);
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin) return callback(null, true);
+//       if (allowedOrigins.indexOf(origin) === -1) {
+//         const msg =
+//           "The CORS policy for this site does not allow access from the specified Origin.";
+//         return callback(new Error(msg), false);
+//       }
+//       return callback(null, true);
+//     },
+//   })
+// );
+app.use(cors())
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
 app.use(compression({filter:shouldCompress}))
-
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
