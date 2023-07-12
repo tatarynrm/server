@@ -10,10 +10,7 @@ const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
 const compression = require('compression')
 const {bot} = require("./telegram__bot/telegram_bot");
-// const socketIo = require("socket.io");
-// const io = socketIo(server);
 const { Server } = require("socket.io");
-// const io = new Server(server);
 const anywhere = require("express-cors-anywhere");
 const path = require("path");
 const nodemailer = require("nodemailer");
@@ -39,9 +36,7 @@ const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
 // Middlewares------------------------------------------------------------------------------------------------------
 
 
-app.use(cors({
-  origin:"http://192.168.5.180"
-}))
+app.use(cors())
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
