@@ -8,8 +8,8 @@ const EventEmitter = require("events");
 const openvpnmanager = require("node-openvpn");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
-const compression = require('compression')
-const {bot} = require("./telegram__bot/telegram_bot");
+const compression = require("compression");
+const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
 const anywhere = require("express-cors-anywhere");
 const path = require("path");
@@ -29,25 +29,21 @@ const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
 
-
 // const allowedOrigins = ["http://localhost:3000",'http://ict.lviv.ua', 'http://192.168.5.180',"http://localhost"];
-
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
-
-app.use(cors(
-{
-  origin:"https://noris-dev.space"
-}
-))
+app.use(cors());
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
 // Відключає CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   next();
 });
 // Відключає CORS
@@ -165,7 +161,7 @@ io.on("connection", (socket) => {
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
-    sendMessageToGroup(bot,data)
+    sendMessageToGroup(bot, data);
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -179,7 +175,10 @@ io.on("connection", (socket) => {
   });
   socket.on("newComment", (data) => {
     if (data.telegramId !== null) {
-      bot.telegram.sendMessage(data.telegramId,`💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`)
+      bot.telegram.sendMessage(
+        data.telegramId,
+        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
+      );
     }
     io.emit("showNewComment", data);
     // io.sockets.emit("showNewComment", data);
@@ -204,7 +203,6 @@ io.on("connection", (socket) => {
 
   socket.on("windowReload", () => {
     io.emit("windowReloadAllUsers", 1);
-
   });
   socket.on("textToAllUsers", (data) => {
     // console.log(data);
@@ -222,15 +220,18 @@ io.on("connection", (socket) => {
   });
 });
 
-bot.hears('Активні користувачі',async ctx =>{
+bot.hears("Активні користувачі", async (ctx) => {
   if (onlineUsers.length <= 0) {
-    await ctx.sendMessage('Користувачі онлайн: 0')
-  }else {
-      const mappedString = onlineUsers.map(obj => obj.PIP).join('\n');
-      await ctx.sendMessage(`Користувачів онлайн: ${onlineUsers.length}`)
-      await ctx.sendMessage(`Список активних користувачів: ${onlineUsers.length}\n<b>${mappedString}</b>`,{parse_mode:"HTML"})
-    }
-})
+    await ctx.sendMessage("Користувачі онлайн: 0");
+  } else {
+    const mappedString = onlineUsers.map((obj) => obj.PIP).join("\n");
+    await ctx.sendMessage(`Користувачів онлайн: ${onlineUsers.length}`);
+    await ctx.sendMessage(
+      `Список активних користувачів: ${onlineUsers.length}\n<b>${mappedString}</b>`,
+      { parse_mode: "HTML" }
+    );
+  }
+});
 
 // WEB SOCKETS END.........................................................
 
@@ -270,16 +271,13 @@ bot.hears('Активні користувачі',async ctx =>{
 //   openvpnmanager.authorize(auth);
 // });
 // // VPN
-bot.hears("Перезавантажити дані",async ctx =>{
-  ctx.sendMessage('Перезавантажив')
- io.emit("windowReloadAllUsers", 1);
-})
-
+bot.hears("Перезавантажити дані", async (ctx) => {
+  ctx.sendMessage("Перезавантажив");
+  io.emit("windowReloadAllUsers", 1);
+});
 
 // Server run------------------------------------------------------------------------------------------------------
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
-
-
