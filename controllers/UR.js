@@ -99,15 +99,20 @@ const getOneAgent = async (req, res) => {
   console.log(id);
   try {
     const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
-      `      SELECT  a.*,
-      b.*,c.*,u.*
-  FROM ictdat.ur a 
-  JOIN ictdat.dog b ON
-      a.kod = b.kod_ur
-  JOIN ICTDAT.FIRMA c ON b.KOD_FIRMA  = c.KOD 
-  JOIN ICTDAT.URSTATUS u ON a.KOD_STATUS = u.KOD
-      WHERE a.kod = ${id}
+      `select a.kod as kod_dog,
+      a.kod_ur,
+      c.idnt,
+      b.nur,
+      a.numdoc as dognum,
+      a.dat as dat1,
+      a.datk as dat2
+from dog a
+join ur b on a.kod_ur = b.kod
+join firma c on a.kod_firma = c.kod
+where dog_$$pkg.GetDogDatZakr(a.kod) is null 
+     and a.kod_ur = ${id}
       `
     );
     console.log(result.rows);
