@@ -18,6 +18,7 @@ const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
+const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
 const pool = require("./db/pool");
 const authRouter = require("./routes/auth");
 const usersRoute = require("./routes/users");
@@ -27,7 +28,7 @@ const UrRoute = require("./routes/UR");
 const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
-const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
+
 
 // const allowedOrigins = ["http://localhost:3000",'http://ict.lviv.ua', 'http://192.168.5.180',"http://localhost"];
 
@@ -161,6 +162,7 @@ io.on("connection", (socket) => {
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
+    // // БОТ
     sendMessageToGroup(bot, data);
   });
   socket.on("deleteZap", (data) => {
@@ -175,6 +177,7 @@ io.on("connection", (socket) => {
   });
   socket.on("newComment", (data) => {
     if (data.telegramId !== null) {
+      // БОТ 
       bot.telegram.sendMessage(
         data.telegramId,
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
@@ -220,6 +223,9 @@ io.on("connection", (socket) => {
   });
 });
 
+
+// WEB SOCKETS END.........................................................
+
 bot.hears("Активні користувачі", async (ctx) => {
   if (onlineUsers.length <= 0) {
     await ctx.sendMessage("Користувачі онлайн: 0");
@@ -232,49 +238,11 @@ bot.hears("Активні користувачі", async (ctx) => {
     );
   }
 });
-
-// WEB SOCKETS END.........................................................
-
-// const { Telegraf } = require("telegraf");
-// const { message } = require("telegraf/filters");
-
-// const bot = new Telegraf(process.env.BOT_TOKEN);
-// const firstName = (ctx) => ctx.message.from.first_name
-// bot.start((ctx) => ctx.reply("Вітаю"));
-// bot.hears("ok", (ctx) => {
-// //  roman - 282039969
-//   console.log(ctx.message.from.id);
-//   bot.telegram.sendMessage(941236974,'OK')
-//   // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
-// });
-
-// bot.launch();
-
-// // Enable graceful stop
-// process.once("SIGINT", () => bot.stop("SIGINT"));
-// process.once("SIGTERM", () => bot.stop("SIGTERM"));
-
-// // VPN
-// const opts = {
-//   host: "ict.lviv.ua", // Normally '127.0.0.1', will default to if undefined
-//   // port: 1337, // Port for the OpenVPN management console
-// };
-
-// const auth = {
-//   user: "rt",
-//   pass: "Pm56@Erf1",
-// };
-
-// const openvpn = openvpnmanager.connect(opts);
-
-// openvpn.on("connected", () => {
-//   openvpnmanager.authorize(auth);
-// });
-// // VPN
 bot.hears("Перезавантажити дані", async (ctx) => {
   ctx.sendMessage("Перезавантажив");
   io.emit("windowReloadAllUsers", 1);
 });
+
 
 // Server run------------------------------------------------------------------------------------------------------
 
