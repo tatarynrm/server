@@ -30,14 +30,11 @@ const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 
 
-// const allowedOrigins = ["http://localhost:3000",'http://ict.lviv.ua', 'http://192.168.5.180',"http://localhost"];
+
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
-app.use(cors({
-  origin:"http://localhost:3000",
-  allowedHeaders:['*']
-}));
+app.use(cors());
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
@@ -56,12 +53,7 @@ app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
-app.options("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin","*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type:application/json");
-  res.sendStatus(204);
-});
+
 // NODEMAILER
 
 // const transporter = nodemailer.createTransport({
@@ -129,7 +121,6 @@ app.post("/mail-send", async (req, res) => {
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
   cors: {
-    // origin: ["http://http://194.44.241.122/","http://192.168.5.180","http://ict.lviv.ua","http://localhost:3000","http://194.44.241.122:80","http://194.44.241.122/"],
     origin: "*",
     methods: ["GET", "POST"],
   },
