@@ -34,19 +34,15 @@ const eventsRoutes = require("./routes/events");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
-app.use(cors());
+app.use(cors({
+  origin:"http://localhost:3000",
+  allowedHeaders:['*']
+}));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
 // Відключає CORS
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+
 // Відключає CORS
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -60,7 +56,12 @@ app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
-
+app.options("/", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin","*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type:application/json");
+  res.sendStatus(204);
+});
 // NODEMAILER
 
 // const transporter = nodemailer.createTransport({
