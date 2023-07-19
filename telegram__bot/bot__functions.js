@@ -10,9 +10,17 @@ const sendMessageToGroup = (bot,data)=>{
 }
 
 
-
+const sendOTPCode = (bot,data) =>{
+    console.log(data);
+    return  bot.telegram.sendMessage(
+        data.TELEGRAMID,
+        `<b>Ваш код для авторизації на сайті:</b> \n\n<code>${data.OTPCODE}</code>`,
+        { parse_mode: "HTML" }
+      );
+}
 
 
 module.exports = {
-    sendMessageToGroup
+    sendMessageToGroup,
+    sendOTPCode
 }

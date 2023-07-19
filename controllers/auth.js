@@ -3,7 +3,9 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 // const pool = require("../db/index");
 const pool = require("../db/pool");
 const jwt = require("jsonwebtoken");
-
+const generateRandomNumber = require('../helpers/randomNumber')
+const {bot} = require('../telegram__bot/telegram_bot')
+const {sendOTPCode} = require('../telegram__bot/bot__functions')
 const mobileLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -82,9 +84,40 @@ const login = async (req, res) => {
       }
     );
     if (user.rows.length > 0) {
+      const us = user.rows[0];
+      
+      const connection = await oracledb.getConnection(pool);
+     await connection.execute(
+        `BEGIN
+ICTDAT.p_zap.SetAuth(:pKodOs,:pTelegramId,:pOtpCode);
+END;`,
+        {
+          pKodOs: us?.KOD,
+          pTelegramId: us?.TELEGRAMID,
+          pOtpCode: generateRandomNumber(),
+        }
+      );
+    
+      const telegramCode = await connection.execute(`select * from ictdat.zapauth where KOD_OS = ${us?.KOD} `)
+//  console.log(telegramCode.rows[0]);
+      sendOTPCode(bot,telegramCode.rows[0])
 
-      res.status(200).json({ ...user, token: token });
+
+
+
+
+      res.status(200).json({ ...user, token: token,OTP:telegramCode.rows[0].OTPCODE });
     }
+
+
+
+
+
+
+
+
+
+
     if (!user) {
       return res.status(404).json({
         message: "Користувача не знайдено",
@@ -142,8 +175,23 @@ ORDER BY
     });
   }
 };
+
+const getOtpCode = async (req,res)=>{
+  const {KOD_OS} = req.body
+  console.log(KOD_OS);
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const userOTP  = await connection.execute(`SELECT * from ictdat.zapauth where KOD_OS = ${KOD_OS}`)
+    if (userOTP) {
+      res.status(200).json(userOTP);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 module.exports = {
   login,
   getMe,
   mobileLogin,
+  getOtpCode
 };
