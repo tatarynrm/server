@@ -9,7 +9,7 @@ console.log(req.body);
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
-      `select to_char(b.datzav, 'dd.mm.yyyy') as datzav,
+      `select b.datzav as datzav,
       p_utils.AddStr(', ', a.punktz, decode(a.kod_krainaz, p_base.GetKodKraina, d1.nobl, c1.idd)) as zav,
       p_utils.AddStr(', ', a.punktr, decode(a.kod_krainar, p_base.GetKodKraina, d2.nobl, c2.idd)) as rozv,
       e1.nur as zam,
