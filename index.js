@@ -28,6 +28,7 @@ const UrRoute = require("./routes/UR");
 const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
+const zayRoutes = require("./routes/zay");
 
 
 
@@ -53,6 +54,7 @@ app.use("/ur", UrRoute);
 app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
+app.use("/zay", zayRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 
 // NODEMAILER

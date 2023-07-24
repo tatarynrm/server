@@ -100,6 +100,7 @@ END;`,
     
       const telegramCode = await connection.execute(`select * from ictdat.zapauth where KOD_OS = ${us?.KOD} `)
 //  console.log(telegramCode.rows[0]);
+console.log(telegramCode);
       sendOTPCode(bot,telegramCode.rows[0])
 
 
