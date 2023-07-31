@@ -16,7 +16,7 @@ const getAllZap = async (req, res) => {
               p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
               p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
               p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
-              p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
+              p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm
        FROM zap a
        JOIN OS b on a.kod_os = b.kod
        JOIN US c on a.kod_os = c.kod_os
