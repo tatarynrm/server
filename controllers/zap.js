@@ -85,11 +85,13 @@ const createZap = async (req, res) => {
     pKodZam,
   } = req.body;
 
-  // console.log(req.body);
+  console.log(req.body);
   try {
-  
 
-    // const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
+
+
+    
+      // const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
     // const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`;
 
     // const urlArray = [zavUrl, rozvUrl];
@@ -139,13 +141,6 @@ const createZap = async (req, res) => {
         pZav,
         pRozv,
         pZapText,
-        // pCodeKrainaZ:32,
-        // pCodeKrainaR:32,
-        // pOblZ:3232132,
-        // pOblR:321321231,
-        // pLat:33321,
-        // pLon:321321,
-        // pKodZam:3232,
         pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
       }
     );
