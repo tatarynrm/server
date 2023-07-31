@@ -45,10 +45,18 @@ bot.hears("test",async (ctx) => {
 });
 
 bot.hears('Нагадування:Актуальність заявок',async ctx =>{
-  console.log(ctx.sendMessage('Доброго дня.Прошу перевірити актуальність заявок на транспортні перевезення.'));
+try {
   const connection = await oracledb.getConnection(pool);
-  const result = await connection.execute(`select telegramid from ictdat.us where telegramid is not null`)
-  console.log(result);
+  const result = await connection.execute(`select telegramid from ictdat.us where telegramid is not null`);
+  if (result.rows.length > 0) {
+  const arrayOfUsers = result.rows;
+  arrayOfUsers.forEach(item => {
+    ctx.sendMessage(`Доброго дня.Прошу перевірити актуальність заявок на транспортні перевезення.`,{chat_id:item.TELEGRAMID})
+  })
+  }
+} catch (error) {
+  console.log(error);
+}
 
 })
 
