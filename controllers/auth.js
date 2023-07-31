@@ -161,6 +161,8 @@ WHERE
     a.ZVILDAT IS NULL
     AND a.KOD = '${req.userId}'
     AND d.SL = 1
+    AND d.MOB = 1
+    AND d.VALIDX is not null
 ORDER BY
     a.pip ASC`);
 
