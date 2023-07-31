@@ -36,11 +36,7 @@ bot.start(async(ctx) => {
 
 
 bot.hears("test",async (ctx) => {
-//  tataryn - 282039969
-//  borovenko - 941236974
   console.log(ctx.message.from.id);
-  // bot.telegram.sendMessage(ctx.message.from.id,'TEST is successfull')
-  // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
    ctx.replyWithPhoto({source:fs.createReadStream('images/logo.png')},{caption:"Усі тести пройдено!"})
 });
 
