@@ -1,7 +1,7 @@
 const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const pool = require("../db/pool");
-
+const axios = require('axios')
 const getAllZap = async (req, res) => {
   const { KOD_OS } = req.body;
   // console.log("----getAllZap--", KOD_OS);
@@ -67,7 +67,24 @@ const getGroups = async (req, res) => {
 };
 const createZap = async (req, res) => {
   const { pKodAuthor, pKodGroup, pZav, pRozv, pZapText,zavInfo,rozvInfo } = req.body;
+  // console.log(zavInfo.value.place_id);
   try {
+    
+    // const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`
+    // const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`
+    
+    // const urlArray = [
+    //   zavUrl,rozvUrl
+    // ]
+    
+    // const requests = urlArray.map((url)=> axios.get(url))
+    // axios.all(requests).then((responses) => {
+    //   const data1 = responses[0].data;
+    //   const data2 = responses[1].data;
+    //   // console.log(data1);
+    //   // console.log(data2);
+    // })
+   
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `BEGIN
