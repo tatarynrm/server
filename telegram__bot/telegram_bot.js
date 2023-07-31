@@ -3,6 +3,9 @@ const { message } = require("telegraf/filters");
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const path = require('path')
 const fs = require("fs");
+const oracledb = require("oracledb");
+const pool = require("../db/pool");
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const firstName = (ctx) => ctx.message.from.first_name
 
 
@@ -18,6 +21,7 @@ bot.start(async(ctx) => {
                   {text: 'Перезавантажити дані', callback_data: 'reloadData'}
               ],
               [{text: 'Звіт по роботі менеджерів', callback_data: 'managersWorkData'}],
+              [{text: 'Нагадування:Актуальність заявок', callback_data: 'managerZapReminder'}],
   
           ],
           resize_keyboard:true
@@ -39,6 +43,15 @@ bot.hears("test",async (ctx) => {
   // ctx.sendMessage('MESSAGE',{chat_id:'@I_Dont_Have_A_Phone_Number'})
    ctx.replyWithPhoto({source:fs.createReadStream('images/logo.png')},{caption:"Усі тести пройдено!"})
 });
+
+bot.hears('Нагадування:Актуальність заявок',async ctx =>{
+  console.log(ctx.sendMessage('Доброго дня.Прошу перевірити актуальність заявок на транспортні перевезення.'));
+  const connection = await oracledb.getConnection(pool);
+  const result = await connection.execute(`select telegramid from ictdat.us where telegramid is not null`)
+  console.log(result);
+
+})
+
 
 // Function to send the object
 

@@ -66,8 +66,7 @@ const getGroups = async (req, res) => {
   }
 };
 const createZap = async (req, res) => {
-  const { pKodAuthor, pKodGroup, pZav, pRozv, pZapText } = req.body;
-
+  const { pKodAuthor, pKodGroup, pZav, pRozv, pZapText,zavInfo,rozvInfo } = req.body;
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
