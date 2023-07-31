@@ -164,7 +164,6 @@ io.on("connection", (socket) => {
     io.emit("deleteZapAllUsers", data);
   });
   socket.on("refreshZap", (data) => {
-    console.log(data);
     io.emit("refreshAllZap", data);
   });
   socket.on("editZap", (data) => {
