@@ -89,18 +89,18 @@ const createZap = async (req, res) => {
   try {
   
 
-    const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
-    const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`;
+    // const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
+    // const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`;
 
-    const urlArray = [zavUrl, rozvUrl];
+    // const urlArray = [zavUrl, rozvUrl];
 
-    let zavData = [];
-    let rozvData = [];
-    const requests = urlArray.map((url) => axios.get(url));
-    axios.all(requests).then(async (responses) => {
-      const data1 = responses[0].data;
-      const data2 = responses[1].data;
-      const connection = await oracledb.getConnection(pool);
+    // let zavData = [];
+    // let rozvData = [];
+    // const requests = urlArray.map((url) => axios.get(url));
+    // axios.all(requests).then(async (responses) => {
+    //   const data1 = responses[0].data;
+    //   const data2 = responses[1].data;
+    //   const connection = await oracledb.getConnection(pool);
       // console.log(await connection.execute('select * from ictdat.os where zvildat is null'));
     //     const result = await connection.execute(
     //       `BEGIN
@@ -126,12 +126,12 @@ const createZap = async (req, res) => {
     // console.log(result);
         // res.status(200).json(result);
    
-    });
+    // });
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `BEGIN
             ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-                :pZapText,:pKodZap,:pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pLat,:pLon,:pKodZam);
+                :pZapText,:pKodZap);
         END;`,
       {
         pKodAuthor,
@@ -139,17 +139,18 @@ const createZap = async (req, res) => {
         pZav,
         pRozv,
         pZapText,
-        pCodeKrainaZ:32,
-        pCodeKrainaR:32,
-        pOblZ:3232132,
-        pOblR:321321231,
-        pLat:33321,
-        pLon:321321,
-        pKodZam:3232,
+        // pCodeKrainaZ:32,
+        // pCodeKrainaR:32,
+        // pOblZ:3232132,
+        // pOblR:321321231,
+        // pLat:33321,
+        // pLon:321321,
+        // pKodZam:3232,
         pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
       }
     );
 console.log(result);
+res.status(200).json(result)
   } catch (error) {
     console.log(error);
     res.status(403).json({ message: "Виникла проблема" });
