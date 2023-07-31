@@ -17,13 +17,26 @@ const getAllZap = async (req, res) => {
               p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
               p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
               p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
-              d.nur as zam
        FROM zap a
        JOIN OS b on a.kod_os = b.kod
        JOIN US c on a.kod_os = c.kod_os
-       left join ur d on a.kod_zam = d.kod
        WHERE a.status = 0`
     );
+
+//     `SELECT a.*,
+//     b.pip,
+//     c.TELEGRAMID,
+//     p_zap.CountComm(a.kod) as countcomm,
+//     p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
+//     p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
+//     p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
+//     p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
+//     d.nur as zam
+// FROM zap a
+// JOIN OS b on a.kod_os = b.kod
+// JOIN US c on a.kod_os = c.kod_os
+// left join ur d on a.kod_zam = d.kod
+// WHERE a.status = 0`
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
