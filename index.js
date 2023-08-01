@@ -210,6 +210,11 @@ io.on("connection", (socket) => {
     console.log(data);
     io.emit("show_msg_from_admin", data);
   });
+  socket.on("logoutAll", () => {
+    
+    io.emit("logoutAllUsers",1);
+  });
+
   // ADMIN
   // ВИЙТИ
   socket.on("disconnect", () => {
