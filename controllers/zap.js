@@ -33,7 +33,6 @@ const getAllZap = async (req, res) => {
 };
 const getClosedZap = async (req, res) => {
   const { KOD_OS } = req.body;
-  console.log("----getAllZap--", KOD_OS);
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
@@ -49,6 +48,7 @@ const getClosedZap = async (req, res) => {
               JOIN US c on a.kod_os = c.kod_os
        WHERE a.status = 1`
     );
+    console.log(result.rows);
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
@@ -80,13 +80,14 @@ const createZap = async (req, res) => {
     pZapText,
     zavInfo,
     rozvInfo,
-    pCodeKrainaZ,
-    pCodeKrainaR,
-    pOblZ,
-    pOblR,
-    pLat,
-    pLon,
+    // pCodeKrainaZ,
+    // pCodeKrainaR,
+    // pOblZ,
+    // pOblR,
+    // pLat,
+    // pLon,
     pKodZam,
+    pZapCina
   } = req.body;
 
   console.log(req.body);
@@ -112,7 +113,7 @@ const createZap = async (req, res) => {
  const pOblR = zDataKr.find(item =>{
   return item.types = [ 'administrative_area_level_1', 'political' ];
  })
- console.log(zDataKr);
+
  const pZLat = data1.result.geometry.location.lat;
  const pZLon = data1.result.geometry.location.lng;
  const pRLat = data2.result.geometry.location.lat;
@@ -122,7 +123,7 @@ const createZap = async (req, res) => {
   const result = await connection.execute(
     `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pKodZap);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKodZap);
       END;`,
     {
       pKodAuthor,
@@ -139,29 +140,13 @@ const createZap = async (req, res) => {
       pRLon,
       pKodZam:pKodZam || null,
       pZapText,
+      pZapCina,
       pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     }
   );
   res.status(200).json(result);
 })
-    // });
-//     const connection = await oracledb.getConnection(pool);
-//     const result = await connection.execute(
-//       `BEGIN
-//             ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-//                 :pZapText,:pKodZap);
-//         END;`,
-//       {
-//         pKodAuthor,
-//         pKodGroup,
-//         pZav,
-//         pRozv,
-//         pZapText,
-//         pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-//       }
-//     );
-// console.log(result);
-// res.status(200).json(result);
+
 
 
   } catch (error) {

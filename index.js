@@ -156,9 +156,10 @@ io.on("connection", (socket) => {
   // ЗАПИТИ
 
   socket.on("newZap", (data) => {
+    console.log(data);
     io.emit("showNewZap", data);
     // // БОТ
-    sendMessageToGroup(bot, data);
+    // sendMessageToGroup(bot, data);
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
