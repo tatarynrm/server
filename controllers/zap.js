@@ -10,33 +10,22 @@ const getAllZap = async (req, res) => {
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
       `SELECT a.*,
-              b.pip,
-              c.TELEGRAMID,
-              p_zap.CountComm(a.kod) as countcomm,
-              p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
-              p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
-              p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
-              p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm
-       FROM zap a
-       JOIN OS b on a.kod_os = b.kod
-       JOIN US c on a.kod_os = c.kod_os
-       WHERE a.status = 0`
+      b.pip,
+      c.TELEGRAMID,
+      p_zap.CountComm(a.kod) as countcomm,
+      p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
+      p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
+      p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
+      p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
+      d.nur as zam
+  FROM zap a
+  JOIN OS b on a.kod_os = b.kod
+  JOIN US c on a.kod_os = c.kod_os
+  left join ur d on a.kod_zam = d.kod
+  WHERE a.status = 0`
     );
 
-//     `SELECT a.*,
-//     b.pip,
-//     c.TELEGRAMID,
-//     p_zap.CountComm(a.kod) as countcomm,
-//     p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
-//     p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
-//     p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
-//     p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
-//     d.nur as zam
-// FROM zap a
-// JOIN OS b on a.kod_os = b.kod
-// JOIN US c on a.kod_os = c.kod_os
-// left join ur d on a.kod_zam = d.kod
-// WHERE a.status = 0`
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
@@ -80,6 +69,8 @@ const getGroups = async (req, res) => {
     console.log(error);
   }
 };
+
+
 const createZap = async (req, res) => {
   const {
     pKodAuthor,
@@ -100,65 +91,79 @@ const createZap = async (req, res) => {
 
   console.log(req.body);
   try {
+    const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
+    const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`;
+    const urlArray = [zavUrl, rozvUrl];
+    const requests = urlArray.map((url) => axios.get(url));
+    axios.all(requests).then(async (responses) => {
+      const data1 = responses[0].data;
+      const data2 = responses[1].data;
+      const zDataKr = data1.result.address_components;
+      const rDataKr = data2.result.address_components;
+    const pCodeKrainaZ = zDataKr.find(item =>{
+    return item.short_name.length <= 3;
+    })
+    const pCodeKrainaR = rDataKr.find(item =>{
+    return item.short_name.length <= 3;
+    })
+ const pOblZ = zDataKr.find(item =>{
+  return item.types = [ 'administrative_area_level_1', 'political' ];
+ })
+ const pOblR = zDataKr.find(item =>{
+  return item.types = [ 'administrative_area_level_1', 'political' ];
+ })
+ console.log(zDataKr);
+ const pZLat = data1.result.geometry.location.lat;
+ const pZLon = data1.result.geometry.location.lng;
+ const pRLat = data2.result.geometry.location.lat;
+ const pRLon = data2.result.geometry.location.lng;
 
-
-
-    
-      // const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
-    // const rozvUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${rozvInfo.value.place_id}`;
-
-    // const urlArray = [zavUrl, rozvUrl];
-
-    // let zavData = [];
-    // let rozvData = [];
-    // const requests = urlArray.map((url) => axios.get(url));
-    // axios.all(requests).then(async (responses) => {
-    //   const data1 = responses[0].data;
-    //   const data2 = responses[1].data;
-    //   const connection = await oracledb.getConnection(pool);
-      // console.log(await connection.execute('select * from ictdat.os where zvildat is null'));
-    //     const result = await connection.execute(
-    //       `BEGIN
-    //             ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-    //                 :pZapText,:pKodZap,:pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pLat,:pLon,:pKodZam);
-    //         END;`,
-    //       {
-    //         pKodAuthor,
-    //         pKodGroup,
-    //         pZav,
-    //         pRozv,
-    //         pZapText,
-    //         pCodeKrainaZ:32,
-    //         pCodeKrainaR:32,
-    //         pOblZ:'ua',
-    //         pOblR:'ua',
-    //         pLat:33321,
-    //         pLon:321321,
-    //         pKodZam:3232312,
-    //         pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    //       }
-    //     );
-    // console.log(result);
-        // res.status(200).json(result);
-   
+  const connection = await oracledb.getConnection(pool);
+  const result = await connection.execute(
+    `BEGIN
+          ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pKodZap);
+      END;`,
+    {
+      pKodAuthor,
+      pKodGroup,
+      pZav,
+      pRozv,
+      pCodeKrainaZ:pCodeKrainaZ.short_name,
+      pCodeKrainaR:pCodeKrainaR.short_name,
+      pOblZ:pOblZ.short_name,
+      pOblR:pOblR.short_name,
+      pZLat,
+      pZLon,
+      pRLat,
+      pRLon,
+      pKodZam:pKodZam || null,
+      pZapText,
+      pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    }
+  );
+  res.status(200).json(result);
+})
     // });
-    const connection = await oracledb.getConnection(pool);
-    const result = await connection.execute(
-      `BEGIN
-            ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-                :pZapText,:pKodZap);
-        END;`,
-      {
-        pKodAuthor,
-        pKodGroup,
-        pZav,
-        pRozv,
-        pZapText,
-        pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-      }
-    );
-console.log(result);
-res.status(200).json(result)
+//     const connection = await oracledb.getConnection(pool);
+//     const result = await connection.execute(
+//       `BEGIN
+//             ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
+//                 :pZapText,:pKodZap);
+//         END;`,
+//       {
+//         pKodAuthor,
+//         pKodGroup,
+//         pZav,
+//         pRozv,
+//         pZapText,
+//         pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+//       }
+//     );
+// console.log(result);
+// res.status(200).json(result);
+
+
   } catch (error) {
     console.log(error);
     res.status(403).json({ message: "Виникла проблема" });
