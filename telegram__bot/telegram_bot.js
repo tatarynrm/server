@@ -30,7 +30,6 @@ bot.start(async(ctx) => {
   }else {
     await ctx.telegram.sendMessage(ctx.chat.id,'У вас немає прав використовувати бота.')
   }
-
 }
 );
 
@@ -53,7 +52,6 @@ try {
 } catch (error) {
   console.log(error);
 }
-
 })
 
 
