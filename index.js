@@ -231,7 +231,6 @@ io.on("connection", (socket) => {
              WHERE a.KOD_OS = ${data.kod}
              `
           );
-          console.log(result);
           if (result.rows[0].TELEGRAMID) {
             bot.telegram.sendMessage(result.rows[0].TELEGRAMID,`<i>Повідомлення від ${data.user}</i>\n\n<b>${data.message}</b>`,{parse_mode:"HTML"});
           }
