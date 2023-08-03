@@ -202,11 +202,22 @@ io.on("connection", (socket) => {
     io.emit("windowReloadAllUsers", 1);
   });
   socket.on("textToAllUsers", (data) => {
-    // console.log(data);
+    console.log(data);
     io.emit("showTextToAllUsers", data);
+
+    const allActiveUsers = data.activeUsers
+    if (allActiveUsers) {
+      for (let i = 0; i < allActiveUsers.length; i++) {
+        const element = allActiveUsers[i];
+        bot.telegram.sendMessage(element.TELEGRAMID,`<i>Повідомлення від ${data.user}</i>\n\n<b>${data.textToAllUsers}</b>`,{parse_mode:"HTML"})
+      }
+    }else {
+      return
+    }
+
+
   });
   socket.on("admin_msg_user", (data) => {
- 
     io.emit("show_msg_from_admin", data);
     if (data.kod) {
       const sendMessageToUserTg = async ()=>{
