@@ -179,7 +179,6 @@ io.on("connection", (socket) => {
       );
     }
     io.emit("showNewComment", data);
-    // io.sockets.emit("showNewComment", data);
   });
 
   socket.on("deleteComm", (data) => {
@@ -207,8 +206,29 @@ io.on("connection", (socket) => {
     io.emit("showTextToAllUsers", data);
   });
   socket.on("admin_msg_user", (data) => {
-    console.log(data);
+ 
     io.emit("show_msg_from_admin", data);
+    if (data.kod) {
+      const sendMessageToUserTg = async ()=>{
+        try {
+          const connection = await oracledb.getConnection(pool);
+          connection.currentSchema = "ICTDAT";
+          const result = await connection.execute(
+            `SELECT a.TELEGRAMID
+             FROM us a
+             WHERE a.KOD_OS = ${data.kod}
+             `
+          );
+          console.log(result);
+          if (result.rows[0].TELEGRAMID) {
+            bot.telegram.sendMessage(result.rows[0].TELEGRAMID,`OK - test`)
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      sendMessageToUserTg()
+    }
   });
   socket.on("logoutAll", () => {
     
@@ -216,6 +236,20 @@ io.on("connection", (socket) => {
   });
 
   // ADMIN
+
+  // ADMIN TELEGRAM
+
+  socket.on("write_all_tg", (data) => {
+    if (data.telegramId !== null) {
+      // БОТ 
+      bot.telegram.sendMessage(
+        data.telegramId,
+        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
+      );
+    }
+    io.emit("showNewComment", data);
+  });
+  // ADMIN TELEGRAM
   // ВИЙТИ
   socket.on("disconnect", () => {
     removeUser(socket.id);
