@@ -219,6 +219,7 @@ io.on("connection", (socket) => {
   });
   socket.on("admin_msg_user", (data) => {
     io.emit("show_msg_from_admin", data);
+    console.log(data);
     if (data.kod) {
       const sendMessageToUserTg = async ()=>{
         try {
@@ -232,7 +233,7 @@ io.on("connection", (socket) => {
           );
           console.log(result);
           if (result.rows[0].TELEGRAMID) {
-            bot.telegram.sendMessage(result.rows[0].TELEGRAMID,`OK - test`)
+            bot.telegram.sendMessage(result.rows[0].TELEGRAMID,`<i>Повідомлення від ${data.user}</i>\n\n<b>${data.message}</b>`,{parse_mode:"HTML"});
           }
         } catch (error) {
           console.log(error);
