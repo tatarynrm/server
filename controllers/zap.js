@@ -44,7 +44,7 @@ const getClosedZap = async (req, res) => {
               FROM zap a
               JOIN OS b on a.kod_os = b.kod
               JOIN US c on a.kod_os = c.kod_os
-       WHERE a.status = 2`
+              WHERE a.status > 1`
     );
     console.log(result.rows);
     res.status(200).json(result.rows);
@@ -282,7 +282,6 @@ const refreshZap = async (req, res) => {
 
 const getAllTimeZap = async (req, res) => {
   const { todayDate } = req.body;
-  console.log(todayDate);
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
