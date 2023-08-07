@@ -18,7 +18,7 @@ const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
-const { sendMessageToGroup } = require("./telegram__bot/bot__functions");
+const { sendMessageToGroup, sendMessageToGroupZapCina } = require("./telegram__bot/bot__functions");
 const pool = require("./db/pool");
 const authRouter = require("./routes/auth");
 const usersRoute = require("./routes/users");
@@ -29,10 +29,11 @@ const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
+const {testDbConnection,sq } = require('./db/postgresql');
+const Message = require("./models/msg");
 
-
-
-
+testDbConnection()
+console.log(sq.ICTDOP);
 // Middlewares------------------------------------------------------------------------------------------------------
 
 
@@ -159,7 +160,12 @@ io.on("connection", (socket) => {
     console.log(data);
     io.emit("showNewZap", data);
     // // БОТ
-    sendMessageToGroup(bot, data);
+
+    if (data.pZapCina === 1) {
+      sendMessageToGroupZapCina(bot,data)
+    }else {
+          sendMessageToGroup(bot, data);
+    }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -269,7 +275,19 @@ io.on("connection", (socket) => {
   });
 });
 
-
+const addMessage = async ()=>{
+  try {
+    const mike = await Message.create({
+      message:"NORIS",
+      title:"MESSAGE FROM ADMIN",
+      kod_os:1231
+    })
+    console.log(mike);
+  } catch (error) {
+    console.log(error);
+  }
+}
+addMessage()
 // WEB SOCKETS END.........................................................
 
 bot.hears("Активні користувачі", async (ctx) => {
