@@ -5,20 +5,20 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const http = require("http");
 const EventEmitter = require("events");
-const openvpnmanager = require("node-openvpn");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
-const compression = require("compression");
 const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
-const anywhere = require("express-cors-anywhere");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
-const { sendMessageToGroup, sendMessageToGroupZapCina } = require("./telegram__bot/bot__functions");
+const {
+  sendMessageToGroup,
+  sendMessageToGroupZapCina,
+} = require("./telegram__bot/bot__functions");
 const pool = require("./db/pool");
 const authRouter = require("./routes/auth");
 const usersRoute = require("./routes/users");
@@ -29,21 +29,14 @@ const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
-// const {testDbConnection,sq } = require('./db/postgresql');
-const Message = require("./models/msg");
 
-// testDbConnection()
-// console.log(sq.ICTDOP);
+
 // Middlewares------------------------------------------------------------------------------------------------------
-
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
 app.use(cors());
-// Відключає CORS
-
-// Відключає CORS
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -161,11 +154,11 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 
-    if (data.pZapCina === 1) {
-      sendMessageToGroupZapCina(bot,data)
-    }else {
-          sendMessageToGroup(bot, data);
-    }
+    // if (data.pZapCina === 1) {
+    //   sendMessageToGroupZapCina(bot, data);
+    // } else {
+    //   sendMessageToGroup(bot, data);
+    // }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -179,7 +172,7 @@ io.on("connection", (socket) => {
   });
   socket.on("newComment", (data) => {
     if (data.telegramId !== null) {
-      // БОТ 
+      // БОТ
       bot.telegram.sendMessage(
         data.telegramId,
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
@@ -212,23 +205,25 @@ io.on("connection", (socket) => {
     console.log(data);
     io.emit("showTextToAllUsers", data);
 
-    const allActiveUsers = data.activeUsers
+    const allActiveUsers = data.activeUsers;
     if (allActiveUsers) {
       for (let i = 0; i < allActiveUsers.length; i++) {
         const element = allActiveUsers[i];
-        bot.telegram.sendMessage(element.TELEGRAMID,`<i>Повідомлення від ${data.user}</i>\n\n<b>${data.textToAllUsers}</b>`,{parse_mode:"HTML"})
+        bot.telegram.sendMessage(
+          element.TELEGRAMID,
+          `<i>Повідомлення від ${data.user}</i>\n\n<b>${data.textToAllUsers}</b>`,
+          { parse_mode: "HTML" }
+        );
       }
-    }else {
-      return
+    } else {
+      return;
     }
-
-
   });
   socket.on("admin_msg_user", (data) => {
     io.emit("show_msg_from_admin", data);
     console.log(data);
     if (data.kod) {
-      const sendMessageToUserTg = async ()=>{
+      const sendMessageToUserTg = async () => {
         try {
           const connection = await oracledb.getConnection(pool);
           connection.currentSchema = "ICTDAT";
@@ -239,18 +234,21 @@ io.on("connection", (socket) => {
              `
           );
           if (result.rows[0].TELEGRAMID) {
-            bot.telegram.sendMessage(result.rows[0].TELEGRAMID,`<i>Повідомлення від ${data.user}</i>\n\n<b>${data.message}</b>`,{parse_mode:"HTML"});
+            bot.telegram.sendMessage(
+              result.rows[0].TELEGRAMID,
+              `<i>Повідомлення від ${data.user}</i>\n\n<b>${data.message}</b>`,
+              { parse_mode: "HTML" }
+            );
           }
         } catch (error) {
           console.log(error);
         }
-      }
-      sendMessageToUserTg()
+      };
+      sendMessageToUserTg();
     }
   });
   socket.on("logoutAll", () => {
-    
-    io.emit("logoutAllUsers",1);
+    io.emit("logoutAllUsers", 1);
   });
 
   // ADMIN
@@ -259,7 +257,7 @@ io.on("connection", (socket) => {
 
   socket.on("write_all_tg", (data) => {
     if (data.telegramId !== null) {
-      // БОТ 
+      // БОТ
       bot.telegram.sendMessage(
         data.telegramId,
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
@@ -290,6 +288,8 @@ io.on("connection", (socket) => {
 // addMessage()
 // WEB SOCKETS END.........................................................
 
+// BOT SOCKETS
+
 bot.hears("Активні користувачі", async (ctx) => {
   if (onlineUsers.length <= 0) {
     await ctx.sendMessage("Користувачі онлайн: 0");
@@ -306,7 +306,7 @@ bot.hears("Перезавантажити дані", async (ctx) => {
   ctx.sendMessage("Перезавантажив");
   io.emit("windowReloadAllUsers", 1);
 });
-
+// BOT SOCKETS
 
 // Server run------------------------------------------------------------------------------------------------------
 

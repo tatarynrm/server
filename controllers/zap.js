@@ -44,7 +44,7 @@ const getClosedZap = async (req, res) => {
               FROM zap a
               JOIN OS b on a.kod_os = b.kod
               JOIN US c on a.kod_os = c.kod_os
-              WHERE a.status > 1`
+              WHERE a.status != 1`
     );
     console.log(result.rows);
     res.status(200).json(result.rows);
