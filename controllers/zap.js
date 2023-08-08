@@ -300,6 +300,17 @@ console.log(TO);
       );
       res.status(200).json(result.rows);
     }
+    if (FROM === TO) {
+      const connection = await oracledb.getConnection(pool);
+      connection.currentSchema = "ICTDAT";
+      const result = await connection.execute(
+        `SELECT a.*,b.pip
+         FROM zap a
+         JOIN os b on a.kod_os = b.kod
+         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')` 
+      );
+      res.status(200).json(result.rows);
+    }
    
 else{
   const connection = await oracledb.getConnection(pool);
