@@ -235,26 +235,12 @@ const editZap = async (req, res) => {
       pZapText,
       pZapCina,
       pZamName:{ dir: oracledb.BIND_OUT, type: oracledb.STRING },
-      // pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     }
   );
  
   res.status(200).json(result);
 })
-    // const connection = await oracledb.getConnection(pool);
-    // const result = await connection.execute(
-    //   `BEGIN
-    //         ICTDAT.p_zap.EditZap(:pKodAuthor,:pKodZap,:pZav,:pRozv,:pZapText);
-    //     END;`,
-    //   {
-    //     pKodAuthor,
-    //     pKodZap,
-    //     pZav,
-    //     pRozv,
-    //     pZapText,
-    //   }
-    // );
-    // res.status(200).json(result);
+
   } catch (error) {
     console.log(error);
   }
@@ -300,20 +286,21 @@ const getAllTimeZap = async (req, res) => {
 
 const getClosedZapByDate = async (req, res) => {
   const { FROM,TO } = req.body;
-  const connection = await oracledb.getConnection(pool);
-  connection.currentSchema = "ICTDAT";
+console.log(TO);
   try {
 
-    if (TO === undefined) {
+    if (TO === undefined || TO === null || TO == undefined ) {
+      const connection = await oracledb.getConnection(pool);
+      connection.currentSchema = "ICTDAT";
       const result = await connection.execute(
         `SELECT a.*,b.pip
          FROM zap a
          JOIN os b on a.kod_os = b.kod
-         WHERE  dat >= to_date('${FROM}','dd.mm.yyyy')`
-         
+         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')` 
       );
       res.status(200).json(result.rows);
     }
+   
 else{
   const connection = await oracledb.getConnection(pool);
   connection.currentSchema = "ICTDAT";
@@ -323,13 +310,9 @@ else{
      JOIN os b on a.kod_os = b.kod
      WHERE  dat BETWEEN to_date('${FROM}','dd.mm.yyyy') AND to_date('${TO}','dd.mm.yyyy')
      `
-     
   );
   res.status(200).json(result.rows);
-}
-
-    // console.log(result);
- 
+} 
   } catch (error) {
     console.log("1---", error);
   }

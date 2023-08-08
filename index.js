@@ -204,7 +204,6 @@ io.on("connection", (socket) => {
   socket.on("textToAllUsers", (data) => {
     console.log(data);
     io.emit("showTextToAllUsers", data);
-
     const allActiveUsers = data.activeUsers;
     if (allActiveUsers) {
       for (let i = 0; i < allActiveUsers.length; i++) {
@@ -221,7 +220,6 @@ io.on("connection", (socket) => {
   });
   socket.on("admin_msg_user", (data) => {
     io.emit("show_msg_from_admin", data);
-    console.log(data);
     if (data.kod) {
       const sendMessageToUserTg = async () => {
         try {
