@@ -286,7 +286,6 @@ const getAllTimeZap = async (req, res) => {
 
 const getClosedZapByDate = async (req, res) => {
   const { FROM,TO } = req.body;
-console.log(TO);
   try {
 
     if (TO === undefined || TO === null || TO == undefined ) {

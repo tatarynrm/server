@@ -271,20 +271,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// const addMessage = async ()=>{
-//   try {
-//     const mike = await Message.create({
-//       message:"NORIS",
-//       title:"MESSAGE FROM ADMIN",
-//       kod_os:1231
-//     })
-//     console.log(mike);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-// addMessage()
-// WEB SOCKETS END.........................................................
 
 // BOT SOCKETS
 
