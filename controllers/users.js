@@ -45,6 +45,21 @@ const getFiredUsers = async (req, res) => {
     console.log(error);
   }
 };
+const getAllManagers = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(`
+    SELECT a.PIP,a.KOD,b.TELEGRAMID
+    FROM ICTDAT.OS a 
+    LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
+    WHERE a.ZVILDAT IS NULL AND a.ISMEN = 1
+    `);
+    res.status(200).json(result.rows);
+   
+  } catch (error) {
+    console.log(error);
+  }
+};
 const getUserById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -63,9 +78,12 @@ const getUserById = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   getAllUsers,
   getUserById,
   getActiveUsers,
   getFiredUsers,
+  getAllManagers
 };

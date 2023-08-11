@@ -29,6 +29,7 @@ const zapRoute = require("./routes/zap");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
+const groupsRoutes = require("./routes/groups");
 
 
 // Middlewares------------------------------------------------------------------------------------------------------
@@ -49,6 +50,7 @@ app.use("/zap", zapRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
+app.use("/groups", groupsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 
 // NODEMAILER
