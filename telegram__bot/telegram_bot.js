@@ -28,7 +28,7 @@ bot.start(async(ctx) => {
       }
   })
   }else {
-    await ctx.telegram.sendMessage(ctx.chat.id,'У вас немає прав використовувати бота.')
+    await ctx.telegram.sendMessage(ctx.chat.id,'Ви в режимі користувача.')
   }
 }
 );
