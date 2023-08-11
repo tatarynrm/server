@@ -15,8 +15,6 @@ const getEvents = async (req, res) => {
       order by dat desc
       )
     where rownum <= 1000`);
-
-
     res.status(200).json(result.rows);
  
   } catch (error) {
