@@ -93,16 +93,26 @@ const createZap = async (req, res) => {
       const zDataKr = data1.result.address_components;
       const rDataKr = data2.result.address_components;
     const pCodeKrainaZ = zDataKr.find(item =>{
-    return item.short_name.length <= 3;
+    return  item.short_name.length <= 3;
     })
     const pCodeKrainaR = rDataKr.find(item =>{
     return item.short_name.length <= 3;
     })
  const pOblZ = zDataKr.find(item =>{
-  return item.types = [ 'administrative_area_level_1', 'political' ];
+  if (item.short_name.includes('область')) {
+    return item.short_name.includes('область');
+  }else {
+
+  return   item.types = [ 'administrative_area_level_1', 'political' ] 
+  }
+
  })
  const pOblR = zDataKr.find(item =>{
-  return item.types = [ 'administrative_area_level_1', 'political' ];
+  if (item.short_name.includes('область')) {
+    return  item.short_name.includes('область');
+  }else {
+    return item.types = [ 'administrative_area_level_1', 'political' ] 
+  }
  })
 
  const pZLat = data1.result.geometry.location.lat;
@@ -136,6 +146,8 @@ const createZap = async (req, res) => {
       pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     }
   );
+  console.log('--------------------------------------------------------------------------',pOblZ);
+  // console.log('--------------------------------------------------------------------------',zDataKr);
   res.status(200).json(result);
 })
 
