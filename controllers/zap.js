@@ -257,6 +257,30 @@ const editZap = async (req, res) => {
     console.log(error);
   }
 };
+const editZapText = async (req, res) => {
+
+  const {
+    pKodZap,
+    pZapText,
+  } = req.body;
+
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `UPDATE ICTDAT.ZAP
+      SET ZAPTEXT = :pZapText
+      WHERE KOD = :pKodZap`,{
+        pKodZap,
+        pZapText
+      },{ autoCommit: true }
+    );
+   
+    res.status(200).json(result);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 const refreshZap = async (req, res) => {
   const { pKodAuthor, pKodZap } = req.body;
 
@@ -347,6 +371,7 @@ module.exports = {
   getClosedZap,
   refreshZap,
   editZap,
+  editZapText,
   getAllTimeZap,
   getClosedZapByDate
 };

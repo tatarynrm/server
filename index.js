@@ -172,6 +172,10 @@ io.on("connection", (socket) => {
   socket.on("editZap", (data) => {
     io.emit("showEditZap", data);
   });
+  socket.on("editZapText", (data) => {
+    console.log(data);
+    io.emit("showEditZapText", data);
+  });
   socket.on("newComment", (data) => {
     if (data.telegramId !== null) {
       // БОТ

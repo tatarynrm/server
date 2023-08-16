@@ -9,6 +9,7 @@ const {
   editZap,
   getAllTimeZap,
   getClosedZapByDate,
+  editZapText,
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.route("/groups").post(getGroups);
 router.route("/delete").post(deleteZap);
 router.route("/refresh").post(refreshZap);
 router.route("/edit").post(editZap);
+router.route("/edit-text").post(editZapText);
 router.route("/all").post(getAllTimeZap);
 router.route("/by-date").post(getClosedZapByDate);
 
