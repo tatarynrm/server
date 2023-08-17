@@ -64,15 +64,14 @@ const getClosedZap = async (req, res) => {
     const combinedArray = result.rows.map((post) => {
       console.log(post.KOD);
       const comments = myArray.map((item) =>
-        item.find((val) => val.KOD_ZAP === post.KOD)
+        item.filter((val) => val.KOD_ZAP === post.KOD)
       );
-      let commentsFilter = comments.filter((item) => item !== undefined);
+      let commentsFilter = comments.map(item => item).filter((item) => item !== undefined);
+      let comFil = commentsFilter.filter(item => item.length !== 0 ? item:null )
 
-
-      console.log(commentsFilter);
       return {
         ...post,
-        COMMENTS: commentsFilter.length > 0 ? commentsFilter:null, // com // Add user object to the post
+        COMMENTS: comFil[0] ? comFil[0]:null, // com // Add user object to the post
       };
     });
 
