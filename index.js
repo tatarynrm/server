@@ -191,7 +191,7 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("logoutAll", () => {
-    io.emit("logoutAllUsers", 1);
+    // io.emit("logoutAllUsers", 1);
     for (let i = 0; i < onlineUsers.length; i++) {
       const el = onlineUsers[i];
       console.log(el);
