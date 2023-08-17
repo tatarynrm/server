@@ -31,7 +31,6 @@ const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
 
-
 // Middlewares------------------------------------------------------------------------------------------------------
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
@@ -55,67 +54,7 @@ app.use("/groups", groupsRoutes);
 
 // NODEMAILER
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   host: "smtp.gmail.com",
-//   port: 587,
-//   secure: false,
-//   auth: {
-//     user: "tatarynrm@gmail.com",
-//     pass: "uexmjdtvgddhnmkj",
-//   },
-// });
-const transporter = nodemailer.createTransport({
-  // service: "uarnet",
-  host: "demomail.uar.net",
-  port: 465,
-  // 465
-  // secure: false,
-  auth: {
-    user: "tarasdragan@demomail.uar.net",
-    pass: "44zf8Fd9CR",
-  },
-});
-
-// const handlebarOptions = {
-//   viewEngine: {
-//     extName: ".hbs",
-//     partialsDir: "./views/",
-//     defaultLayout: false,
-//   },
-//   viewPath: "./views/",
-//   extName: ".hbs",
-// };
-// transporter.use("compile", hbs(handlebarOptions));
-
 // NODEMAILER
-app.post("/mail-send", async (req, res) => {
-  const { from, to, theme, text } = req.body;
-  try {
-    const mailOptions = {
-      from: `${from}`,
-      to: `${to}`,
-      subject: `${theme}`,
-      text: text,
-      // template: "email",
-      // context: {
-      //   title: "Тестовий лист",
-      //   full_name: "Роман",
-      // },
-    };
-    const mail = await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        res.json({ status: false });
-      } else {
-        console.log(`Email sent: ${info.response}`);
-        res.json(info);
-      }
-    });
-    res.status(200).json({ status: "ok" });
-  } catch (error) {
-    console.log(error);
-  }
-});
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
@@ -156,11 +95,11 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 
-    if (data.pZapCina === 1) {
-      sendMessageToGroupZapCina(bot, data);
-    } else {
-      sendMessageToGroup(bot, data);
-    }
+    // if (data.pZapCina === 1) {
+    //   sendMessageToGroupZapCina(bot, data);
+    // } else {
+    //   sendMessageToGroup(bot, data);
+    // }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -276,7 +215,6 @@ io.on("connection", (socket) => {
     console.log("disconnect");
   });
 });
-
 
 // BOT SOCKETS
 

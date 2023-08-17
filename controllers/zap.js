@@ -120,11 +120,14 @@ const createZap = async (req, res) => {
       const data2 = responses[1].data;
       const zDataKr = data1.result.address_components;
       const rDataKr = data2.result.address_components;
-      const pCodeKrainaZ = zDataKr.find((item) => {
-        return item.short_name.length <= 3;
+      const pCodeKrainaZ = zDataKr.filter((item) => {
+        return item.types.includes('country');
+        
       });
-      const pCodeKrainaR = rDataKr.find((item) => {
-        return item.short_name.length <= 3;
+      const pCodeKrainaR = rDataKr.filter((item) => {
+        // return item.short_name.length <= 3;
+
+        return item.types.includes('country');
       });
       const pOblZ = zDataKr.find((item) => {
         if (item.short_name.includes("область")) {
@@ -157,10 +160,10 @@ const createZap = async (req, res) => {
           pKodGroup,
           pZav,
           pRozv,
-          pCodeKrainaZ: pCodeKrainaZ.short_name,
-          pCodeKrainaR: pCodeKrainaR.short_name,
-          pOblZ: pOblZ.short_name,
-          pOblR: pOblR.short_name,
+          pCodeKrainaZ: pCodeKrainaZ[0]?.short_name,
+          pCodeKrainaR: pCodeKrainaR[0]?.short_name,
+          pOblZ: pOblZ?.short_name,
+          pOblR: pOblR?.short_name,
           pZLat,
           pZLon,
           pRLat,
@@ -174,7 +177,12 @@ const createZap = async (req, res) => {
       );
       console.log(
         "--------------------------------------------------------------------------",
-        pOblZ
+        "--------------------------------------------------------------------------",
+        "--------------------------------------------------------------------------",
+        pCodeKrainaR,
+        "--------------------------------------------------------------------------",
+        "--------------------------------------------------------------------------",
+        "--------------------------------------------------------------------------",
       );
       res.status(200).json(result);
     });
