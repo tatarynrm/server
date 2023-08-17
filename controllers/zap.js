@@ -30,10 +30,11 @@ const getAllZap = async (req, res) => {
   }
 };
 const getClosedZap = async (req, res) => {
-  const { KOD_OS ,ZAP_STATUS} = req.body;
+  const { KOD_OS, ZAP_STATUS } = req.body;
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
+    let myArray = [];
     const result = await connection.execute(
       `SELECT a.*,
               b.pip,
@@ -46,8 +47,37 @@ const getClosedZap = async (req, res) => {
               JOIN US c on a.kod_os = c.kod_os
               WHERE a.status != 1`
     );
-  
-    res.status(200).json(result.rows);
+    if (result.rows.length > 0) {
+      const res1 = result.rows;
+      for (let i = 0; i < res1.length; i++) {
+        const el = res1[i];
+        const comments = await connection.execute(
+          `SELECT a.*,b.PIP 
+          from ICTDAT.ZAPCOMM a 
+          JOIN ICTDAT.OS b on a.KOD_OS = b.KOD
+          where a.KOD_ZAP = ${el.KOD}`
+        );
+        myArray.push(comments.rows);
+      }
+    }
+    // console.log(myArray);
+    const combinedArray = result.rows.map((post) => {
+      console.log(post.KOD);
+      const comments = myArray.map((item) =>
+        item.find((val) => val.KOD_ZAP === post.KOD)
+      );
+      let commentsFilter = comments.filter((item) => item !== undefined);
+
+
+      console.log(commentsFilter);
+      return {
+        ...post,
+        COMMENTS: commentsFilter.length > 0 ? commentsFilter:null, // com // Add user object to the post
+      };
+    });
+
+    // console.log(combinedArray);
+    res.status(200).json(combinedArray);
   } catch (error) {
     console.log("1---", error);
   }
@@ -68,7 +98,6 @@ const getGroups = async (req, res) => {
   }
 };
 
-
 const createZap = async (req, res) => {
   const {
     pKodAuthor,
@@ -79,7 +108,7 @@ const createZap = async (req, res) => {
     zavInfo,
     rozvInfo,
     pKodZam,
-    pZapCina
+    pZapCina,
   } = req.body;
 
   try {
@@ -92,67 +121,64 @@ const createZap = async (req, res) => {
       const data2 = responses[1].data;
       const zDataKr = data1.result.address_components;
       const rDataKr = data2.result.address_components;
-    const pCodeKrainaZ = zDataKr.find(item =>{
-    return  item.short_name.length <= 3;
-    })
-    const pCodeKrainaR = rDataKr.find(item =>{
-    return item.short_name.length <= 3;
-    })
- const pOblZ = zDataKr.find(item =>{
-  if (item.short_name.includes('область')) {
-    return item.short_name.includes('область');
-  }else {
+      const pCodeKrainaZ = zDataKr.find((item) => {
+        return item.short_name.length <= 3;
+      });
+      const pCodeKrainaR = rDataKr.find((item) => {
+        return item.short_name.length <= 3;
+      });
+      const pOblZ = zDataKr.find((item) => {
+        if (item.short_name.includes("область")) {
+          return item.short_name.includes("область");
+        } else {
+          return (item.types = ["administrative_area_level_1", "political"]);
+        }
+      });
+      const pOblR = zDataKr.find((item) => {
+        if (item.short_name.includes("область")) {
+          return item.short_name.includes("область");
+        } else {
+          return (item.types = ["administrative_area_level_1", "political"]);
+        }
+      });
 
-  return   item.types = [ 'administrative_area_level_1', 'political' ] 
-  }
+      const pZLat = data1.result.geometry.location.lat;
+      const pZLon = data1.result.geometry.location.lng;
+      const pRLat = data2.result.geometry.location.lat;
+      const pRLon = data2.result.geometry.location.lng;
 
- })
- const pOblR = zDataKr.find(item =>{
-  if (item.short_name.includes('область')) {
-    return  item.short_name.includes('область');
-  }else {
-    return item.types = [ 'administrative_area_level_1', 'political' ] 
-  }
- })
-
- const pZLat = data1.result.geometry.location.lat;
- const pZLon = data1.result.geometry.location.lng;
- const pRLat = data2.result.geometry.location.lat;
- const pRLon = data2.result.geometry.location.lng;
-
-  const connection = await oracledb.getConnection(pool);
-  const result = await connection.execute(
-    `BEGIN
+      const connection = await oracledb.getConnection(pool);
+      const result = await connection.execute(
+        `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
               :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pZamName,:pKodZap);
       END;`,
-    {
-      pKodAuthor,
-      pKodGroup,
-      pZav,
-      pRozv,
-      pCodeKrainaZ:pCodeKrainaZ.short_name,
-      pCodeKrainaR:pCodeKrainaR.short_name,
-      pOblZ:pOblZ.short_name,
-      pOblR:pOblR.short_name,
-      pZLat,
-      pZLon,
-      pRLat,
-      pRLon,
-      pKodZam:pKodZam || null,
-      pZapText,
-      pZapCina,
-      pZamName:{ dir: oracledb.BIND_OUT, type: oracledb.STRING },
-      pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    }
-  );
-  console.log('--------------------------------------------------------------------------',pOblZ);
-  // console.log('--------------------------------------------------------------------------',zDataKr);
-  res.status(200).json(result);
-})
-
-
-
+        {
+          pKodAuthor,
+          pKodGroup,
+          pZav,
+          pRozv,
+          pCodeKrainaZ: pCodeKrainaZ.short_name,
+          pCodeKrainaR: pCodeKrainaR.short_name,
+          pOblZ: pOblZ.short_name,
+          pOblR: pOblR.short_name,
+          pZLat,
+          pZLon,
+          pRLat,
+          pRLon,
+          pKodZam: pKodZam || null,
+          pZapText,
+          pZapCina,
+          pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
+          pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        }
+      );
+      console.log(
+        "--------------------------------------------------------------------------",
+        pOblZ
+      );
+      res.status(200).json(result);
+    });
   } catch (error) {
     console.log(error);
     res.status(403).json({ message: "Виникла проблема" });
@@ -164,7 +190,6 @@ const deleteZap = async (req, res) => {
   const { pKodAuthor, pKodZap, pStatus } = req.body;
 
   try {
-    
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `BEGIN
@@ -193,7 +218,7 @@ const editZap = async (req, res) => {
     pZapText,
     zavInfo,
     rozvInfo,
-    pZapCina
+    pZapCina,
   } = req.body;
 
   try {
@@ -206,77 +231,73 @@ const editZap = async (req, res) => {
       const data2 = responses[1].data;
       const zDataKr = data1.result.address_components;
       const rDataKr = data2.result.address_components;
-    const pCodeKrainaZ = zDataKr.find(item =>{
-    return item.short_name.length <= 3;
-    })
-    const pCodeKrainaR = rDataKr.find(item =>{
-    return item.short_name.length <= 3;
-    })
- const pOblZ = zDataKr.find(item =>{
-  return item.types = [ 'administrative_area_level_1', 'political' ];
- })
- const pOblR = zDataKr.find(item =>{
-  return item.types = [ 'administrative_area_level_1', 'political' ];
- })
+      const pCodeKrainaZ = zDataKr.find((item) => {
+        return item.short_name.length <= 3;
+      });
+      const pCodeKrainaR = rDataKr.find((item) => {
+        return item.short_name.length <= 3;
+      });
+      const pOblZ = zDataKr.find((item) => {
+        return (item.types = ["administrative_area_level_1", "political"]);
+      });
+      const pOblR = zDataKr.find((item) => {
+        return (item.types = ["administrative_area_level_1", "political"]);
+      });
 
- const pZLat = data1.result.geometry.location.lat;
- const pZLon = data1.result.geometry.location.lng;
- const pRLat = data2.result.geometry.location.lat;
- const pRLon = data2.result.geometry.location.lng;
+      const pZLat = data1.result.geometry.location.lat;
+      const pZLon = data1.result.geometry.location.lng;
+      const pRLat = data2.result.geometry.location.lat;
+      const pRLon = data2.result.geometry.location.lng;
 
-  const connection = await oracledb.getConnection(pool);
-  const result = await connection.execute(
-    `BEGIN
+      const connection = await oracledb.getConnection(pool);
+      const result = await connection.execute(
+        `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
               :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pZamName);
       END;`,
-    {
-      pKodAuthor,
-      pKodZap,
-      pZav,
-      pRozv,
-      pCodeKrainaZ:pCodeKrainaZ.short_name,
-      pCodeKrainaR:pCodeKrainaR.short_name,
-      pOblZ:pOblZ.short_name,
-      pOblR:pOblR.short_name,
-      pZLat,
-      pZLon,
-      pRLat,
-      pRLon,
-      pKodZam:pKodZam || null,
-      pZapText,
-      pZapCina,
-      pZamName:{ dir: oracledb.BIND_OUT, type: oracledb.STRING },
-    }
-  );
- 
-  res.status(200).json(result);
-})
+        {
+          pKodAuthor,
+          pKodZap,
+          pZav,
+          pRozv,
+          pCodeKrainaZ: pCodeKrainaZ.short_name,
+          pCodeKrainaR: pCodeKrainaR.short_name,
+          pOblZ: pOblZ.short_name,
+          pOblR: pOblR.short_name,
+          pZLat,
+          pZLon,
+          pRLat,
+          pRLon,
+          pKodZam: pKodZam || null,
+          pZapText,
+          pZapCina,
+          pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
+        }
+      );
 
+      res.status(200).json(result);
+    });
   } catch (error) {
     console.log(error);
   }
 };
 const editZapText = async (req, res) => {
-
-  const {
-    pKodZap,
-    pZapText,
-  } = req.body;
+  const { pKodZap, pZapText } = req.body;
 
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `UPDATE ICTDAT.ZAP
       SET ZAPTEXT = :pZapText
-      WHERE KOD = :pKodZap`,{
+      WHERE KOD = :pKodZap`,
+      {
         pKodZap,
-        pZapText
-      },{ autoCommit: true }
+        pZapText,
+      },
+      { autoCommit: true }
     );
-   
-    res.status(200).json(result);
 
+    res.status(200).json(result);
   } catch (error) {
     console.log(error);
   }
@@ -295,7 +316,7 @@ const refreshZap = async (req, res) => {
         pKodZap,
       }
     );
-  
+
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
@@ -313,7 +334,6 @@ const getAllTimeZap = async (req, res) => {
        JOIN os b on a.kod_os = b.kod
        WHERE  dat >= to_date('${todayDate}','yyyy-mm-dd')`
     );
-    // console.log(result);
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
@@ -321,17 +341,16 @@ const getAllTimeZap = async (req, res) => {
 };
 
 const getClosedZapByDate = async (req, res) => {
-  const { FROM,TO } = req.body;
+  const { FROM, TO } = req.body;
   try {
-
-    if (TO === undefined || TO === null || TO == undefined ) {
+    if (TO === undefined || TO === null || TO == undefined) {
       const connection = await oracledb.getConnection(pool);
       connection.currentSchema = "ICTDAT";
       const result = await connection.execute(
         `SELECT a.*,b.pip
          FROM zap a
          JOIN os b on a.kod_os = b.kod
-         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')` 
+         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')`
       );
       res.status(200).json(result.rows);
     }
@@ -342,23 +361,21 @@ const getClosedZapByDate = async (req, res) => {
         `SELECT a.*,b.pip
          FROM zap a
          JOIN os b on a.kod_os = b.kod
-         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')` 
+         WHERE TRUNC(dat) = to_date('${FROM}','dd.mm.yyyy')`
       );
       res.status(200).json(result.rows);
-    }
-   
-else{
-  const connection = await oracledb.getConnection(pool);
-  connection.currentSchema = "ICTDAT";
-  const result = await connection.execute(
-    `SELECT a.*,b.pip
+    } else {
+      const connection = await oracledb.getConnection(pool);
+      connection.currentSchema = "ICTDAT";
+      const result = await connection.execute(
+        `SELECT a.*,b.pip
      FROM zap a
      JOIN os b on a.kod_os = b.kod
      WHERE  dat BETWEEN to_date('${FROM}','dd.mm.yyyy') AND to_date('${TO}','dd.mm.yyyy')
      `
-  );
-  res.status(200).json(result.rows);
-} 
+      );
+      res.status(200).json(result.rows);
+    }
   } catch (error) {
     console.log("1---", error);
   }
@@ -373,5 +390,5 @@ module.exports = {
   editZap,
   editZapText,
   getAllTimeZap,
-  getClosedZapByDate
+  getClosedZapByDate,
 };
