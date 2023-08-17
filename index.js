@@ -192,6 +192,11 @@ io.on("connection", (socket) => {
   });
   socket.on("logoutAll", () => {
     io.emit("logoutAllUsers", 1);
+    for (let i = 0; i < onlineUsers.length; i++) {
+      const el = onlineUsers[i];
+      console.log(el);
+      // bot.telegram.sendPhoto(el,{source:fs.createReadStream('./images/logo.png')},{caption:"Адміністратор завершив вашу сесію на сайт"})
+    }
   });
 
   // ADMIN
