@@ -41,10 +41,12 @@ const getClosedZap = async (req, res) => {
               p_zap.CountComm(a.kod) as countcomm,
               p_zap.CountNewComm(${KOD_OS}, a.kod) as countnewcomm,
               p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
-              p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew
+              p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
+              d.nur as zam
               FROM zap a
               JOIN OS b on a.kod_os = b.kod
               JOIN US c on a.kod_os = c.kod_os
+              left join ur d on a.kod_zam = d.kod
               WHERE a.status != 1`
     );
     if (result.rows.length > 0) {
@@ -129,20 +131,35 @@ const createZap = async (req, res) => {
 
         return item.types.includes('country');
       });
-      const pOblZ = zDataKr.find((item) => {
-        if (item.short_name.includes("область")) {
-          return item.short_name.includes("область");
-        } else {
-          return (item.types = ["administrative_area_level_1", "political"]);
-        }
+      const pOblZ = zDataKr.filter((item) => {
+      if (item.short_name.includes('область')) {
+        return item.short_name.includes('область') 
+      }else if(!item.short_name.includes('область') & item.long_name.includes('область') ) {
+        return item.long_name.includes('область') 
+      }else if (item.short_name.includes('Київ')){
+        return (item.short_name.includes('Київ'))
+      }else {
+        return item
+      }
       });
-      const pOblR = zDataKr.find((item) => {
-        if (item.short_name.includes("область")) {
-          return item.short_name.includes("область");
-        } else {
-          return (item.types = ["administrative_area_level_1", "political"]);
-        }
+      const pOblR = zDataKr.filter((item) => {
+      if (item.short_name.includes('область')) {
+        return item.short_name.includes('область') 
+      }else if(!item.short_name.includes('область') & item.long_name.includes('область') ) {
+        return item.long_name.includes('область') 
+      }else if (item.short_name.includes('Київ')){
+        return (item.short_name.includes('Київ'))
+      }else {
+        return item.short_name
+      }
       });
+      // const pOblR = zDataKr.find((item) => {
+      //   if (item.short_name.includes("область")) {
+      //     return item.short_name.includes("область");
+      //   } else {
+      //     return (item.types = ["administrative_area_level_1", "political"]);
+      //   }
+      // });
 
       const pZLat = data1.result.geometry.location.lat;
       const pZLon = data1.result.geometry.location.lng;
@@ -162,8 +179,8 @@ const createZap = async (req, res) => {
           pRozv,
           pCodeKrainaZ: pCodeKrainaZ[0]?.short_name,
           pCodeKrainaR: pCodeKrainaR[0]?.short_name,
-          pOblZ: pOblZ?.short_name,
-          pOblR: pOblR?.short_name,
+          pOblZ: pOblZ[0]?.short_name === 'Київ' ? "Київська область" :pOblZ[0]?.short_name ,
+          pOblR: pOblR[0]?.short_name === 'Київ' ? "Київська область" :pOblZ[0]?.short_name ,
           pZLat,
           pZLon,
           pRLat,
@@ -179,7 +196,7 @@ const createZap = async (req, res) => {
         "--------------------------------------------------------------------------",
         "--------------------------------------------------------------------------",
         "--------------------------------------------------------------------------",
-        pCodeKrainaR,
+        pOblZ,
         "--------------------------------------------------------------------------",
         "--------------------------------------------------------------------------",
         "--------------------------------------------------------------------------",
