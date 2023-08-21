@@ -5,6 +5,7 @@ const {
   getActiveUsers,
   getFiredUsers,
   getAllManagers,
+  getAllOsManagers,
 } = require("../controllers/users");
 const checkAuth = require("../middleware/checkAuth");
 
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.route("/").get(checkAuth,getAllUsers);
 router.route("/managers").get(checkAuth,getAllManagers);
+router.route("/os-managers").get(getAllOsManagers);
 router.route("/active").get(getActiveUsers);
 router.route("/fired").get(getFiredUsers);
 router.route("/:id").get(checkAuth, getUserById);

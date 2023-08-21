@@ -80,10 +80,29 @@ const getUserById = async (req, res) => {
 
 
 
+// User for admin
+const getAllOsManagers = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(`
+    SELECT a.*,a.KOD,b.TELEGRAMID
+    FROM ICTDAT.OS a 
+    LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
+    WHERE a.ZVILDAT IS NULL AND a.ISMEN = 1
+    `);
+    res.status(200).json(result.rows);
+   
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 module.exports = {
   getAllUsers,
   getUserById,
   getActiveUsers,
   getFiredUsers,
-  getAllManagers
+  getAllManagers,
+  getAllOsManagers
 };
