@@ -80,9 +80,22 @@ const getMessOs = async (req,res)=>{
     console.log(error);
   }
 }
+const getGoogleMeetLink = async (req,res)=>{
+  const {KOD_OS} = req.body
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `select a.GOOGLEMEET  from ictdat.us a where a.KOD_OS = ${KOD_OS}`
+    )
+      res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 module.exports = {
     getEvents,
     createMessAll,
-    getAllMess
+    getAllMess,
+    getGoogleMeetLink
 };

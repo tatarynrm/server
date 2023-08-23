@@ -101,7 +101,7 @@ const getGroups = async (req, res) => {
 
 const createZap = async (req, res) => {
   const {
-    pKodAuthor,
+    pKodAutor,
     pKodGroup,
     pZav,
     pRozv,
@@ -110,6 +110,9 @@ const createZap = async (req, res) => {
     rozvInfo,
     pKodZam,
     pZapCina,
+    pKilAm,
+    pPunktZ,
+    pPunktR
   } = req.body;
 
   try {
@@ -153,27 +156,18 @@ const createZap = async (req, res) => {
         return item.short_name
       }
       });
-      // const pOblR = zDataKr.find((item) => {
-      //   if (item.short_name.includes("область")) {
-      //     return item.short_name.includes("область");
-      //   } else {
-      //     return (item.types = ["administrative_area_level_1", "political"]);
-      //   }
-      // });
-
       const pZLat = data1.result.geometry.location.lat;
       const pZLon = data1.result.geometry.location.lng;
       const pRLat = data2.result.geometry.location.lat;
-      const pRLon = data2.result.geometry.location.lng;
-
+      const pRLon = data2.result.geometry.location.lng; 
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
         `BEGIN
-          ICTDAT.p_zap.AddZap(:pKodAuthor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pZamName,:pKodZap);
+          ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName,:pKodZap);
       END;`,
         {
-          pKodAuthor,
+          pKodAutor,
           pKodGroup,
           pZav,
           pRozv,
@@ -188,18 +182,10 @@ const createZap = async (req, res) => {
           pKodZam: pKodZam || null,
           pZapText,
           pZapCina,
+          pKilAm:+pKilAm,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
-      );
-      console.log(
-        "--------------------------------------------------------------------------",
-        "--------------------------------------------------------------------------",
-        "--------------------------------------------------------------------------",
-        pOblZ,
-        "--------------------------------------------------------------------------",
-        "--------------------------------------------------------------------------",
-        "--------------------------------------------------------------------------",
       );
       res.status(200).json(result);
     });
@@ -230,6 +216,27 @@ const deleteZap = async (req, res) => {
     console.log(error);
   }
 };
+const zakrZap = async (req, res) => {
+  const { pKodAutor, pKodZap, pKodMen,pKilAmZakr } = req.body;
+console.log(pKodMen);
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `BEGIN
+            ICTDAT.p_zap.SetZapZakr(:pKodAutor,:pKodZap,:pKodMen,:pKilAmZakr);
+        END;`,
+      {
+        pKodAutor,
+        pKodZap,
+        pKodMen,
+        pKilAmZakr
+      }
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const editZap = async (req, res) => {
   // const { pKodAuthor, pKodZap, pZav, pRozv, pZapText } = req.body;
@@ -243,6 +250,7 @@ const editZap = async (req, res) => {
     zavInfo,
     rozvInfo,
     pZapCina,
+    pKilAm
   } = req.body;
 
   try {
@@ -277,7 +285,7 @@ const editZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pZamName);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName);
       END;`,
         {
           pKodAuthor,
@@ -295,6 +303,7 @@ const editZap = async (req, res) => {
           pKodZam: pKodZam || null,
           pZapText,
           pZapCina,
+          pKilAm,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
         }
       );
@@ -404,6 +413,30 @@ const getClosedZapByDate = async (req, res) => {
     console.log("1---", error);
   }
 };
+const getManagersIsCommentZap = async (req,res) =>{
+  const {KOD_ZAP} = req.body
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const result = await connection.execute(
+      `    select a.kod_os,
+      c.pip,
+      b.telegramid,
+      count(*) as kilcomm
+from zapcomm a
+join us b on a.kod_os = b.kod_os
+join os c on a.kod_os = c.kod
+where a.kod_zap = ${KOD_ZAP}
+group by a.kod_os,
+      c.pip,
+      b.telegramid`
+    );
+    res.status(200).json(result.rows);
+
+  } catch (error) {
+    console.log(error);
+  }
+}
 module.exports = {
   createZap,
   getAllZap,
@@ -415,4 +448,5 @@ module.exports = {
   editZapText,
   getAllTimeZap,
   getClosedZapByDate,
+  zakrZap,getManagersIsCommentZap
 };

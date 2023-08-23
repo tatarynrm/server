@@ -113,7 +113,6 @@ bot.hears('Аршулік М.В.',async ctx =>{
   `);
 
 const res = result.rows;
-
 console.log(res[0]);
 const my = Object.entries(res[0]).map(([key,value])=>{
   return `${key}:${value}`;

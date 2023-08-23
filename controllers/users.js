@@ -96,6 +96,38 @@ const getAllOsManagers = async (req, res) => {
     console.log(error);
   }
 };
+const getAllOsManagersTg = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(`
+    SELECT a.PIP,a.KOD,b.TELEGRAMID
+    FROM ICTDAT.OS a 
+    LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
+    WHERE (a.ZVILDAT IS NULL AND a.ISMEN = 1 AND b.TELEGRAMID is not null) or a.PRIZV = 'Драган' 
+    `);
+    res.status(200).json(result.rows);
+   
+  } catch (error) {
+    console.log(error);
+  }
+};
+const getAllUsersToCloseZap = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(`
+    SELECT a.PIP,a.KOD,b.TELEGRAMID
+    FROM ICTDAT.OS a 
+    LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
+    WHERE a.ZVILDAT IS NULL AND a.ISMEN = 1 AND b.TELEGRAMID is not null
+    `);
+ 
+    res.status(200).json(result.rows);
+   
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 
 module.exports = {
@@ -104,5 +136,7 @@ module.exports = {
   getActiveUsers,
   getFiredUsers,
   getAllManagers,
-  getAllOsManagers
+  getAllOsManagers,
+  getAllOsManagersTg,
+  getAllUsersToCloseZap
 };

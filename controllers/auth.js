@@ -149,6 +149,7 @@ const getMe = async (req, res) => {
     a.CODE_SEX,
     b.DB_PASSWD,
     b.TELEGRAMID,
+    b.GOOGLEMEET,
     c.MAIL,
     d.TEL
 FROM
