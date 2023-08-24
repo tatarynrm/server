@@ -116,6 +116,7 @@ io.on("connection", (socket) => {
     io.emit("showEditZapText", data);
   });
   socket.on("newComment", (data) => {
+  
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(

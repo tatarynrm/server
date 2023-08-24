@@ -17,6 +17,7 @@ const getAllZap = async (req, res) => {
       p_zap.CountMyComm(${KOD_OS}, a.kod) as countmycomm,
       p_zap.IsNewZap(${KOD_OS}, a.kod) as isnew,
       p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
+      p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam
   FROM zap a
   JOIN OS b on a.kod_os = b.kod
