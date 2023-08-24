@@ -13,8 +13,9 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
-const fs = require('fs')
-const moment = require('moment')
+const fs = require("fs");
+const moment = require("moment");
+const schedule = require("./services/schedule/shcedule");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
 const {
@@ -116,7 +117,6 @@ io.on("connection", (socket) => {
     io.emit("showEditZapText", data);
   });
   socket.on("newComment", (data) => {
-  
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(
@@ -137,18 +137,17 @@ io.on("connection", (socket) => {
     io.to(userToSend.socketId).emit("showMyZapComment", data);
   });
   socket.on("changeCountAm", (data) => {
-
-      io.emit("showChangeCountAm",data)
-      if (data.userToWarn?.length > 0) {
-        for (let i = 0; i < data?.userToWarn?.length; i++) {
-          const element = data?.userToWarn[i];
-          bot.telegram.sendMessage(
-            element.TELEGRAMID,
-            `По заявці № ${data.pKodZap} закрито ${data.pKilAmZakr} авто `,
-            { parse_mode: "HTML" }
-          );
-        }
+    io.emit("showChangeCountAm", data);
+    if (data.userToWarn?.length > 0) {
+      for (let i = 0; i < data?.userToWarn?.length; i++) {
+        const element = data?.userToWarn[i];
+        bot.telegram.sendMessage(
+          element.TELEGRAMID,
+          `По заявці № ${data.pKodZap} закрито ${data.pKilAmZakr} авто `,
+          { parse_mode: "HTML" }
+        );
       }
+    }
   });
 
   // ЗАПИТИ
@@ -210,93 +209,128 @@ io.on("connection", (socket) => {
       sendMessageToUserTg();
     }
   });
-  socket.on('startGoogleMeet',data =>{
+  socket.on("startGoogleMeet", (data) => {
+    const remindDate = new Date(data?.dateToRemind);
 
-switch (data.status) {
-  case 1:
-    io.emit('showStartGoogleMeet',data.GOOGLEMEET)
+    switch (data.status) {
+      case 1:
+        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
-      const element = data.users[i];
-      bot.telegram.sendMessage(
-        element.TELEGRAMID,
-        `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
-  case 2:
-    io.emit('showStartGoogleMeet',data.GOOGLEMEET)
-            for (let i = 0; i < data.users.length; i++) {
-      const element = data.users[i];
-      console.log(element);
-      bot.telegram.sendMessage(
-        element,
-        `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
-  case 3:
-    io.emit('showStartGoogleMeet',data.GOOGLEMEET)
-            for (let i = 0; i < onlineUsers.length; i++) {
-      const element = onlineUsers[i];
-    
-      bot.telegram.sendMessage(
-        element.TELEGRAMID,
-        `<i>ШВИДКА НАРАДА</i>\n\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
-  case 4:
-    io.emit('showStartGoogleMeetWithTime',data.GOOGLEMEET)
-            for (let i = 0; i < data.users.length; i++) {
-      const element = data.users[i];
-      bot.telegram.sendMessage(
-        element.TELEGRAMID,
-        `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
-  case 5:
-    io.emit('showStartGoogleMeetWithTime',data.GOOGLEMEET)
-            for (let i = 0; i < data.users.length; i++) {
-      const element = data.users[i];
-      bot.telegram.sendMessage(
-        element,
-        `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
-  case 6:
-    io.emit('showStartGoogleMeetWithTime',data.GOOGLEMEET)
-            for (let i = 0; i < onlineUsers.length; i++) {
-      const element = onlineUsers[i];
-    
-      bot.telegram.sendMessage(
-        element.TELEGRAMID,
-        `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
-        { parse_mode: "HTML" }
-      );
-    }
-    break;
+          const element = data.users[i];
+          bot.telegram.sendMessage(
+            element.TELEGRAMID,
+            `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+      case 2:
+        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+        for (let i = 0; i < data.users.length; i++) {
+          const element = data.users[i];
+          console.log(element);
+          bot.telegram.sendMessage(
+            element,
+            `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+      case 3:
+        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+        for (let i = 0; i < onlineUsers.length; i++) {
+          const element = onlineUsers[i];
 
-  default:
-    break;
-}
+          bot.telegram.sendMessage(
+            element.TELEGRAMID,
+            `<i>ШВИДКА НАРАДА</i>\n\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+      case 4:
+        schedule.scheduleJob(remindDate, () => {
+          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          for (let i = 0; i < data.users.length; i++) {
+            const element = data.users[i];
+            bot.telegram.sendMessage(
+              element.TELEGRAMID,
+              `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ ТЕРМІНОВО!</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+              { parse_mode: "HTML" }
+            );
+          }
+        });
 
+        for (let i = 0; i < data.users.length; i++) {
+          const element = data.users[i];
+          bot.telegram.sendMessage(
+            element.TELEGRAMID,
+            `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ УСІМ ПРИЄДНАТИСЯ У ВИЗНАЧЕНИЙ ЧАС!</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+      case 5:
+        schedule.scheduleJob(remindDate, () => {
+          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          for (let i = 0; i < data.users.length; i++) {
+            const element = data.users[i];
+            bot.telegram.sendMessage(
+              element,
+              `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ ТЕРМІНОВО!</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+              { parse_mode: "HTML" }
+            );
+          }
+        });
 
+        for (let i = 0; i < data.users.length; i++) {
+          const element = data.users[i];
+          bot.telegram.sendMessage(
+            element,
+            `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ У ВИЗНАЧЕНИЙ ЧАС!</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+      case 6:
+        schedule.scheduleJob(remindDate, () => {
+          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          for (let i = 0; i < onlineUsers.length; i++) {
+            const element = onlineUsers[i];
 
-  })
+            bot.telegram.sendMessage(
+              element.TELEGRAMID,
+              `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ ТЕРМІНОВО!</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+              { parse_mode: "HTML" }
+            );
+          }
+        });
+        for (let i = 0; i < onlineUsers.length; i++) {
+          const element = onlineUsers[i];
+
+          bot.telegram.sendMessage(
+            element.TELEGRAMID,
+            `<b>ЗАПЛАНОВАНА НАРАДА</b>\n\nТема: ${data.title}\n\nДата та час: ${data.date}\n\n<i>ПРОШУ  ПРИЄДНАТИСЯ У ВИЗНАЧЕНИЙ ЧАС</i>\n\n<b>${data.GOOGLEMEET}</b>`,
+            { parse_mode: "HTML" }
+          );
+        }
+        break;
+
+      default:
+        break;
+    }
+  });
 
   socket.on("logoutAll", () => {
     io.emit("logoutAllUsers", 1);
     for (let i = 0; i < onlineUsers.length; i++) {
       const el = onlineUsers[i];
       console.log(el.TELEGRAMID);
-      bot.telegram.sendPhoto(el.TELEGRAMID,{source:fs.createReadStream('./images/logo.png')},{caption:"Адміністратор завершив вашу сесію на сайті"})
+      bot.telegram.sendPhoto(
+        el.TELEGRAMID,
+        { source: fs.createReadStream("./images/logo.png") },
+        { caption: "Адміністратор завершив вашу сесію на сайті" }
+      );
     }
   });
 
@@ -342,58 +376,9 @@ bot.hears("Перезавантажити дані", async (ctx) => {
 });
 // BOT SOCKETS
 
-
-
-
-
-
-
-
-
-
-
-
 // REMINDERS / НАГАДУВАННЯ
 
-
-const zapInActiveReminder = async ()=>{
-  try {
-     const connection = await oracledb.getConnection(pool);
-     connection.currentSchema = "ICTDAT";
-const result = await connection.execute(`select a.*,b.TELEGRAMID from zap a 
-join us b on a.KOD_OS = b.KOD_OS
-where a.status = 0`);
-if (result.rows.length > 0) {
-  const filteredArr = result.rows.filter(item => {
-    return item.DATUPDATE.valueOf() > 86400000
-  })
- 
-  for (let i = 0; i < filteredArr.length; i++) {
-    const el = filteredArr[i];
-  
-    bot.telegram.sendMessage(
-      el.TELEGRAMID,
-      `<b>Ви не оновляли одну або декілька заявок більш ніж 24 години</b\n\n<b>ПРОШУ ОНОВИТИ ЗАЯВКИ АБО ВИДАЛІТЬ ЇХ</b>`,
-      { parse_mode: "HTML" }
-    );
-  }
-
-}
-
-  } catch (error) {
-    
-console.log(error);
-  }
-}
-
-// setInterval(()=>{
-// zapInActiveReminder()
-// },3600000)
-
-
 // REMINDERS / НАГАДУВАННЯ
-
-
 
 // Server run------------------------------------------------------------------------------------------------------
 
