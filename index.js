@@ -214,7 +214,7 @@ io.on("connection", (socket) => {
 
     switch (data.status) {
       case 1:
-        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+        // io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
           const element = data.users[i];
           bot.telegram.sendMessage(
@@ -224,8 +224,8 @@ io.on("connection", (socket) => {
           );
         }
         break;
-      case 2:
-        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+      // case 2:
+      //   io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
           const element = data.users[i];
           console.log(element);
@@ -237,7 +237,7 @@ io.on("connection", (socket) => {
         }
         break;
       case 3:
-        io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+        // io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < onlineUsers.length; i++) {
           const element = onlineUsers[i];
 
@@ -250,7 +250,7 @@ io.on("connection", (socket) => {
         break;
       case 4:
         schedule.scheduleJob(remindDate, () => {
-          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          // io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
           for (let i = 0; i < data.users.length; i++) {
             const element = data.users[i];
             bot.telegram.sendMessage(
@@ -272,7 +272,7 @@ io.on("connection", (socket) => {
         break;
       case 5:
         schedule.scheduleJob(remindDate, () => {
-          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          // io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
           for (let i = 0; i < data.users.length; i++) {
             const element = data.users[i];
             bot.telegram.sendMessage(
@@ -294,7 +294,7 @@ io.on("connection", (socket) => {
         break;
       case 6:
         schedule.scheduleJob(remindDate, () => {
-          io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
+          // io.emit("showStartGoogleMeetWithTime", data.GOOGLEMEET);
           for (let i = 0; i < onlineUsers.length; i++) {
             const element = onlineUsers[i];
 
@@ -385,3 +385,7 @@ bot.hears("Перезавантажити дані", async (ctx) => {
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
+
+
+// const orDate = new Date();
+// console.log(orDate.valueOf());
