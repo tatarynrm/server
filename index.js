@@ -97,11 +97,11 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 
-    if (data.pZapCina === 1) {
-      sendMessageToGroupZapCina(bot, data);
-    } else {
-      sendMessageToGroup(bot, data);
-    }
+    // if (data.pZapCina === 1) {
+    //   sendMessageToGroupZapCina(bot, data);
+    // } else {
+    //   sendMessageToGroup(bot, data);
+    // }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -117,11 +117,12 @@ io.on("connection", (socket) => {
     io.emit("showEditZapText", data);
   });
   socket.on("newComment", (data) => {
+    console.log(data.selectedZap.ZAV);
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(
         data.telegramId,
-        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n💬 ${data.pComment}`
+        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\nЗавантаження:  ${data.selectedZap.ZAV} \n\nРозвантаження:  ${data.selectedZap.ROZV}\n\n\n💬 ${data.pComment}`
       );
     }
     io.emit("showNewComment", data);
