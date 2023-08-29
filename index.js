@@ -117,12 +117,12 @@ io.on("connection", (socket) => {
     io.emit("showEditZapText", data);
   });
   socket.on("newComment", (data) => {
-    console.log(data.selectedZap.ZAV);
+    console.log(data.selectedZap);
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(
         data.telegramId,
-        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\nЗавантаження:  ${data.selectedZap.ZAV} \n\nРозвантаження:  ${data.selectedZap.ROZV}\n\n\n💬 ${data.pComment}`
+        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
       );
     }
     io.emit("showNewComment", data);
