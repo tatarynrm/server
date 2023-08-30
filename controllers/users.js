@@ -100,7 +100,7 @@ const getAllOsManagersTg = async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(`
-    SELECT a.PIP,a.KOD,b.TELEGRAMID
+    SELECT a.PIP,a.KOD,a.ISNV,b.TELEGRAMID
     FROM ICTDAT.OS a 
     LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
     WHERE (a.ZVILDAT IS NULL AND a.ISMEN = 1 AND b.TELEGRAMID is not null) or a.PRIZV = 'Драган' or a.PRIZV = 'Боровенко'
