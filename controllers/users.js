@@ -103,7 +103,7 @@ const getAllOsManagersTg = async (req, res) => {
     SELECT a.PIP,a.KOD,a.ISNV,b.TELEGRAMID
     FROM ICTDAT.OS a 
     LEFT JOIN ICTDAT.US b ON a.kod = b.KOD_OS 
-    WHERE (a.ZVILDAT IS NULL AND a.ISMEN = 1 AND b.TELEGRAMID is not null) or a.PRIZV = 'Драган' or a.PRIZV = 'Боровенко'
+    WHERE (a.ZVILDAT IS NULL AND a.ISMEN = 1 AND b.TELEGRAMID is not null) or a.PRIZV = 'Драган' or a.PRIZV = 'Боровенко' or a.ISDIR = 1
     `);
     res.status(200).json(result.rows);
    
