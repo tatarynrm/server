@@ -13,6 +13,8 @@ const getAllUsers = async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(GET_ALL_USERS);
+  
+
     res.status(200).json(result.rows);
     if (!result) {
       res.status(401).json({ message: "error" });
