@@ -19,17 +19,17 @@ const getAllZap = async (req, res) => {
       p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
       p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam,
-      k1.idgmap as krainazav,
-      k2.idgmap as krainarozv
+      k.idgmap as kraina
+  
   
   FROM zap a
   JOIN OS b on a.kod_os = b.kod
   JOIN US c on a.kod_os = c.kod_os
   left join ur d on a.kod_zam = d.kod
-  left join kraina k1 on a.kod_krainaz = k1.kod
-  left join kraina k2 on a.kod_krainar = k2.kod
+  left join kraina k on a.kod_kraina = k.kod
   WHERE a.status = 0`
     );
+    console.log(result);
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
@@ -74,12 +74,16 @@ const getClosedZap = async (req, res) => {
       const comments = myArray.map((item) =>
         item.filter((val) => val.KOD_ZAP === post.KOD)
       );
-      let commentsFilter = comments.map(item => item).filter((item) => item !== undefined);
-      let comFil = commentsFilter.filter(item => item.length !== 0 ? item:null )
+      let commentsFilter = comments
+        .map((item) => item)
+        .filter((item) => item !== undefined);
+      let comFil = commentsFilter.filter((item) =>
+        item.length !== 0 ? item : null
+      );
 
       return {
         ...post,
-        COMMENTS: comFil[0] ? comFil[0]:null, // com // Add user object to the post
+        COMMENTS: comFil[0] ? comFil[0] : null, // com // Add user object to the post
       };
     });
 
@@ -118,7 +122,7 @@ const createZap = async (req, res) => {
     pZapCina,
     pKilAm,
     pPunktZ,
-    pPunktR
+    pPunktR,
   } = req.body;
 
   try {
@@ -132,40 +136,45 @@ const createZap = async (req, res) => {
       const zDataKr = data1.result.address_components;
       const rDataKr = data2.result.address_components;
       const pCodeKrainaZ = zDataKr.filter((item) => {
-        return item.types.includes('country');
-        
+        return item.types.includes("country");
       });
       const pCodeKrainaR = rDataKr.filter((item) => {
         // return item.short_name.length <= 3;
 
-        return item.types.includes('country');
+        return item.types.includes("country");
       });
       const pOblZ = zDataKr.filter((item) => {
-      if (item.short_name.includes('область')) {
-        return item.short_name.includes('область') 
-      }else if(!item.short_name.includes('область') & item.long_name.includes('область') ) {
-        return item.long_name.includes('область') 
-      }else if (item.short_name.includes('Київ')){
-        return (item.short_name.includes('Київ'))
-      }else {
-        return item
-      }
+        if (item.short_name.includes("область")) {
+          return item.short_name.includes("область");
+        } else if (
+          !item.short_name.includes("область") &
+          item.long_name.includes("область")
+        ) {
+          return item.long_name.includes("область");
+        } else if (item.short_name.includes("Київ")) {
+          return item.short_name.includes("Київ");
+        } else {
+          return item;
+        }
       });
       const pOblR = zDataKr.filter((item) => {
-      if (item.short_name.includes('область')) {
-        return item.short_name.includes('область') 
-      }else if(!item.short_name.includes('область') & item.long_name.includes('область') ) {
-        return item.long_name.includes('область') 
-      }else if (item.short_name.includes('Київ')){
-        return (item.short_name.includes('Київ'))
-      }else {
-        return item.short_name
-      }
+        if (item.short_name.includes("область")) {
+          return item.short_name.includes("область");
+        } else if (
+          !item.short_name.includes("область") &
+          item.long_name.includes("область")
+        ) {
+          return item.long_name.includes("область");
+        } else if (item.short_name.includes("Київ")) {
+          return item.short_name.includes("Київ");
+        } else {
+          return item.short_name;
+        }
       });
       const pZLat = data1.result.geometry.location.lat;
       const pZLon = data1.result.geometry.location.lng;
       const pRLat = data2.result.geometry.location.lat;
-      const pRLon = data2.result.geometry.location.lng; 
+      const pRLon = data2.result.geometry.location.lng;
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
         `BEGIN
@@ -179,8 +188,14 @@ const createZap = async (req, res) => {
           pRozv,
           pCodeKrainaZ: pCodeKrainaZ[0]?.short_name,
           pCodeKrainaR: pCodeKrainaR[0]?.short_name,
-          pOblZ: pOblZ[0]?.short_name === 'Київ' ? "Київська область" :pOblZ[0]?.short_name ,
-          pOblR: pOblR[0]?.short_name === 'Київ' ? "Київська область" :pOblZ[0]?.short_name ,
+          pOblZ:
+            pOblZ[0]?.short_name === "Київ"
+              ? "Київська область"
+              : pOblZ[0]?.short_name,
+          pOblR:
+            pOblR[0]?.short_name === "Київ"
+              ? "Київська область"
+              : pOblZ[0]?.short_name,
           pZLat,
           pZLon,
           pRLat,
@@ -188,7 +203,7 @@ const createZap = async (req, res) => {
           pKodZam: pKodZam || null,
           pZapText,
           pZapCina,
-          pKilAm:+pKilAm,
+          pKilAm: +pKilAm,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
@@ -223,8 +238,8 @@ const deleteZap = async (req, res) => {
   }
 };
 const zakrZap = async (req, res) => {
-  const { pKodAutor, pKodZap, pKodMen,pKilAmZakr } = req.body;
-console.log(pKodMen);
+  const { pKodAutor, pKodZap, pKodMen, pKilAmZakr } = req.body;
+  console.log(pKodMen);
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
@@ -235,7 +250,7 @@ console.log(pKodMen);
         pKodAutor,
         pKodZap,
         pKodMen,
-        pKilAmZakr
+        pKilAmZakr,
       }
     );
     res.status(200).json(result);
@@ -256,7 +271,7 @@ const editZap = async (req, res) => {
     zavInfo,
     rozvInfo,
     pZapCina,
-    pKilAm
+    pKilAm,
   } = req.body;
 
   try {
@@ -419,8 +434,8 @@ const getClosedZapByDate = async (req, res) => {
     console.log("1---", error);
   }
 };
-const getManagersIsCommentZap = async (req,res) =>{
-  const {KOD_ZAP} = req.body
+const getManagersIsCommentZap = async (req, res) => {
+  const { KOD_ZAP } = req.body;
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
@@ -438,11 +453,10 @@ group by a.kod_os,
       b.telegramid`
     );
     res.status(200).json(result.rows);
-
   } catch (error) {
     console.log(error);
   }
-}
+};
 module.exports = {
   createZap,
   getAllZap,
@@ -454,5 +468,6 @@ module.exports = {
   editZapText,
   getAllTimeZap,
   getClosedZapByDate,
-  zakrZap,getManagersIsCommentZap
+  zakrZap,
+  getManagersIsCommentZap,
 };
