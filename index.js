@@ -138,13 +138,14 @@ io.on("connection", (socket) => {
     io.to(userToSend.socketId).emit("showMyZapComment", data);
   });
   socket.on("changeCountAm", (data) => {
+    console.log('0000000000',data);
     io.emit("showChangeCountAm", data);
     if (data.userToWarn?.length > 0) {
       for (let i = 0; i < data?.userToWarn?.length; i++) {
         const element = data?.userToWarn[i];
         bot.telegram.sendMessage(
           element.TELEGRAMID,
-          `По заявці № ${data.pKodZap} закрито ${data.pKilAmZakr} авто `,
+          `По заявці \n${data.zapDeleteData?.zav}\n${data.zapDeleteData?.rozv}\nзакрито ${data.pKilAmZakr} авто `,
           { parse_mode: "HTML" }
         );
       }
