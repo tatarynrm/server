@@ -12,6 +12,7 @@ const {
   editZapText,
   zakrZap,
   getManagersIsCommentZap,
+  editZapCinaStatus,
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.route("/zakr-zap").post(zakrZap);
 router.route("/refresh").post(refreshZap);
 router.route("/edit").post(editZap);
 router.route("/edit-text").post(editZapText);
+router.route("/edit-zap-cina").post(editZapCinaStatus);
 router.route("/all").post(getAllTimeZap);
 router.route("/by-date").post(getClosedZapByDate);
 router.route("/coments-in-zap").post(getManagersIsCommentZap);

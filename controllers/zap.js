@@ -356,6 +356,26 @@ const editZapText = async (req, res) => {
     console.log(error);
   }
 };
+const editZapCinaStatus = async (req, res) => {
+  const { pKodAuthor, pKodZap,pZapCina } = req.body;
+console.log(req.body);
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `BEGIN
+        ICTDAT.p_zap.ChangeZapCina(:pKodAuthor, :pKodZap, :pZapCina);
+    END;`,
+      {
+        pKodAuthor,
+        pKodZap,
+        pZapCina
+      })
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
 const refreshZap = async (req, res) => {
   const { pKodAuthor, pKodZap } = req.body;
 
@@ -466,6 +486,7 @@ module.exports = {
   refreshZap,
   editZap,
   editZapText,
+  editZapCinaStatus,
   getAllTimeZap,
   getClosedZapByDate,
   zakrZap,
