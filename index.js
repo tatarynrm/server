@@ -15,6 +15,7 @@ const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 const fs = require("fs");
 const moment = require("moment");
+const cookieParser = require('cookie-parser')
 const schedule = require("./services/schedule/shcedule");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
@@ -33,13 +34,28 @@ const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
+const session = require("express-session");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin:"http://localhost:3000",
+  methods:["POST","GET"],
+  credentials:true
+}));
+app.use(cookieParser())
+app.use(session({
+  secret:"dsadsasa",
+  resave:false,
+  saveUninitialized:false,
+  cookie:{
+    secure:false,
+    maxAge:1000 * 60 * 60 * 24
+  }
+}))
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------

@@ -9,12 +9,10 @@ module.exports = async function (req, res, next) {
       next();
     } catch (error) {
       return res.status(403).json({
-        message: "Немає доступу",
+        message: "Немає доступу!",
+        alert: "Invalid token",
+        error,
       });
     }
-  } else {
-    return res.status(403).json({
-      message: "Немає доступу",
-    });
   }
 };
