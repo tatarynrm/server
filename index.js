@@ -43,9 +43,9 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
 app.use(cors({
   origin:"*",
-  methods:["POST","GET"],
-  credentials:true
+  methods:["POST","GET"]
 }));
+
 app.use(cookieParser())
 app.use(session({
   secret:"dsadsasa",
@@ -70,9 +70,13 @@ app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
 app.use("/groups", groupsRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
+// app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
+// app.use(cors({ origin: "http://localhost:3000", optionsSuccessStatus: 200 }));
 // NODEMAILER
-
+// app.get('/',(req,res)=>{
+//   res.json('dsad')
+// })
 // NODEMAILER
 
 // WEB SOCKETS------------------------------------------------------------------------
