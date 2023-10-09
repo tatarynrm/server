@@ -258,6 +258,26 @@ const zakrZap = async (req, res) => {
     console.log(error);
   }
 };
+const copyZap = async (req, res) => {
+  const { pKodAutor, pKodZap, pKilAm } = req.body;
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `BEGIN
+            ICTDAT.p_zap.CopyZap(:pKodAutor,:pKodZap,:pKilAm,:pKodZapNew);
+        END;`,
+      {
+        pKodAutor,
+        pKodZap,
+        pKilAm,
+        pKodZapNew: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+      }
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const editZap = async (req, res) => {
   // const { pKodAuthor, pKodZap, pZav, pRozv, pZapText } = req.body;
@@ -357,8 +377,8 @@ const editZapText = async (req, res) => {
   }
 };
 const editZapCinaStatus = async (req, res) => {
-  const { pKodAuthor, pKodZap,pZapCina } = req.body;
-console.log(req.body);
+  const { pKodAuthor, pKodZap, pZapCina } = req.body;
+  console.log(req.body);
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
@@ -368,8 +388,9 @@ console.log(req.body);
       {
         pKodAuthor,
         pKodZap,
-        pZapCina
-      })
+        pZapCina,
+      }
+    );
 
     res.status(200).json(result);
   } catch (error) {
@@ -491,4 +512,5 @@ module.exports = {
   getClosedZapByDate,
   zakrZap,
   getManagersIsCommentZap,
+  copyZap,
 };

@@ -13,6 +13,7 @@ const {
   zakrZap,
   getManagersIsCommentZap,
   editZapCinaStatus,
+  copyZap,
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.route("/delete").post(deleteZap);
 router.route("/zakr-zap").post(zakrZap);
 router.route("/refresh").post(refreshZap);
 router.route("/edit").post(editZap);
+router.route("/copy").post(copyZap);
 router.route("/edit-text").post(editZapText);
 router.route("/edit-zap-cina").post(editZapCinaStatus);
 router.route("/all").post(getAllTimeZap);
