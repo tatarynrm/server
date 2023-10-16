@@ -87,7 +87,7 @@ const getClosedZap = async (req, res) => {
       };
     });
 
-    // console.log(combinedArray);
+
     res.status(200).json(combinedArray);
   } catch (error) {
     console.log("1---", error);

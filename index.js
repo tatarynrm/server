@@ -34,6 +34,7 @@ const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
+const cartRoutes = require('./routes/cart/cart')
 const session = require("express-session");
 
 // Middlewares------------------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
 app.use("/groups", groupsRoutes);
+app.use("/cart", cartRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 // app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 

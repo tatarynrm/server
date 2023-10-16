@@ -30,7 +30,7 @@
     "nodemailer-express-handlebars": "^6.1.0",
     "nodemon": "^2.0.22",
     "oracledb": "^5.5.0",
-    "pg": "^8.11.2",
+    "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "sass": "^1.62.1",
     "sequelize": "^6.32.1",
