@@ -2,7 +2,7 @@ const {Pool} = require('pg')
 
 const cartridge = new Pool({
     // user: 'noris',
-    user: 'postgres',
+    user: 'noris',
     host: '192.168.5.180',
     // host: '185.25.117.64',
     database: 'ict_cartriges',
