@@ -47,7 +47,9 @@ const getCartModel = async (req, res) => {
 };
 const getCartriges = async (req, res) => {
   try {
-    const cart = await cartridge.query(`SELECT a.*,b.model from cartr a left join cart_model b on a.cart_model_id = b.id`);
+    const cart = await cartridge.query(
+      `SELECT a.*,b.model from cartr a left join cart_model b on a.cart_model_id = b.id`
+    );
     if (cart) {
       res.status(200).json(cart.rows);
     }
@@ -61,5 +63,5 @@ module.exports = {
   getDepartments,
   getAllPrinters,
   getCartModel,
-  getCartriges
+  getCartriges,
 };
