@@ -10,6 +10,8 @@ const getAllZap = async (req, res) => {
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
       `SELECT a.*,
+      l.kilamzakr,
+      l.kilamact,
       b.pip,
       c.TELEGRAMID,
       p_zap.CountComm(a.kod) as countcomm,
@@ -27,6 +29,7 @@ const getAllZap = async (req, res) => {
   JOIN US c on a.kod_os = c.kod_os
   left join ur d on a.kod_zam = d.kod
   left join kraina k on a.kod_kraina = k.kod
+  join zaplst l on a.kod = l.kod_zap
   WHERE a.status = 0`
     );
     console.log(result);
