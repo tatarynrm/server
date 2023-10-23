@@ -15,7 +15,7 @@ const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 const fs = require("fs");
 const moment = require("moment");
-const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const OracleEventEmitter = require("./utils/eventEmitters");
@@ -34,29 +34,34 @@ const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
-const cartRoutes = require('./routes/cart/cart')
+const cartRoutes = require("./routes/cart/cart");
 const session = require("express-session");
+const norisdb = require("./db/noris/noris");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
-app.use(cors({
-  origin:"*",
-  methods:["POST","GET"]
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["POST", "GET"],
+  })
+);
 
-app.use(cookieParser())
-app.use(session({
-  secret:"dsadsasa",
-  resave:false,
-  saveUninitialized:false,
-  cookie:{
-    secure:false,
-    maxAge:1000 * 60 * 60 * 24
-  }
-}))
+app.use(cookieParser());
+app.use(
+  session({
+    secret: "dsadsasa",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -160,7 +165,7 @@ io.on("connection", (socket) => {
     io.to(userToSend.socketId).emit("showMyZapComment", data);
   });
   socket.on("changeCountAm", (data) => {
-    console.log('0000000000',data);
+    console.log("0000000000", data);
     io.emit("showChangeCountAm", data);
     if (data.userToWarn?.length > 0) {
       for (let i = 0; i < data?.userToWarn?.length; i++) {
@@ -249,7 +254,7 @@ io.on("connection", (socket) => {
         }
         break;
       case 2:
-      //   io.emit("showStartGoogleMeet", data.GOOGLEMEET);
+        //   io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
           const element = data.users[i];
           console.log(element);
@@ -372,6 +377,27 @@ io.on("connection", (socket) => {
     }
     io.emit("showNewComment", data);
   });
+
+
+socket.on('start_feedback',()=>{
+  socket.emit('show_msg_feedback')
+})
+  socket.on("create_feedback", async (data) => {
+console.log(data);
+      const newFeedBack = await norisdb.query(
+        `
+         INSERT INTO feedback (feedback,manager)
+         values (${data.text},'${data.user}')
+         `
+      );
+  
+      if (newFeedBack.rowCount) {
+        socket.emit("feedback_create");
+      }
+    
+
+  });
+
   // ADMIN TELEGRAM
   // ВИЙТИ
   socket.on("disconnect", () => {
@@ -409,7 +435,6 @@ bot.hears("Перезавантажити дані", async (ctx) => {
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
-
 
 // const orDate = new Date();
 // console.log(orDate.valueOf());

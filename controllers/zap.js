@@ -113,7 +113,6 @@ const getGroups = async (req, res) => {
 };
 
 const createZap = async (req, res) => {
-  
   const {
     pKodAutor,
     pKodGroup,
@@ -143,8 +142,6 @@ const createZap = async (req, res) => {
         return item.types.includes("country");
       });
       const pCodeKrainaR = rDataKr.filter((item) => {
-        // return item.short_name.length <= 3;
-
         return item.types.includes("country");
       });
       const pOblZ = zDataKr.filter((item) => {
