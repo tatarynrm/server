@@ -21,8 +21,20 @@ const createFeedback = async (req,res)=>{
       console.log(error);
     }
   }
+const getAllFeedbacks = async (req,res)=>{
+
+    console.log(req.body);
+    try {
+        const result = await norisdb.query('select * from feedback')
+     res.json(result.rows)
+    
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
 
 module.exports = {
-    createFeedback
+    createFeedback,
+    getAllFeedbacks
 }
