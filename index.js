@@ -382,17 +382,9 @@ io.on("connection", (socket) => {
 
 
 socket.on('start_feedback',()=>{
-  socket.emit('show_msg_feedback')
+  io.emit('show_msg_feedback')
 })
-  socket.on("create_feedback",  (data) => {
-if (data.text) {
 
-
-}
-
-    
-
-  });
 
   // ADMIN TELEGRAM
   // ВИЙТИ
