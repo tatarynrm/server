@@ -35,6 +35,7 @@ const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
 const cartRoutes = require("./routes/cart/cart");
+const feedbackNorisRoute = require("./routes/noris/feedback");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 
@@ -76,6 +77,7 @@ app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
 app.use("/groups", groupsRoutes);
 app.use("/cart", cartRoutes);
+app.use("/feedback", feedbackNorisRoute);
 // ROUTES------------------------------------------------------------------------------------------------------
 // app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
@@ -382,18 +384,12 @@ io.on("connection", (socket) => {
 socket.on('start_feedback',()=>{
   socket.emit('show_msg_feedback')
 })
-  socket.on("create_feedback", async (data) => {
-console.log(data);
-      const newFeedBack = await norisdb.query(
-        `
-         INSERT INTO feedback (feedback,manager)
-         values (${data.text},'${data.user}')
-         `
-      );
-  
-      if (newFeedBack.rowCount) {
-        socket.emit("feedback_create");
-      }
+  socket.on("create_feedback",  (data) => {
+if (data.text) {
+
+
+}
+
     
 
   });
