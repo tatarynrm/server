@@ -7,6 +7,7 @@ const createFeedback = async (req,res)=>{
     let myText = text.trim()
     myText.replace("\n"," ");
     console.log(req.body);
+    console.log(myText);
     try {
       const newFeedBack = await norisdb.query(
         `
