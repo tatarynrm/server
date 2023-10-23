@@ -9,7 +9,7 @@ const createFeedback = async (req,res)=>{
       const newFeedBack = await norisdb.query(
         `
          INSERT INTO feedback (feedback,manager)
-         values (${text},'${user}')
+         values ('${text}','${user}')
          returning *
          `
       );
