@@ -4,12 +4,13 @@ const norisdb = require("../../db/noris/noris");
 
 const createFeedback = async (req,res)=>{
     const {text,user} = req.body;
+    let myText = text.trim()
     console.log(req.body);
     try {
       const newFeedBack = await norisdb.query(
         `
          INSERT INTO feedback (feedback,manager)
-         values ('${text}','${user}')
+         values ('${myText}','${user}')
          returning *
          `
       );
