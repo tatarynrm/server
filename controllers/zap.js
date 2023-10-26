@@ -3,10 +3,11 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const pool = require("../db/pool");
 const axios = require("axios");
 const getAllZap = async (req, res) => {
+  let connection;
   const { KOD_OS } = req.body;
   // console.log("----getAllZap--", KOD_OS);
   try {
-    const connection = await oracledb.getConnection(pool);
+     connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
       `SELECT a.*,
@@ -36,6 +37,16 @@ const getAllZap = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
+  }finally{
+    if (connection) {
+      try {
+        // Close the Oracle database connection
+        await connection.close();
+        console.log("Connection closed successfully.");
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
   }
 };
 const getClosedZap = async (req, res) => {
@@ -94,11 +105,22 @@ const getClosedZap = async (req, res) => {
     res.status(200).json(combinedArray);
   } catch (error) {
     console.log("1---", error);
+  }finally{
+    if (connection) {
+      try {
+        // Close the Oracle database connection
+        await connection.close();
+        console.log("Connection closed successfully.");
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
   }
 };
 
 const getGroups = async (req, res) => {
   const { NGROUP, KOD, DATCLOSE, KOD_AUTHOR, kod } = req.body;
+  let connection;
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(`select a.*,
@@ -109,10 +131,21 @@ const getGroups = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.log(error);
+  } finally{
+    if (connection) {
+      try {
+        // Close the Oracle database connection
+        await connection.close();
+        console.log("Connection closed successfully.");
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
   }
 };
 
 const createZap = async (req, res) => {
+  let connection;
   const {
     pKodAutor,
     pKodGroup,
@@ -209,11 +242,22 @@ const createZap = async (req, res) => {
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
       );
+
       res.status(200).json(result);
     });
   } catch (error) {
     console.log(error);
     res.status(403).json({ message: "Виникла проблема" });
+  }finally{
+    if (connection) {
+      try {
+        // Close the Oracle database connection
+        await connection.close();
+        console.log("Connection closed successfully.");
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
   }
 };
 

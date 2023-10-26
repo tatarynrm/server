@@ -3,13 +3,13 @@ const hbs = require("nodemailer-express-handlebars");
 const path = require("path");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  // service: "smtp",
+  host: "mail.ict.lviv.ua",
+  port: 465,
+  secure: true,
   auth: {
-    user: "tatarynrm@gmail.com",
-    pass: "uexmjdtvgddhnmkj",
+    user: "ict-info-logistics@ict.lviv.ua",
+    pass: "Tfc34#sR51",
   },
 });
 
@@ -35,17 +35,17 @@ transporter.use(
     extName: ".handlebars",
   })
 );
-// const mailOptions = {
-//   from: "tatarynrm@gmail.com",
-//   to: "tatarynrm@gmail.com",
-//   subject: "Sending Email using Node.js",
-//   text: "ok",
-//   template: "email",
-//   //   context: {
-//   //     title: "Title",
-//   //     full_name: "Roman Tataryn",
-//   //   },
-// };
+const mailOptions = {
+  from: "tatarynrm@gmail.com",
+  to: "tatarynrm@gmail.com",
+  subject: "Sending Email using Node.js",
+  text: "ok",
+  template: "email",
+  //   context: {
+  //     title: "Title",
+  //     full_name: "Roman Tataryn",
+  //   },
+};
 
 // transporter.sendMail(mailOptions, (error, info) => {
 //   if (error) {
