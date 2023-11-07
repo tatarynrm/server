@@ -125,7 +125,7 @@ io.on("connection", (socket) => {
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
     // // БОТ
-
+console.log(data);
     // if (data.pZapCina === 1) {
     //   sendMessageToGroupZapCina(bot, data);
     // } else {

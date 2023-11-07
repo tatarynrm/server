@@ -213,7 +213,7 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName,:pKodZap);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -240,6 +240,7 @@ const createZap = async (req, res) => {
           pKilAm: +pKilAm,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+          pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
       );
 
