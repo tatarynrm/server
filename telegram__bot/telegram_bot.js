@@ -101,7 +101,7 @@ left join os f2 on b.kod_menp = f2.kod
 order by recnum desc fetch first 50 rows only
 `);
 let str = '';
-
+console.log(result.rows);
 // console.log(result.rows);
 for (let i = 0; i < result.rows.length; i++) {
   const el = result.rows[i];
