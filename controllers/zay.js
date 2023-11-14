@@ -46,20 +46,10 @@ left join os f2 on b.kod_menp = f2.kod
 where recnum > ${REC_START} and 
      recnum < ${REC_END}`
     );
-    console.log(result);
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
-  }finally{
-    if (connection) {
-      try {
-        // Close the Oracle database connection
-        await connection.close();
-        console.log("Connection closed successfully.");
-      } catch (error) {
-        console.error("Error closing connection: ", error);
-      }
-    }
   }
 };
 
