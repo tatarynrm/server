@@ -101,7 +101,7 @@ left join ur e1 on b.kod_zam = e1.kod
 left join ur e2 on b.kod_per = e2.kod
 left join os f1 on b.kod_menz = f1.kod
 left join os f2 on b.kod_menp = f2.kod
-WHERE  b.datzav > sysdate - 7 and ROWNUM <= 10 
+WHERE  b.datzav > sysdate - 30 and ROWNUM <= 10 
 order by recnum desc 
 `
     );
