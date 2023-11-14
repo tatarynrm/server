@@ -7,7 +7,7 @@ const getAllZap = async (req, res) => {
   const { KOD_OS } = req.body;
   // console.log("----getAllZap--", KOD_OS);
   try {
-     connection = await oracledb.getConnection(pool);
+    connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
       `SELECT a.*,
@@ -37,7 +37,7 @@ const getAllZap = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
-  }finally{
+  } finally {
     if (connection) {
       try {
         // Close the Oracle database connection
@@ -101,11 +101,10 @@ const getClosedZap = async (req, res) => {
       };
     });
 
-
     res.status(200).json(combinedArray);
   } catch (error) {
     console.log("1---", error);
-  }finally{
+  } finally {
     if (connection) {
       try {
         // Close the Oracle database connection
@@ -131,7 +130,7 @@ const getGroups = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.log(error);
-  } finally{
+  } finally {
     if (connection) {
       try {
         // Close the Oracle database connection
@@ -249,7 +248,7 @@ const createZap = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(403).json({ message: "Виникла проблема" });
-  }finally{
+  } finally {
     if (connection) {
       try {
         // Close the Oracle database connection

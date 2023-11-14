@@ -15,6 +15,7 @@ const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
 const fs = require("fs");
 const moment = require("moment");
+require('moment/locale/uk.js');
 const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
@@ -419,6 +420,83 @@ bot.hears("Перезавантажити дані", async (ctx) => {
 // REMINDERS / НАГАДУВАННЯ
 
 // Server run------------------------------------------------------------------------------------------------------
+app.get('/list-ur',async(req,res) =>{
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const data = await connection.execute(`
+    SELECT JSON_OBJECT(
+      'kod' VALUE a.kod,
+      'name' VALUE a.nur,
+      'dogs' VALUE (
+        SELECT JSON_ARRAYAGG(
+          JSON_OBJECT('kod' VALUE b.kod, 'numdoc' VALUE b.numdoc)
+        ) 
+        FROM dog b 
+        WHERE b.kod_ur = a.kod
+      )
+    ) AS result
+    FROM ur a
+  `);
+  // console.log(data.rows);
+  let myArray = [];
+
+  const jsonString = data.rows[0].RESULT;
+for (let i = 0; i < data.rows.length; i++) {
+  const element = data.rows[i];
+  const jsonElement = JSON.parse(element.RESULT)
+  myArray.push(jsonElement)
+}
+  const jsonData = JSON.parse(jsonString);
+  
+  const result = jsonData;
+  console.log(myArray);
+
+res.json(myArray)
+  } catch (error) {
+    console.log(error);
+    res.json(error)
+  }
+})
+
+app.get('/photo',async (req,res)=>{
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const data = await connection.execute(`select a.foto from os a`)
+    console.log(data.rows[1].FOTO);
+    // Функція для читання LOB-потоку і обробки його даних
+function readLobStream(lobStream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+
+    lobStream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    lobStream.on('end', () => {
+      const data = Buffer.concat(chunks);
+      resolve(data);
+    });
+
+    lobStream.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
+readLobStream(data.rows[0].FOTO)
+  .then((data) => {
+    console.log('Read LOB data:', data);
+    // Тут ви можете використовувати data, наприклад, відобразити зображення в React
+    res.json(data)
+  })
+  .catch((error) => {
+    console.error('Error reading LOB stream:', error);
+  });
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);

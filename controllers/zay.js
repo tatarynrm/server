@@ -4,7 +4,6 @@ const pool = require("../db/pool");
 
 const getAllZay = async (req, res) => {
   const { KOD_OS,REC_START,REC_END } = req.body;
-console.log(req.body);
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
