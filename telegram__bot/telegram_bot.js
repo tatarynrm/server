@@ -84,7 +84,7 @@ from
  join zaylst b on a.kod = b.kod_zay
  where a.kod_zaym is null and
        a.datprov is not null and
-       (b.kod_menz = ${KOD_OS} or b.kod_menp = ${KOD_OS})
+       (b.kod_menz = 35781 or b.kod_menp = 35781)
  order by b.datzav desc
  ) t
 ) t
@@ -98,7 +98,7 @@ left join ur e1 on b.kod_zam = e1.kod
 left join ur e2 on b.kod_per = e2.kod
 left join os f1 on b.kod_menz = f1.kod
 left join os f2 on b.kod_menp = f2.kod
-WHERE ROWNUM <= 50
+WHERE ROWNUM <= 10
 order by recnum desc 
 `);
 let str = '';
