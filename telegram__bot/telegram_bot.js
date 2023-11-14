@@ -122,8 +122,6 @@ console.log(result.rows);
         } ${el.VOD1TEL}\n____________________`;
       }
       await ctx.reply(`Моя експедиція.\nОстанні 50 завантажень :\n${str}`);
-    } else {
-      await ctx.reply(`У вас не було завантажень за останні 7 днів`);
     }
   } else {
     await ctx.reply("Я не знайшов ваших заявок.");
