@@ -106,7 +106,7 @@ order by recnum desc
 `
     );
 console.log(result.rows);
-    if (result.rows > 0) {
+   
       let str = "";
       console.log(result.rows);
       // console.log(result.rows);
@@ -122,7 +122,7 @@ console.log(result.rows);
         } ${el.VOD1TEL}\n____________________`;
       }
       await ctx.reply(`Моя експедиція.\nОстанні 50 завантажень :\n${str}`);
-    }
+
   } else {
     await ctx.reply("Я не знайшов ваших заявок.");
   }
