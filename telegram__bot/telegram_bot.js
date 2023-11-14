@@ -84,7 +84,7 @@ from
  join zaylst b on a.kod = b.kod_zay
  where a.kod_zaym is null and
        a.datprov is not null and
-       (b.kod_menz = 35781 or b.kod_menp = 35781)
+       (b.kod_menz = ${KOD_OS} or b.kod_menp = ${KOD_OS})
  order by b.datzav desc
  ) t
 ) t
