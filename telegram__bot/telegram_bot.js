@@ -105,7 +105,7 @@ WHERE  b.datzav > sysdate - 30 and ROWNUM <= 10
 order by recnum desc 
 `
     );
-
+console.log(result.rows);
     if (result.rows > 0) {
       let str = "";
       console.log(result.rows);
