@@ -43,7 +43,10 @@ bot.start(async (ctx) => {
     await ctx.telegram.sendMessage(ctx.chat.id, "Ви в режимі користувача.");
     await ctx.reply("Функції користувача", {
       reply_markup: {
-        keyboard: [[{ text: "Моя експедиція" }]],
+        keyboard: [
+          [{ text: "Моя експедиція" }],
+          [{ text: "Некомплект документів" }],
+        ],
         resize_keyboard: true,
       },
     });
@@ -56,6 +59,8 @@ bot.hears("test", async (ctx) => {
     { caption: "Усі тести пройдено!" }
   );
 });
+
+const myExpedition = []
 bot.hears("Моя експедиція", async (ctx) => {
   const connection = await oracledb.getConnection(pool);
   connection.currentSchema = "ICTDAT";
@@ -86,7 +91,7 @@ from
  from zay a
  join zaylst b on a.kod = b.kod_zay
  where a.kod_zaym is null and
-       a.datprov is not null and
+       a.datprov is not null  and 
        (b.kod_menz = ${KOD_OS} or b.kod_menp = ${KOD_OS})
  order by b.datzav desc
  ) t
@@ -101,32 +106,76 @@ left join ur e1 on b.kod_zam = e1.kod
 left join ur e2 on b.kod_per = e2.kod
 left join os f1 on b.kod_menz = f1.kod
 left join os f2 on b.kod_menp = f2.kod
-WHERE  b.datzav > sysdate - 30 and ROWNUM <= 10 
+WHERE  b.datzav > sysdate - 100 and ROWNUM <= 50 
 order by recnum desc 
 `
     );
-console.log(result.rows);
-   
-      let str = "";
-      console.log(result.rows);
-      // console.log(result.rows);
-      for (let i = 0; i < result.rows.length; i++) {
-        const el = result.rows[i];
-        console.log(el);
-        str += `\n${i + 1}\n${moment(el.DATZAV).format("L")}\n${el.ZAV} - ${
-          el.ROZV
-        }\nЗамовник: ${el.ZAM}\nПеревізник: ${el.PER}\nМенеджер замовника: ${
-          el.MENZ
-        }\nМенеджер перевізника: ${el.MENP}\nАвто:${el.AM}/${el.PR}\nВодій: ${
-          el.VOD1
-        } ${el.VOD1TEL}\n____________________`;
-      }
-      await ctx.reply(`Моя експедиція.\nОстанні 50 завантажень :\n${str}`);
 
+
+
+
+if (result.rows.length > 0) {
+  myExpedition.push(...result.rows)
+  let str = "";
+result.rows.sort((a,b)=>   a.DATZAV - b.DATZAV)
+  // console.log(result.rows);
+  for (let i = 0; i < result.rows.length; i++) {
+    const el = result.rows[i];
+
+    str += `______\n${i + 1} ${moment(el.DATZAV).format("L")} ${el.ZAV} - ${
+      el.ROZV
+    } Водій: ${el.VOD1}\n______`;
+  }
+  await ctx.reply(`Моя експедиція.\nЗавантаження за останнім 100 днів (сортування по даті завантаження) :\n\n${str}\n\n`);
+
+  function generateCalendarKeyboard(result) {
+    const keyboard = [];
+    let row = [];
+    
+    for (let i = 0; i < result.rows.length; i++) {
+      const el = result.rows[i];
+      row.push({ text: `${i + 1}`, callback_data: `zay_${i + 1}` });
+      
+      if (row.length === 6 || i === result.rows.length - 1) {
+        keyboard.push(row);
+        row = [];
+      }
+    }
+    
+    return keyboard;
+  }
+  const keyboard = {
+    inline_keyboard: generateCalendarKeyboard(result),
+  };
+
+  // Відправлення повідомлення з клавіатурою
+  bot.telegram.sendMessage(ctx.message.from.id, 'Оберіть заявку:', { reply_markup: keyboard });
+  console.log(result.rows[0]);
+}else {
+  await ctx.reply("У вас немає заявок за останні 30 днів.");
+}
+   
   } else {
     await ctx.reply("Я не знайшов ваших заявок.");
   }
 });
+
+bot.on('callback_query',async ctx =>{
+  const query_data = ctx.update.callback_query.data;
+ if (query_data.startsWith('zay_')) {
+  const myZay = query_data.split('_')[1] - 1
+  console.log(myZay);
+const zay = myExpedition[myZay]
+if (zay) {
+  await ctx.replyWithHTML(`Дата завантаження: ${moment(zay.DATZAV).format('L')}\nМісце завантаження: ${zay.ZAV}\nМісце розвантаження: ${zay.ROZV}\nЗамовник: ${zay.ZAM}\nПеревізник: ${zay.PER}\nВодій / Авто: ${zay.VOD1} <code>${zay.VOD1TEL}</code>\n${zay.AM} - ${zay.PR}\n\nОперативна інформація:\nМенеджер замовника: ${zay.MENZ}\nМенеджер перевізника: ${zay.MENP}`,{parse_mode:"HTML"})
+}else {
+  await ctx.reply('Натисніть на кнопку Моя експедиція для завантаження актуальних даних')
+}
+
+ }else {
+  await ctx.reply('Немає такого значення')
+ }
+})
 
 bot.hears("Нагадування:Актуальність заявок", async (ctx) => {
   try {
@@ -195,6 +244,78 @@ bot.hears("Аршулік М.В.", async (ctx) => {
 
   ctx.reply(my.join(`\n`));
 });
+
+
+
+// Основна функція для створення клавіатури
+function generateCalendarKeyboard() {
+  const keyboard = [];
+  let row = [];
+  for (let i = 1; i <= 30; i++) {
+    row.push({ text: `${i}`, callback_data: `day_${i}` });
+    if (i % 5 === 0) {
+      keyboard.push(row);
+      row = [];
+    }
+  }
+  return keyboard;
+}
+console.log(generateCalendarKeyboard());
+// Обробник команди /start
+bot.hears('da', (msg) => {
+  const chatId = msg.message.from.id;
+
+  // Отримання клавіатури
+  const keyboard = {
+    inline_keyboard: generateCalendarKeyboard(),
+  };
+
+  // Відправлення повідомлення з клавіатурою
+  bot.telegram.sendMessage(chatId, 'Оберіть число:', { reply_markup: keyboard });
+});
+
+// Обробник кнопок
+bot.on('callback_query',async (query) => {
+  const callbackQueryId = query.id;
+  const chatId = query.from.id;
+  const chosenDay = query.update.callback_query.data.split('_')[1]
+  bot.telegram.sendMessage(chatId, `Ви обрали день ${chosenDay}`);
+  await query.answerCbQuery(`Ви обрали ${chosenDay}`)
+});
+
+bot.hears("Некомплект документів",async ctx =>{
+  const connection = await oracledb.getConnection(pool);
+  connection.currentSchema = "ICTDAT";
+  zhyla_id = 35781
+  // petya_id = 38001
+  const getManagerId = await connection.execute(`select * from us where TELEGRAMID = ${ctx.message.from.id}`)
+  console.log();
+  const managerKOD = getManagerId.rows[0].KOD_OS
+  if (managerKOD) {
+    const manager = await connection.execute(`select * from zay where kod_menp = ${managerKOD} and  pernekomplekt is not null`);
+
+    if (manager.rows.length > 0) {
+      let msg = '';
+      let cont =[]
+      let obj = {}
+      for (let i = 0; i < manager.rows.length; i++) {
+        const el = manager.rows[i];
+          obj.nekom = el.PERNEKOMPLKT
+          cont.push(obj)
+      msg += `${moment(el.PERDATKOMPLEKT).format('L')} - ${el.PERNEKOMPLEKT} \n`
+      }
+      await ctx.reply(msg)
+    }else {
+      await ctx.reply("У вас немає некомплектів документів")
+    }
+  }else {
+    await ctx.reply('Виникла якась помилка на сервері...')
+  }
+
+
+
+
+})
 
 bot.launch();
 
