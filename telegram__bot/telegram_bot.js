@@ -106,7 +106,7 @@ left join ur e1 on b.kod_zam = e1.kod
 left join ur e2 on b.kod_per = e2.kod
 left join os f1 on b.kod_menz = f1.kod
 left join os f2 on b.kod_menp = f2.kod
-WHERE  b.datzav > sysdate - 100 and ROWNUM <= 50 
+WHERE  b.datzav > sysdate - 30 and ROWNUM <= 30
 order by recnum desc 
 `
     );
@@ -126,7 +126,7 @@ result.rows.sort((a,b)=>   a.DATZAV - b.DATZAV)
       el.ROZV
     } Водій: ${el.VOD1}\n______`;
   }
-  await ctx.reply(`Моя експедиція.\nЗавантаження за останнім 100 днів (сортування по даті завантаження) :\n\n${str}\n\n`);
+  await ctx.reply(`Моя експедиція.\nЗавантаження за останнім 30 днів (сортування по даті завантаження) :\n\n${str}\n\n`);
 
   function generateCalendarKeyboard(result) {
     const keyboard = [];
@@ -286,14 +286,19 @@ bot.on('callback_query',async (query) => {
 bot.hears("Некомплект документів",async ctx =>{
   const connection = await oracledb.getConnection(pool);
   connection.currentSchema = "ICTDAT";
-  zhyla_id = 35781
+  // zhyla_id = 35781
   // petya_id = 38001
   const getManagerId = await connection.execute(`select * from us where TELEGRAMID = ${ctx.message.from.id}`)
-  console.log();
+
   const managerKOD = getManagerId.rows[0].KOD_OS
   if (managerKOD) {
-    const manager = await connection.execute(`select * from zay where kod_menp = ${managerKOD} and  pernekomplekt is not null`);
-
+    const manager = await connection.execute(` 
+    SELECT *
+    FROM zay
+    WHERE kod_menz IN (35781)
+      AND kod_menp IN (35781)
+      AND pernekomplekt IS NOT NULL AND ROWNUM <= 20`);
+      console.log(manager.rows);
     if (manager.rows.length > 0) {
       let msg = '';
       let cont =[]
@@ -302,7 +307,7 @@ bot.hears("Некомплект документів",async ctx =>{
         const el = manager.rows[i];
           obj.nekom = el.PERNEKOMPLKT
           cont.push(obj)
-      msg += `${moment(el.PERDATKOMPLEKT).format('L')} - ${el.PERNEKOMPLEKT} \n`
+      msg += `${el.PERDATKOMPLEKT ? moment(el.PERDATKOMPLEKT).format('L') : ''}\nЗаявка: ${el.NUM} - ${el.PERNEKOMPLEKT}\n\n`
       }
       await ctx.reply(msg)
     }else {
