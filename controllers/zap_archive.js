@@ -275,8 +275,7 @@ const deleteZap = async (req, res) => {
 };
 const zakrZap = async (req, res) => {
   const { pKodAutor, pKodZap, pKodMen, pKilAmZakr } = req.body;
-
-
+  console.log(pKodMen);
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(

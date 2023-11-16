@@ -13,13 +13,14 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const fs = require("fs");
 const moment = require("moment");
 require('moment/locale/uk.js');
 const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
-oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
-const OracleEventEmitter = require("./utils/eventEmitters");
+
+
 const {
   sendMessageToGroup,
   sendMessageToGroupZapCina,
@@ -31,6 +32,7 @@ const cargosRoute = require("./routes/cargos");
 const zasRoute = require("./routes/zas");
 const UrRoute = require("./routes/UR");
 const zapRoute = require("./routes/zap");
+const zapArchiveRoute = require("./routes/zap_archive");
 const commentsRoute = require("./routes/comments");
 const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
@@ -73,6 +75,7 @@ app.use("/cargos", cargosRoute);
 app.use("/zas", zasRoute);
 app.use("/ur", UrRoute);
 app.use("/zap", zapRoute);
+app.use("/zap-archive", zapArchiveRoute);
 app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
@@ -126,7 +129,7 @@ io.on("connection", (socket) => {
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
     // // БОТ
-console.log(data);
+// console.log(data);
     if (data.pZapCina === 1) {
       sendMessageToGroupZapCina(bot, data);
     } else {
