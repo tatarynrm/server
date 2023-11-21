@@ -205,7 +205,7 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -369,7 +369,7 @@ const editZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,,pFrahtOur,:pFrahtPer,:pZamName);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
       END;`,
         {
           pKodAuthor,
