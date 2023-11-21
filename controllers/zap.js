@@ -149,6 +149,8 @@ const createZap = async (req, res) => {
     pKilAm,
     pPunktZ,
     pPunktR,
+    pFrahtOur,
+    pFrahtPer
   } = req.body;
 
   try {
@@ -203,7 +205,7 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName,:pKodZap,:pZapNum);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -228,6 +230,8 @@ const createZap = async (req, res) => {
           pZapText,
           pZapCina,
           pKilAm: +pKilAm,
+          pFrahtOur:pFrahtOur ?pFrahtOur: null,
+          pFrahtPer:pFrahtPer ?pFrahtPer : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -329,6 +333,8 @@ const editZap = async (req, res) => {
     rozvInfo,
     pZapCina,
     pKilAm,
+    pFrahtOur,
+    pFrahtPer
   } = req.body;
 
   try {
@@ -363,7 +369,7 @@ const editZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pZamName);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,,pFrahtOur,:pFrahtPer,:pZamName);
       END;`,
         {
           pKodAuthor,
@@ -382,6 +388,8 @@ const editZap = async (req, res) => {
           pZapText,
           pZapCina,
           pKilAm,
+          pFrahtOur:pFrahtOur ?pFrahtOur: null,
+          pFrahtPer:pFrahtPer ?pFrahtPer : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
         }
       );
