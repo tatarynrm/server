@@ -11,15 +11,16 @@ const getAllZapArchive = async (req, res) => {
     connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
-      `select a.*,b.KOD_OS as menzakr,b.KILAMZAKR as kilammenzark,b.KOD_ZAP as ZAPKOD
+      `select a.*,b.KOD_OS as menzakr,b.KILAMZAKR as kilammenzark,b.KOD_ZAP as ZAPKOD,c.PIP as MANAGERPIPCLOSE
       from zap a 
       left join zapzakr b on a.kod = b.kod_zap
+      left join os c on b.KOD_OS = c.KOD
       where a.KOD_OS = ${KOD_OS} and b.KOD_OS is not null`
     );
 
 const array = result.rows
 
-
+console.log(array[0]);
 const resultArray = [];
 
 for (const obj of array) {
@@ -27,46 +28,30 @@ for (const obj of array) {
 
   if (!existingItem) {
     // If no item with the same KOD, create a new entry with an OWN array
-    resultArray.push({ KOD:obj.KOD, OWN: [{ MENZAKR: obj.MENZAKR, COUNT: obj.KILAMMENZARK }] });
+    resultArray.push(
+      {ZAPNUM:obj.ZAPNUM, 
+        KOD:obj.KOD,
+        ZAV:obj.ZAV,
+        ROZV:obj.ROZV,
+        DAT:obj.DAT,
+        
+         CLOSEMANAGER: [{ MENZAKR: obj.MANAGERPIPCLOSE, COUNT: obj.KILAMMENZARK }] 
+      }
+      );
   } else {
     // If there is an item with the same KOD, push RES and HELP values into the OWN array
-    existingItem.OWN.push({ MENZAKR: obj.MENZAKR, COUNT: obj.KILAMMENZARK });
+    existingItem.CLOSEMANAGER.push({ MENZAKR: obj.MANAGERPIPCLOSE, COUNT: obj.KILAMMENZARK });
   }
 }
 
-console.log(resultArray);
-
-
-// const arrayOfObjects = [
-//   { KOD: 5555, RES: 1, HELP: 3 },
-//   { KOD: 5555, RES: 1, HELP: 3 },
-//   { KOD: 5555, RES: 1, HELP: 3 },
-//   { KOD: 5575, RES: 1, HELP: 3 },
-//   { KOD: 5555, RES: 1, HELP: 3 }
-// ];
-
-// const resultArray = [];
-
-// for (const obj of arrayOfObjects) {
-//   const existingItem = resultArray.find(item => item.KOD === obj.KOD);
-
-//   if (!existingItem) {
-//     // If no item with the same KOD, create a new entry with an OWN array
-//     resultArray.push({ KOD: obj.KOD, OWN: [{ RES: obj.RES, HELP: obj.HELP }] });
-//   } else {
-//     // If there is an item with the same KOD, push RES and HELP values into the OWN array
-//     existingItem.OWN.push({ RES: obj.RES, HELP: obj.HELP });
-//   }
-// }
-
 // console.log(resultArray);
+// const all  = resultArray.map(item => item.CLOSEMANAGER)
+// console.log(all);
 
 
 
 
-
-
-  res.status(200).json(array);
+  res.status(200).json(resultArray);
 
 
 
