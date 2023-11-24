@@ -67,7 +67,7 @@ const getContrAgents = async (req, res) => {
       OR NDOV LIKE '$${search}'
       OR NDOV LIKE '${search}'
       OR ZKPO LIKE '${search}'
-      OR ZKPO LIKE '${search}$'
+      OR ZKPO LIKE '${search}$' 
       OR ZKPO LIKE '$${search}'
       OR UPPER( NDOV ) LIKE '${search}%'
       OR UPPER( NDOV ) LIKE '%${search}_%'
