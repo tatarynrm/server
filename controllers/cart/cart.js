@@ -23,7 +23,7 @@ const getDepartments = async (req, res) => {
 const getAllPrinters = async (req, res) => {
   try {
     const printers = await cartridge.query(
-      `SELECT a.*,b.model,b.id,c.dep_name as prnId from prn a
+      `SELECT a.*,b.model,b.id,c.id as department_id,c.dep_name as prnId from prn a
       left join prn_model b on a.prn_model_id = b.id
       left join dep c on a.dep_id = c.id
       `
@@ -72,8 +72,36 @@ const changePrinterModel = async (req, res) => {
     console.log(error);
   }
 };
+const changePrinterDep = async (req, res) => {
+  const {dep_id,prn_inv} = req.body
+  console.log(dep_id,prn_inv);
+  try {
+    // Ваш SQL-запит для оновлення даних
+    const query = 'UPDATE prn SET dep_id = $1 WHERE prn_inv = $2';
+    const values = [dep_id, prn_inv];
+
+    const result = await cartridge.query(query, values);
+    console.log('Rows affected:', result.rowCount);
+    res.status(200).json(result)
+  } catch(error){
+    console.log(error);
+  }
+};
 
 
+
+const getAllDepartments = async (req, res) => {
+  try {
+    const departments = await cartridge.query(
+      `SELECT * from dep`
+    );
+    if (departments) {
+      res.status(200).json(departments.rows);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = {
   getCart,
@@ -81,6 +109,8 @@ module.exports = {
   getAllPrinters,
   getCartModel,
   getCartriges,
+  getAllDepartments,
   // Updates
-  changePrinterModel
+  changePrinterModel,
+  changePrinterDep
 };
