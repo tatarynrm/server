@@ -57,6 +57,23 @@ const getCartriges = async (req, res) => {
     console.log(error);
   }
 };
+const changePrinterModel = async (req, res) => {
+  const {id,model} = req.body
+  console.log(id,model);
+  try {
+    // Ваш SQL-запит для оновлення даних
+    const query = 'UPDATE prn_model SET model = $1 WHERE id = $2';
+    const values = [model, id];
+
+    const result = await cartridge.query(query, values);
+    console.log('Rows affected:', result.rowCount);
+    res.status(200).json(result)
+  } catch(error){
+    console.log(error);
+  }
+};
+
+
 
 module.exports = {
   getCart,
@@ -64,4 +81,6 @@ module.exports = {
   getAllPrinters,
   getCartModel,
   getCartriges,
+  // Updates
+  changePrinterModel
 };

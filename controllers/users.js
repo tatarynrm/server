@@ -129,6 +129,33 @@ const getAllUsersToCloseZap = async (req, res) => {
     console.log(error);
   }
 };
+const getAllUsersForSite = async (req, res) => {
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const result = await connection.execute(`
+    select b.nviddil,
+    a.ismen,
+    a.isnv,
+    a.pipfull as os,
+    os_$$pkg.GetTelRob(a.kod) as tel,
+    os_$$pkg.GetEMailSl(a.kod) as email
+from os a
+left join viddil b on b.kod = os_$$pkg.GetKodViddil(a.kod)
+where a.zvildat is null
+order by decode(a.isdir, 1, 1, 2),
+      b.nviddil,
+      decode(a.isnv, 1, 1, 2),
+      os
+    `);
+ 
+    res.status(200).json(result.rows);
+
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 
@@ -140,5 +167,6 @@ module.exports = {
   getAllManagers,
   getAllOsManagers,
   getAllOsManagersTg,
-  getAllUsersToCloseZap
+  getAllUsersToCloseZap,
+  getAllUsersForSite
 };

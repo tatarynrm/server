@@ -74,7 +74,16 @@ const login = async (req, res) => {
         AND b.DB_PASSWD = '${password}'
     ORDER BY
         a.pip ASC`);
-
+        if (!user) {
+          return res.status(404).json({
+            message: "Користувача не знайдено",
+          });
+        }
+        if (user.rows.length === 0) {
+          return res.status(404).json({
+            message: "Користувача не знайдено",
+          });
+        }
     const token = jwt.sign(
       {
         id: user.rows[0].KOD,
@@ -113,16 +122,7 @@ END;`,
         .json({ ...user, token: token, OTP: telegramCode.rows[0].OTPCODE });
     }
 
-    if (!user) {
-      return res.status(404).json({
-        message: "Користувача не знайдено",
-      });
-    }
-    if (user.rows.length === 0) {
-      return res.status(404).json({
-        message: "Користувача не знайдено",
-      });
-    }
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -131,6 +131,7 @@ END;`,
   }
 };
 const getMe = async (req, res) => {
+  console.log(req);
   try {
     const connection = await oracledb.getConnection(pool);
     const user = await connection.execute(`SELECT

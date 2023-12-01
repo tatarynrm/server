@@ -20,7 +20,7 @@ const getAllZapArchive = async (req, res) => {
 
 const array = result.rows
 
-console.log(array[0]);
+
 const resultArray = [];
 
 for (const obj of array) {
@@ -34,7 +34,6 @@ for (const obj of array) {
         ZAV:obj.ZAV,
         ROZV:obj.ROZV,
         DAT:obj.DAT,
-        
          CLOSEMANAGER: [{ MENZAKR: obj.MANAGERPIPCLOSE, COUNT: obj.KILAMMENZARK }] 
       }
       );
