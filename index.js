@@ -41,6 +41,7 @@ const cartRoutes = require("./routes/cart/cart");
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
+const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -500,6 +501,119 @@ readLobStream(data.rows[0].FOTO)
   }
 })
 
+
+// Перевірка, чи є значення електронною адресою
+function isEmail(value) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(value);
+}
+
+// Перевірка, чи є значення номером телефону
+function isPhoneNumber(value) {
+  // Регулярний вираз для валідації українського номера телефону
+  const ukrainianPhoneRegex = /^(?:\+38)?(?:\(?0\d{1,2}\)?)?\d{9}$/;
+
+  return ukrainianPhoneRegex.test(value);
+}
+
+function validateEmail(email) {
+  // Регулярне вираження для перевірки електронного адресу
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Регулярне вираження для перевірки російського домену
+  const russianDomainRegex = /\.ru$/i;
+
+  // Перевірка електронного адреса
+  if (emailRegex.test(email)) {
+    // Перевірка на російський домен
+    if (!russianDomainRegex.test(email)) {
+      // Електронний адрес відповідає вимогам
+      return true;
+    }
+  }
+
+  // Електронний адрес не відповідає вимогам
+  return false;
+}
+
+function formatEmail(email) {
+  // Упевнитися, що електронний адрес у нижньому регістрі (за бажанням)
+  email = email.toLowerCase();
+
+  // Додаткові етапи форматування можна додати за необхідності
+
+  return email;
+}
+let emailsAll = []
+const getAllUrEmail = async ()=>{
+  let emails = []
+  try {
+    const conn = await oracledb.getConnection(pool)
+    conn.currentSchema = 'ICTDAT'
+  //  const result  = await conn.execute(`select VAL from kontaktval`)
+   const result  = await conn.execute(`
+   select a.kod as kod_kontakt,
+       b.kod,
+       a.kod_ur,
+       c.drcode,
+       a.nkontakt,
+       a.prim,
+       b.val,
+       c.ntype,
+       e.nur,
+       e.perekmt,
+       e.peradr,
+       e.pernegabarit,
+       f.nkraina,
+       g.nobl
+from kontakt a
+left join kontaktval b on a.kod = b.kod_kontakt
+left join kontakttype c on b.kod_type = c.kod
+join ur e on a.kod_ur = e.kod
+left join kraina f on e.kod_kraina = f.kod
+left join obl g on e.kod_obl = g.kod
+where c.drcode = 'EMAIL' and
+      exists (select * from zaylst u where (u.kod_zam = a.kod_ur or u.kod_per = a.kod_ur) and u.perevdat >= to_date('01.01.2023','DD.MM.YYYY'))
+   `)
+
+console.log(result.rows);
+
+
+    // Обробка результатів запиту
+//     result.rows.forEach((row) => {
+//       const value = row.VAL;
+// // 
+//       // Перевірка, чи є значення електронною адресою
+//       if (isEmail(value)) {
+//         console.log(`Електронна адреса: ${value}`);
+//         // emails.push(value)
+//         if (validateEmail(value)) {
+//           emails.push(value)
+//         }
+     
+//       }
+//       // Перевірка, чи є значення номером телефону
+//       else if (isPhoneNumber(value)) {
+//         console.log(`Номер телефону: ${value}`);
+//       }
+//       // Інші варіанти обробки за необхідності
+//       else {
+//         console.log('NOTHING');
+//       }
+
+//     });
+   
+  //   emailsAll.push(emails)
+  // return emailsAll
+  } catch (error) {
+    console.log(error);
+  }
+}
+// getAllUrEmail()
+// if (emailsAll.length > 0) {
+//   console.log(emailsAll,'-----------');
+// }
+// sendNewYearEmail()
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });

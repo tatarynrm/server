@@ -72,6 +72,21 @@ const changePrinterModel = async (req, res) => {
     console.log(error);
   }
 };
+const changeCartridgeModel = async (req, res) => {
+  const {id,model} = req.body
+  console.log(id,model);
+  try {
+    // Ваш SQL-запит для оновлення даних
+    const query = 'UPDATE cart_model SET model = $1 WHERE id = $2';
+    const values = [model, id];
+
+    const result = await cartridge.query(query, values);
+    console.log('Rows affected:', result.rowCount);
+    res.status(200).json(result)
+  } catch(error){
+    console.log(error);
+  }
+};
 const changePrinterDep = async (req, res) => {
   const {dep_id,prn_inv} = req.body
   console.log(dep_id,prn_inv);
@@ -102,6 +117,72 @@ const getAllDepartments = async (req, res) => {
     console.log(error);
   }
 };
+const addPrinterModel = async (req, res) => {
+  const {model} = req.body;
+  console.log(model);
+  try {
+    const query = {
+      text: 'INSERT INTO prn_model(model) VALUES($1)',
+      values: [model],
+    };
+  
+    cartridge.query(query)
+      .then(() => res.status(200).json({msg:"Success"}))
+      .catch((err) => console.error('Error inserting data', err));
+  } catch (error) {
+    console.log(error);
+  }
+};
+const addCartridgeModel = async (req, res) => {
+  const {model} = req.body;
+  
+  try {
+    const query = {
+      text: 'INSERT INTO cart_model(model) VALUES($1)',
+      values: [model],
+    };
+  
+    cartridge.query(query)
+      .then(() => res.status(200).json({msg:"Success"}))
+      .catch((err) => console.error('Error inserting data', err));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
+const deletePrinterModel = async (req, res) => {
+  const {active,id,deleteMess} = req.body;
+  console.log(req.body);
+  try {
+    // Ваш SQL-запит для оновлення даних
+    const query = 'UPDATE prn_model SET active = $1,delete_comment =$2 WHERE id = $3';
+    const values = [active,deleteMess, id];
+    const result = await cartridge.query(query, values);
+    console.log('Rows affected:', result.rowCount);
+    res.status(200).json(result)
+  } catch(error){
+    console.log(error);
+  }
+};
+const deleteCartridgeModel = async (req, res) => {
+  const {active,id,deleteMess} = req.body;
+  console.log(req.body);
+  try {
+    // Ваш SQL-запит для оновлення даних
+    const query = 'UPDATE cart_model SET active = $1,delete_comment =$2 WHERE id = $3';
+    const values = [active,deleteMess, id];
+    const result = await cartridge.query(query, values);
+    console.log('Rows affected:', result.rowCount);
+    res.status(200).json(result)
+  } catch(error){
+    console.log(error);
+  }
+};
+
 
 module.exports = {
   getCart,
@@ -112,5 +193,13 @@ module.exports = {
   getAllDepartments,
   // Updates
   changePrinterModel,
-  changePrinterDep
+  changeCartridgeModel,
+  changePrinterDep,
+  // ADD
+  addPrinterModel,
+  addCartridgeModel,
+
+  // DELETE
+  deletePrinterModel,
+  deleteCartridgeModel
 };
