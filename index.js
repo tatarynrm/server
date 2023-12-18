@@ -131,17 +131,39 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 // console.log(data);
-    if (data.pZapCina === 1) {
-      sendMessageToGroupZapCina(bot, data);
-    } else {
-      sendMessageToGroup(bot, data);
-    }
+    // if (data.pZapCina === 1) {
+    //   sendMessageToGroupZapCina(bot, data);
+    // } else {
+    //   sendMessageToGroup(bot, data);
+    // }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
   });
   socket.on("refreshZap", (data) => {
     io.emit("refreshAllZap", data);
+
+    if (data !==undefined || data !== null) {
+   
+      const refreshZapMessageToAllUsers = async (data)=>{
+        try {
+          const connection = await oracledb.getConnection(pool);
+          connection.currentSchema = "ICTDAT";
+          const result = await connection.execute(`select * from zap where KOD = ${data}`);
+          console.log(result.rows[0]);
+          const zapData = result.rows[0]
+if (zapData !== null || zapData !== undefined) {
+  io.emit('refreshMsg',zapData)
+}
+        } catch (error) {
+          console.log(error);
+        }
+
+      }
+      refreshZapMessageToAllUsers(data)
+    }else {
+      console.log('UNDEFINED KOD');
+    }
   });
   socket.on("editZap", (data) => {
     io.emit("showEditZap", data);
@@ -602,7 +624,6 @@ console.log(result.rows);
 //       }
 
 //     });
-   
   //   emailsAll.push(emails)
   // return emailsAll
   } catch (error) {
