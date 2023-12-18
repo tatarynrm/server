@@ -131,11 +131,11 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 // console.log(data);
-    // if (data.pZapCina === 1) {
-    //   sendMessageToGroupZapCina(bot, data);
-    // } else {
-    //   sendMessageToGroup(bot, data);
-    // }
+    if (data.pZapCina === 1) {
+      sendMessageToGroupZapCina(bot, data);
+    } else {
+      sendMessageToGroup(bot, data);
+    }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
