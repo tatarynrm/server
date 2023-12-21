@@ -59,9 +59,9 @@ const sendNewYearEmail = async (text) => {
         template:"email",
               context: {
         text:text,
-        img:'https://api.ict.lviv.ua/files/new-year.jpeg' ,
+        img:'https://api.ict.lviv.ua/files/new-year.jpeg',
       },
-      to: ['tatarynrm@gmail.com',"lembergus@gmail.com"],
+      to: ['tatarynrm@gmail.com'],
       };
   try {
     const mail = await transporter.sendMail(mailOptions, (error, info) => {
