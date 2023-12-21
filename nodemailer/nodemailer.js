@@ -54,7 +54,6 @@ const mailOptions = {
 //     console.log(`Email sent: ${info.response}`);
 //   }
 // });
-
 // const sendBuhTransport = async () => {
 //   const mailOptions = {
 //     from: "tatarynrm@gmail.com",

@@ -13,6 +13,7 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
+const multer = require('multer');
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const fs = require("fs");
 const moment = require("moment");
@@ -38,6 +39,7 @@ const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
 const cartRoutes = require("./routes/cart/cart");
+const emailRoutes = require('./routes/emails')
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
@@ -67,6 +69,11 @@ app.use(
     },
   })
 );
+// app.use(express.static('public'));
+// app.use(express.static('/uploads'));
+// app.use('/uploads',express.static('public'));
+// app.use('/files',express.static('public'));
+app.use('/files', express.static(__dirname + '/uploads'));
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -83,6 +90,7 @@ app.use("/zay", zayRoutes);
 app.use("/groups", groupsRoutes);
 app.use("/cart", cartRoutes);
 app.use("/feedback", feedbackNorisRoute);
+app.use("/email", emailRoutes);
 // ROUTES------------------------------------------------------------------------------------------------------
 // app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
@@ -634,7 +642,50 @@ console.log(result.rows);
 // if (emailsAll.length > 0) {
 //   console.log(emailsAll,'-----------');
 // }
-// sendNewYearEmail()
+// Налаштування Multer для збереження файлів у папці
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Папка для збереження файлів
+  },
+  filename: (req, file, cb) => {
+    cb(null, `new-year`+`.jpeg`);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// sendNewYearEmail(photoBuffer,text)
+
+
+app.post('/upload', upload.single('photo'), (req, res) => {
+  try {
+    const photoBuffer = req.file.buffer;
+    // Handle the photo buffer as needed, e.g., save to disk or process it.
+    console.log('Received photo:', photoBuffer);
+
+    res.status(200).send('Photo uploaded successfully!');
+  } catch (error) {
+    console.error('Error handling photo:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/files', async (req, res) => {
+  const uploadsPath = path.join(__dirname, 'uploads');
+
+  try {
+    const files = await fs.readdirSync(uploadsPath);
+    res.json({ files });
+  } catch (error) {
+    console.error('Помилка отримання списку файлів', error);
+    res.status(500).json({ error: 'Помилка отримання списку файлів' });
+  }
+});
+
+
+
+
+
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });

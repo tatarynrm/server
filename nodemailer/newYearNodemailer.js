@@ -50,14 +50,18 @@ transporter.use(
 //     console.log(`Лист відправлено: ${info.response}`);
 //   }
 // });
-
-const sendNewYearEmail = async () => {
+const urlImg = 'https://d27jswm5an3efw.cloudfront.net/app/uploads/2019/08/image-url-3.jpg'
+const sendNewYearEmail = async (text) => {
     const mailOptions = {
         from: 'ict-info-logistics@ict.lviv.ua',
         subject: 'ДТЕП ІСТ-Захід вітає вас з Новим Роком!',
         text: "ok",
-        template:"new-year",
-      to: ['ab@ict.lviv.ua'],
+        template:"email",
+              context: {
+        text:text,
+        img:'https://api.ict.lviv.ua/files/new-year.jpeg' ,
+      },
+      to: ['rt@ict.lviv.ua'],
       };
   try {
     const mail = await transporter.sendMail(mailOptions, (error, info) => {
