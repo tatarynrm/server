@@ -61,7 +61,7 @@ const sendNewYearEmail = async (text) => {
         text:text,
         img:'https://api.ict.lviv.ua/files/new-year.jpeg' ,
       },
-      to: ['rt@ict.lviv.ua'],
+      to: ['rt@ict.lviv.ua',"ab@ict.lviv.ua"],
       };
   try {
     const mail = await transporter.sendMail(mailOptions, (error, info) => {
