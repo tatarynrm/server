@@ -67,7 +67,7 @@ console.log(result.rows);
         // "rt@ict.lviv.ua",
         // 'ab@ict.lviv.ua',
         'tatarynrm@gmail.com',
-        'ab@ict.lviv.ua',
+        // 'ab@ict.lviv.ua',
         // 'romannoris007@gmail.com'
       ];
       const twenty_minutes_interval = 20 * 60 * 1000;
