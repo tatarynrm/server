@@ -98,8 +98,17 @@ function sendEmail(toEmail,text) {
     template:"email",
     context: {
 text:text,
-img:'https://api.ict.lviv.ua/files/new-year.jpeg',
+// img:'https://api.ict.lviv.ua/files/new-year.jpeg',
 },
+attachments:[
+  {
+    filename: 'Greettings',
+    content: 'Привітання з Новим Роком!',
+  },
+  {
+    path: imagePath,
+  }]
+
   };
 
   transporter.sendMail(mailOptions, (error, info) => {

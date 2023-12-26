@@ -4,12 +4,13 @@
     <link rel="stylesheet" href="./styles/email.css" />
   </head>
   <style>
- 
+ .img {
+max-width: 50%; /* Ensures the image does not exceed its parent container */
+      height: auto;
+ }
   </style>
   <body>
     <h1 class="title">{{{text}}} </h1>
-
-<img src={{img}} alt="Image">
     {{!-- <div class="name">{{{full_name}}}</div> --}}
   </body>
 </html>
