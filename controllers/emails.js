@@ -63,7 +63,7 @@ console.log(result.rows);
       //   "bolix@ex.ua",
       // ];
       const myEmails = [
-        // "lembergus@gmail.com",
+        "lembergus@gmail.com",
         // "rt@ict.lviv.ua",
         // 'ab@ict.lviv.ua',
         'tatarynrm@gmail.com',
