@@ -35,9 +35,21 @@ const getAllFeedbacks = async (req,res)=>{
       console.log(error);
     }
   }
+const getAllEmailsCount = async (req,res)=>{
+
+    console.log(req.body);
+    try {
+        const result = await norisdb.query('select * from emails')
+     res.json(result.rows)
+    
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
 
 module.exports = {
     createFeedback,
-    getAllFeedbacks
+    getAllFeedbacks,
+    getAllEmailsCount
 }

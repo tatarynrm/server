@@ -63,10 +63,11 @@ console.log(result.rows);
       //   "bolix@ex.ua",
       // ];
       const myEmails = [
-        "johqewjhoqwehoeqwhuiewqujih",
+        "lembergus@gmail.com",
         "rt@ict.lviv.ua",
-        'ab@ict.lviv.ua'
-
+        'ab@ict.lviv.ua',
+        'tatarynrm@gmail.com',
+        'romannoris007@gmail.com'
       ];
       const twenty_minutes_interval = 20 * 60 * 1000;
       let index = 0;
@@ -93,7 +94,7 @@ console.log(result.rows);
           clearInterval(interval); // Зупинити інтервал після відправлення всіх листів
           console.log('Усі листи відправлено');
         }
-      }, 5000); // Відправляти кожні 10 хвилин
+      }, 30000); // Відправляти кожні 10 хвилин
     }
     if (text) {
       scheduleEmails();
