@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require("path");
 const hbs = require('nodemailer-express-handlebars')
 
-const imagePath = path.resolve(__dirname,'../photos/post/new-year.jpg');
+const imagePath = path.resolve(__dirname,'../uploads/new-year.jpeg');
 const imageBuffer = fs.readFileSync(imagePath)
 const base64Image = imageBuffer.toString('base64');
 const base64String = `data:image/jpeg;base64,${base64Image}`;
