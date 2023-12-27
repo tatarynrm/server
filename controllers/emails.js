@@ -130,10 +130,10 @@ console.log(result.rows);
       //   },
 
       // ];
-      const twenty_minutes_interval = 20 * 60 * 1000;
+      const twenty_minutes_interval = 5 * 60 * 1000;
       let index = 0;
       const interval = setInterval(() => {
-        const batch = result.rows.slice(index, index + 140);
+        const batch = result.rows.slice(index, index + 10);
         // const batch = myEmails.slice(index, index + 2);
   
         batch.forEach((email) => {
@@ -148,7 +148,7 @@ console.log(result.rows);
           );
         });
 
-        index += 140;
+        index += 10;
         // index += 2; 
 
         if (index >= result.rows.length) {
