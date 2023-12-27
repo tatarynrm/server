@@ -43,15 +43,15 @@ const sendNewYearEmailFunction = async (req, res) => {
 console.log(result.rows);
 
 
-    const myEmails = [
-      "lembergus@gmail.com",
-      "rt@ict.lviv.ua",
-      "ab@ict.lviv.ua",
-      "ab.ict.lviv@gmail.com",
-      "tatarynrm@gmail.com",
-      "bolix@ex.ua",
-    ];
-    sendEmail('rt@ict.lviv.ua',text)
+    // const myEmails = [
+    //   "lembergus@gmail.com",
+    //   "rt@ict.lviv.ua",
+    //   "ab@ict.lviv.ua",
+    //   "ab.ict.lviv@gmail.com",
+    //   "tatarynrm@gmail.com",
+    //   "bolix@ex.ua",
+    // ];
+    // sendEmail('rt@ict.lviv.ua',text)
     function scheduleEmails() {
       // const emails = []; // Ваш масив із 4000 електронних адрес
       // const myEmails = [
@@ -62,79 +62,79 @@ console.log(result.rows);
       //   "tatarynrm@gmail.com",
       //   "bolix@ex.ua",
       // ];
-      const myEmails = [
+      // const myEmails = [
 
-        {
-          KOD_KONTAKT: 147641,
-          KOD: 594611,
-          KOD_UR: 51011,
-          DRCODE: 'EMAIL',
-          NKONTAKT: 'Іван Йосипович',
-          PRIM: 'логіст',
-          VAL: 'rt@ict.lviv.ua',
-          NTYPE: 'E-Mail',
-          NUR: 'Луньо І.Й.',
-          PEREKMT: null,
-          PERADR: 0,
-          PERNEGABARIT: 0,
-          NKRAINA: 'Україна',
-          NOBL: 'Львівська'
-        },
-        {
-          KOD_KONTAKT: 147641,
-          KOD: 594611,
-          KOD_UR: 51011,
-          DRCODE: 'EMAIL',
-          NKONTAKT: 'Іван Йосипович',
-          PRIM: 'менеджер',
-          VAL: 'tatarynrm@gmail.com',
-          NTYPE: 'E-Mail',
-          NUR: 'NESTLE',
-          PEREKMT: null,
-          PERADR: 0,
-          PERNEGABARIT: 0,
-          NKRAINA: 'Україна',
-          NOBL: 'Львівська'
-        },
-        {
-          KOD_KONTAKT: 147641,
-          KOD: 594611,
-          KOD_UR: 51011,
-          DRCODE: 'EMAIL',
-          NKONTAKT: 'Іван Йосипович',
-          PRIM: 'директор',
-          VAL: 'lembergus@gmail.com',
-          NTYPE: 'E-Mail',
-          NUR: 'Транс-Логістик',
-          PEREKMT: null,
-          PERADR: 0,
-          PERNEGABARIT: 0,
-          NKRAINA: 'Україна',
-          NOBL: 'Львівська'
-        },
-        {
-          KOD_KONTAKT: 147641,
-          KOD: 594611,
-          KOD_UR: 51011,
-          DRCODE: 'EMAIL',
-          NKONTAKT: 'Іван Йосипович',
-          PRIM: 'директор',
-          VAL: 'ab@ict.lviv.ua',
-          NTYPE: 'E-Mail',
-          NUR: 'Баштовий В.С',
-          PEREKMT: null,
-          PERADR: 0,
-          PERNEGABARIT: 0,
-          NKRAINA: 'Україна',
-          NOBL: 'Львівська'
-        },
+      //   {
+      //     KOD_KONTAKT: 147641,
+      //     KOD: 594611,
+      //     KOD_UR: 51011,
+      //     DRCODE: 'EMAIL',
+      //     NKONTAKT: 'Іван Йосипович',
+      //     PRIM: 'логіст',
+      //     VAL: 'rt@ict.lviv.ua',
+      //     NTYPE: 'E-Mail',
+      //     NUR: 'Луньо І.Й.',
+      //     PEREKMT: null,
+      //     PERADR: 0,
+      //     PERNEGABARIT: 0,
+      //     NKRAINA: 'Україна',
+      //     NOBL: 'Львівська'
+      //   },
+      //   {
+      //     KOD_KONTAKT: 147641,
+      //     KOD: 594611,
+      //     KOD_UR: 51011,
+      //     DRCODE: 'EMAIL',
+      //     NKONTAKT: 'Іван Йосипович',
+      //     PRIM: 'менеджер',
+      //     VAL: 'tatarynrm@gmail.com',
+      //     NTYPE: 'E-Mail',
+      //     NUR: 'NESTLE',
+      //     PEREKMT: null,
+      //     PERADR: 0,
+      //     PERNEGABARIT: 0,
+      //     NKRAINA: 'Україна',
+      //     NOBL: 'Львівська'
+      //   },
+      //   {
+      //     KOD_KONTAKT: 147641,
+      //     KOD: 594611,
+      //     KOD_UR: 51011,
+      //     DRCODE: 'EMAIL',
+      //     NKONTAKT: 'Іван Йосипович',
+      //     PRIM: 'директор',
+      //     VAL: 'lembergus@gmail.com',
+      //     NTYPE: 'E-Mail',
+      //     NUR: 'Транс-Логістик',
+      //     PEREKMT: null,
+      //     PERADR: 0,
+      //     PERNEGABARIT: 0,
+      //     NKRAINA: 'Україна',
+      //     NOBL: 'Львівська'
+      //   },
+      //   {
+      //     KOD_KONTAKT: 147641,
+      //     KOD: 594611,
+      //     KOD_UR: 51011,
+      //     DRCODE: 'EMAIL',
+      //     NKONTAKT: 'Іван Йосипович',
+      //     PRIM: 'директор',
+      //     VAL: 'ab@ict.lviv.ua',
+      //     NTYPE: 'E-Mail',
+      //     NUR: 'Баштовий В.С',
+      //     PEREKMT: null,
+      //     PERADR: 0,
+      //     PERNEGABARIT: 0,
+      //     NKRAINA: 'Україна',
+      //     NOBL: 'Львівська'
+      //   },
 
-      ];
+      // ];
       const twenty_minutes_interval = 20 * 60 * 1000;
       let index = 0;
       const interval = setInterval(() => {
-        // const batch = emails.slice(index, index + 100);
-        const batch = myEmails.slice(index, index + 2);
+        const batch = result.rows.slice(index, index + 140);
+        // const batch = myEmails.slice(index, index + 2);
   
         batch.forEach((email) => {
           console.log(`Надіслано привітання ${email}`);
@@ -148,14 +148,14 @@ console.log(result.rows);
           );
         });
 
-        // index += 100;
-        index += 2; 
+        index += 140;
+        // index += 2; 
 
-        if (index >= myEmails.length) {
+        if (index >= result.rows.length) {
           clearInterval(interval); // Зупинити інтервал після відправлення всіх листів
           console.log('Усі листи відправлено');
         }
-      }, 5000); // Відправляти кожні 10 хвилин
+      }, twenty_minutes_interval); // Відправляти кожні 20 хвилин
     }
     if (text) {
       scheduleEmails();
