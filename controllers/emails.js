@@ -63,12 +63,72 @@ console.log(result.rows);
       //   "bolix@ex.ua",
       // ];
       const myEmails = [
-        "lembergus@gmail.com",
-        // "rt@ict.lviv.ua",
-        // 'ab@ict.lviv.ua',
-        'tatarynrm@gmail.com',
-        // 'ab@ict.lviv.ua',
-        // 'romannoris007@gmail.com'
+
+        {
+          KOD_KONTAKT: 147641,
+          KOD: 594611,
+          KOD_UR: 51011,
+          DRCODE: 'EMAIL',
+          NKONTAKT: 'Іван Йосипович',
+          PRIM: 'логіст',
+          VAL: 'rt@ict.lviv.ua',
+          NTYPE: 'E-Mail',
+          NUR: 'Луньо І.Й.',
+          PEREKMT: null,
+          PERADR: 0,
+          PERNEGABARIT: 0,
+          NKRAINA: 'Україна',
+          NOBL: 'Львівська'
+        },
+        {
+          KOD_KONTAKT: 147641,
+          KOD: 594611,
+          KOD_UR: 51011,
+          DRCODE: 'EMAIL',
+          NKONTAKT: 'Іван Йосипович',
+          PRIM: 'менеджер',
+          VAL: 'tatarynrm@gmail.com',
+          NTYPE: 'E-Mail',
+          NUR: 'NESTLE',
+          PEREKMT: null,
+          PERADR: 0,
+          PERNEGABARIT: 0,
+          NKRAINA: 'Україна',
+          NOBL: 'Львівська'
+        },
+        {
+          KOD_KONTAKT: 147641,
+          KOD: 594611,
+          KOD_UR: 51011,
+          DRCODE: 'EMAIL',
+          NKONTAKT: 'Іван Йосипович',
+          PRIM: 'директор',
+          VAL: 'lembergus@gmail.com',
+          NTYPE: 'E-Mail',
+          NUR: 'Транс-Логістик',
+          PEREKMT: null,
+          PERADR: 0,
+          PERNEGABARIT: 0,
+          NKRAINA: 'Україна',
+          NOBL: 'Львівська'
+        },
+        {
+          KOD_KONTAKT: 147641,
+          KOD: 594611,
+          KOD_UR: 51011,
+          DRCODE: 'EMAIL',
+          NKONTAKT: 'Іван Йосипович',
+          PRIM: 'директор',
+          VAL: 'ab@ict.lviv.ua',
+          NTYPE: 'E-Mail',
+          NUR: 'Баштовий В.С',
+          PEREKMT: null,
+          PERADR: 0,
+          PERNEGABARIT: 0,
+          NKRAINA: 'Україна',
+          NOBL: 'Львівська'
+        },
+
       ];
       const twenty_minutes_interval = 20 * 60 * 1000;
       let index = 0;
@@ -78,11 +138,11 @@ console.log(result.rows);
   
         batch.forEach((email) => {
           console.log(`Надіслано привітання ${email}`);
-          sendEmail(email,text);
+          sendEmail(email.VAL,text);
           const newFeedBack =  norisdb.query(
             `
-             INSERT INTO emails (email)
-             values ('${email}')
+             INSERT INTO emails (email,contact,position,company)
+             values ('${email.VAL}','${email.NKONTAKT}','${email.PRIM}','${email.NUR}')
              returning *
              `
           );
