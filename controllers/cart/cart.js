@@ -35,6 +35,19 @@ const getAllPrinters = async (req, res) => {
     console.log(error);
   }
 };
+const getAllPrintersList = async (req,res)=>{
+  try {
+    const printers = await cartridge.query(
+      `select * from prn
+      `
+    )
+    if (printers) {
+      res.status(200).json(printers.rows);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 const getCartModel = async (req, res) => {
   try {
     const cart = await cartridge.query(`SELECT * from cart_model`);
@@ -49,6 +62,18 @@ const getCartriges = async (req, res) => {
   try {
     const cart = await cartridge.query(
       `SELECT a.*,b.model from cartr a left join cart_model b on a.cart_model_id = b.id`
+    );
+    if (cart) {
+      res.status(200).json(cart.rows);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+const getCartChange = async (req, res) => {
+  try {
+    const cart = await cartridge.query(
+      `select * from zamina_cartr`
     );
     if (cart) {
       res.status(200).json(cart.rows);
@@ -191,6 +216,8 @@ module.exports = {
   getCartModel,
   getCartriges,
   getAllDepartments,
+  getCartChange,
+  getAllPrintersList,
   // Updates
   changePrinterModel,
   changeCartridgeModel,
