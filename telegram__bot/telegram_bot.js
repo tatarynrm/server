@@ -223,7 +223,7 @@ GROUP BY
     c.nviddil
              `)
 
-             console.log(dataData);
+             console.log('111111111111111',dataData);
              if (dataData.rows > 0) {
               const data = dataData.rows[0]
               console.log('----------DATA!@',data);
