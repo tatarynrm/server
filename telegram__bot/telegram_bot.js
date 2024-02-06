@@ -199,7 +199,7 @@ bot.on("callback_query", async (ctx) => {
             const connection = await oracledb.getConnection(pool);
             connection.currentSchema = "ICTDAT";
              const viddilCode = match[1]; // Отримання коду відділу з відповіді
-             await ctx.reply(`Ви обрали відділ з кодом ${viddilCode}`);
+            //  await ctx.reply(`Ви обрали відділ з кодом ${viddilCode}`);
 
             
              const dataData = await connection.execute(`
