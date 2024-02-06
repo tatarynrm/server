@@ -428,7 +428,17 @@ bot.hears("Аналіз роботи відділів", async (ctx) => {
 
 
 
+bot.hears('сума',async ctx =>{
+  const connection = await oracledb.getConnection(pool);
+  connection.currentSchema = "ICTDAT";
+  const data1 = await connection.execute(`
+  select sum(margrn)
+  from zaylst a
+  where a.appdat >= to_date('01.01.2024','dd.mm.yyyy')  and
+        a.appdat <= trunc(to_date('31.01.2024', 'dd.mm.yyyy'))`)
 
+        console.log(data1);
+})
 
 
 
