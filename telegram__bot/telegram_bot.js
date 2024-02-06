@@ -224,6 +224,14 @@ GROUP BY
              `)
 
              console.log(dataData);
+             if (dataData.rows > 0) {
+              const data = dataData.rows[0]
+              await ctx.reply(` 
+              ${data.NVIDDIL}\nК-сть.авто: ${data.KILAM}\nМаржа: ${data.GRN}
+              `)
+             }else {
+              await ctx.reply('Сьогодні ще не було роботи.')
+             }
            } else {
              ctx.reply('Помилка: Невірний формат callback_data');
            }
