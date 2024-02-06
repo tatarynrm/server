@@ -13,7 +13,7 @@ require("moment/locale/uk.js");
 
 bot.start(async (ctx) => {
   // ctx.message.from.id === 282039969 ||
-  if (ctx.message.from.id === 941236974) {
+  if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969) {
     await ctx.telegram.sendMessage(ctx.chat.id, "Головне меню", {
       parse_mode: "html",
       reply_markup: {
@@ -23,6 +23,7 @@ bot.start(async (ctx) => {
             { text: "Перезавантажити дані", callback_data: "reloadData" },
           ],
           [{ text: "Менеджери з логістики", callback_data: "allLogists" }],
+          [{ text: "Аналіз роботи відділів", callback_data: "viddilJob" }],
           [
             {
               text: "Звіт по роботі менеджерів",
@@ -60,7 +61,7 @@ bot.hears("test", async (ctx) => {
   );
 });
 
-const myExpedition = []
+const myExpedition = [];
 bot.hears("Моя експедиція", async (ctx) => {
   const connection = await oracledb.getConnection(pool);
   connection.currentSchema = "ICTDAT";
@@ -111,71 +112,123 @@ order by recnum desc
 `
     );
 
+    if (result.rows.length > 0) {
+      myExpedition.push(...result.rows);
+      let str = "";
+      result.rows.sort((a, b) => a.DATZAV - b.DATZAV);
+      // console.log(result.rows);
+      for (let i = 0; i < result.rows.length; i++) {
+        const el = result.rows[i];
 
-
-
-if (result.rows.length > 0) {
-  myExpedition.push(...result.rows)
-  let str = "";
-result.rows.sort((a,b)=>   a.DATZAV - b.DATZAV)
-  // console.log(result.rows);
-  for (let i = 0; i < result.rows.length; i++) {
-    const el = result.rows[i];
-
-    str += `______\n${i + 1} ${moment(el.DATZAV).format("L")} ${el.ZAV} - ${
-      el.ROZV
-    } Водій: ${el.VOD1}\n______`;
-  }
-  await ctx.reply(`Моя експедиція.\nЗавантаження за останнім 30 днів (сортування по даті завантаження) :\n\n${str}\n\n`);
-
-  function generateCalendarKeyboard(result) {
-    const keyboard = [];
-    let row = [];
-    
-    for (let i = 0; i < result.rows.length; i++) {
-      const el = result.rows[i];
-      row.push({ text: `${i + 1}`, callback_data: `zay_${i + 1}` });
-      
-      if (row.length === 6 || i === result.rows.length - 1) {
-        keyboard.push(row);
-        row = [];
+        str += `______\n${i + 1} ${moment(el.DATZAV).format("L")} ${el.ZAV} - ${
+          el.ROZV
+        } Водій: ${el.VOD1}\n______`;
       }
-    }
-    
-    return keyboard;
-  }
-  const keyboard = {
-    inline_keyboard: generateCalendarKeyboard(result),
-  };
+      await ctx.reply(
+        `Моя експедиція.\nЗавантаження за останнім 30 днів (сортування по даті завантаження) :\n\n${str}\n\n`
+      );
 
-  // Відправлення повідомлення з клавіатурою
-  bot.telegram.sendMessage(ctx.message.from.id, 'Оберіть заявку:', { reply_markup: keyboard });
-  console.log(result.rows[0]);
-}else {
-  await ctx.reply("У вас немає заявок за останні 30 днів.");
-}
-   
+      function generateCalendarKeyboard(result) {
+        const keyboard = [];
+        let row = [];
+
+        for (let i = 0; i < result.rows.length; i++) {
+          const el = result.rows[i];
+          row.push({ text: `${i + 1}`, callback_data: `zay_${i + 1}` });
+
+          if (row.length === 6 || i === result.rows.length - 1) {
+            keyboard.push(row);
+            row = [];
+          }
+        }
+
+        return keyboard;
+      }
+      const keyboard = {
+        inline_keyboard: generateCalendarKeyboard(result),
+      };
+
+      // Відправлення повідомлення з клавіатурою
+      bot.telegram.sendMessage(ctx.message.from.id, "Оберіть заявку:", {
+        reply_markup: keyboard,
+      });
+      console.log(result.rows[0]);
+    } else {
+      await ctx.reply("У вас немає заявок за останні 30 днів.");
+    }
   } else {
     await ctx.reply("Я не знайшов ваших заявок.");
   }
 });
 
-bot.on('callback_query',async ctx =>{
-  const query_data = ctx.update.callback_query.data;
- if (query_data.startsWith('zay_')) {
-  const myZay = query_data.split('_')[1] - 1
-  console.log(myZay);
-const zay = myExpedition[myZay]
-if (zay) {
-  await ctx.replyWithHTML(`Дата завантаження: ${moment(zay.DATZAV).format('L')}\nМісце завантаження: ${zay.ZAV}\nМісце розвантаження: ${zay.ROZV}\nЗамовник: ${zay.ZAM}\nПеревізник: ${zay.PER}\nВодій / Авто: ${zay.VOD1} <code>${zay.VOD1TEL}</code>\n${zay.AM} - ${zay.PR}\n\nОперативна інформація:\nМенеджер замовника: ${zay.MENZ}\nМенеджер перевізника: ${zay.MENP}`,{parse_mode:"HTML"})
-}else {
-  await ctx.reply('Натисніть на кнопку Моя експедиція для завантаження актуальних даних')
-}
+bot.on("callback_query", async (ctx) => {
+  // const query_data = ctx.update.callback_query.data;
 
- }else {
-  await ctx.reply('Немає такого значення')
- }
-})
+  const callbackData = ctx.callbackQuery.data;
+
+  if (callbackData.startsWith("zay_")) {
+    const myZay = query_data.split("_")[1] - 1;
+    const zay = myExpedition[myZay];
+    if (zay) {
+      await ctx.replyWithHTML(
+        `Дата завантаження: ${moment(zay.DATZAV).format(
+          "L"
+        )}\nМісце завантаження: ${zay.ZAV}\nМісце розвантаження: ${
+          zay.ROZV
+        }\nЗамовник: ${zay.ZAM}\nПеревізник: ${zay.PER}\nВодій / Авто: ${
+          zay.VOD1
+        } <code>${zay.VOD1TEL}</code>\n${zay.AM} - ${
+          zay.PR
+        }\n\nОперативна інформація:\nМенеджер замовника: ${
+          zay.MENZ
+        }\nМенеджер перевізника: ${zay.MENP}`,
+        { parse_mode: "HTML" }
+      );
+    }  
+  }
+  
+  else if (callbackData.startsWith('viddil_code_')) {
+    console.log('31231312');
+         // Перевірка, чи починається callback_data з "viddil_code_"
+           // Використовуємо регулярний вираз для отримання коду відділу
+           const regex = /viddil_code_(\d+)/;
+           const match = callbackData.match(regex);
+           console.log(match);
+          
+           if (match) {
+            const connection = await oracledb.getConnection(pool);
+            connection.currentSchema = "ICTDAT";
+             const viddilCode = match[1]; // Отримання коду відділу з відповіді
+             await ctx.reply(`Ви обрали відділ з кодом ${viddilCode}`);
+
+            
+             const dataData = await connection.execute(`
+             SELECT 
+    b.kod_viddilz AS kod_viddil,
+    c.nviddil,
+    SUM(b.margrn) AS grn,
+    COUNT(*) AS kilam
+FROM 
+    zay a
+JOIN 
+    zaylst b ON a.kod = b.kod_zay
+LEFT JOIN 
+    viddil c ON b.kod_viddilz = c.kod
+WHERE 
+    b.kod_viddilz = ${viddilCode}
+    AND a.appdat >= trunc(sysdate) 
+    AND TRUNC(a.appdat) <= trunc(sysdate) 
+GROUP BY 
+    b.kod_viddilz,
+    c.nviddil
+             `)
+
+             console.log(dataData);
+           } else {
+             ctx.reply('Помилка: Невірний формат callback_data');
+           }
+       }
+});
 
 bot.hears("Нагадування:Актуальність заявок", async (ctx) => {
   try {
@@ -245,8 +298,6 @@ bot.hears("Аршулік М.В.", async (ctx) => {
   ctx.reply(my.join(`\n`));
 });
 
-
-
 // Основна функція для створення клавіатури
 function generateCalendarKeyboard() {
   const keyboard = [];
@@ -262,7 +313,7 @@ function generateCalendarKeyboard() {
 }
 console.log(generateCalendarKeyboard());
 // Обробник команди /start
-bot.hears('da', (msg) => {
+bot.hears("da", (msg) => {
   const chatId = msg.message.from.id;
 
   // Отримання клавіатури
@@ -271,26 +322,30 @@ bot.hears('da', (msg) => {
   };
 
   // Відправлення повідомлення з клавіатурою
-  bot.telegram.sendMessage(chatId, 'Оберіть число:', { reply_markup: keyboard });
+  bot.telegram.sendMessage(chatId, "Оберіть число:", {
+    reply_markup: keyboard,
+  });
 });
 
 // Обробник кнопок
-bot.on('callback_query',async (query) => {
-  const callbackQueryId = query.id;
-  const chatId = query.from.id;
-  const chosenDay = query.update.callback_query.data.split('_')[1]
-  bot.telegram.sendMessage(chatId, `Ви обрали день ${chosenDay}`);
-  await query.answerCbQuery(`Ви обрали ${chosenDay}`)
-});
+// bot.on("callback_query", async (query) => {
+//   const callbackQueryId = query.id;
+//   const chatId = query.from.id;
+//   const chosenDay = query.update.callback_query.data.split("_")[1];
+//   bot.telegram.sendMessage(chatId, `Ви обрали день ${chosenDay}`);
+//   await query.answerCbQuery(`Ви обрали ${chosenDay}`);
+// });
 
-bot.hears("Некомплект документів",async ctx =>{
+bot.hears("Некомплект документів", async (ctx) => {
   const connection = await oracledb.getConnection(pool);
   connection.currentSchema = "ICTDAT";
   // zhyla_id = 35781
   // petya_id = 38001
-  const getManagerId = await connection.execute(`select * from us where TELEGRAMID = ${ctx.message.from.id}`)
+  const getManagerId = await connection.execute(
+    `select * from us where TELEGRAMID = ${ctx.message.from.id}`
+  );
 
-  const managerKOD = getManagerId.rows[0].KOD_OS
+  const managerKOD = getManagerId.rows[0].KOD_OS;
   if (managerKOD) {
     const manager = await connection.execute(` 
     SELECT *
@@ -298,25 +353,68 @@ bot.hears("Некомплект документів",async ctx =>{
     WHERE kod_menz IN (35781)
       AND kod_menp IN (35781)
       AND pernekomplekt IS NOT NULL AND ROWNUM <= 20`);
-      console.log(manager.rows);
+    console.log(manager.rows);
     if (manager.rows.length > 0) {
-      let msg = '';
-      let cont =[]
-      let obj = {}
+      let msg = "";
+      let cont = [];
+      let obj = {};
       for (let i = 0; i < manager.rows.length; i++) {
         const el = manager.rows[i];
-          obj.nekom = el.PERNEKOMPLKT
-          cont.push(obj)
-      msg += `${el.PERDATKOMPLEKT ? moment(el.PERDATKOMPLEKT).format('L') : ''}\nЗаявка: ${el.NUM} - ${el.PERNEKOMPLEKT}\n\n`
+        obj.nekom = el.PERNEKOMPLKT;
+        cont.push(obj);
+        msg += `${
+          el.PERDATKOMPLEKT ? moment(el.PERDATKOMPLEKT).format("L") : ""
+        }\nЗаявка: ${el.NUM} - ${el.PERNEKOMPLEKT}\n\n`;
       }
-      await ctx.reply(msg)
-    }else {
-      await ctx.reply("У вас немає некомплектів документів")
+      await ctx.reply(msg);
+    } else {
+      await ctx.reply("У вас немає некомплектів документів");
     }
-  }else {
-    await ctx.reply('Виникла якась помилка на сервері...')
+  } else {
+    await ctx.reply("Виникла якась помилка на сервері...");
   }
-})
+});
+bot.hears("Аналіз роботи відділів", async (ctx) => {
+  const connection = await oracledb.getConnection(pool);
+  connection.currentSchema = "ICTDAT";
+  // zhyla_id = 35781
+  // petya_id = 38001
+
+  const viddil = await connection.execute(`
+  select * from viddil where islog = 1
+  `);
+  console.log(viddil);
+  if (viddil.rows.length > 0) {
+    // Розділити масив на підмасиви довжиною три елементи
+    const chunkedArray = [];
+    for (let i = 0; i < viddil.rows.length; i += 3) {
+      chunkedArray.push(viddil.rows.slice(i, i + 3));
+    }
+
+    // Створити клавіатуру з кнопками по три в ряд
+    const keyboard = chunkedArray.map((chunk) => {
+      return chunk
+        .filter((item) => item)
+        .sort((a, b) => b.DOVINFO - a.DOVINFO)
+        .map((item) => {
+          return { text: item.DOVINFO ,callback_data:`viddil_code_${item.KOD}`};
+        });
+    });
+
+    // Надіслати повідомлення з клавіатурою
+    await ctx.telegram.sendMessage(ctx.chat.id, "Головне меню", {
+      parse_mode: "html",
+      reply_markup: {
+        inline_keyboard: keyboard,
+        resize_keyboard: true,
+      },
+    });
+  } else {
+    await ctx.reply("Виникла помилка, спробуйте пізніше!");
+  }
+});
+
+
 
 
 

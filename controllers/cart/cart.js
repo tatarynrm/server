@@ -38,7 +38,9 @@ const getAllPrinters = async (req, res) => {
 const getAllPrintersList = async (req,res)=>{
   try {
     const printers = await cartridge.query(
-      `select * from prn
+      `SELECT a.*,b.model,b.id,c.id as department_id,c.dep_name as prnId from prn a
+      left join prn_model b on a.prn_model_id = b.id
+      left join dep c on a.dep_id = c.id
       `
     )
     if (printers) {
@@ -50,7 +52,9 @@ const getAllPrintersList = async (req,res)=>{
 }
 const getCartModel = async (req, res) => {
   try {
-    const cart = await cartridge.query(`SELECT * from cart_model`);
+    const cart = await cartridge.query(`SELECT a.*,b.cart_ser as serial from cart_model as a
+    left join cartr  b on a.id = b.id 
+    `);
     if (cart) {
       res.status(200).json(cart.rows);
     }
