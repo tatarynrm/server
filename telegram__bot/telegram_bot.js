@@ -13,7 +13,7 @@ require("moment/locale/uk.js");
 
 bot.start(async (ctx) => {
   // ctx.message.from.id === 282039969 ||
-  if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969 || ctx.message.from.id === 526930289 || ctx.message.from.id === 5298432643) {
+  if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969 || ctx.message.from.id === 526930289 || ctx.message.from.id === 5298432643 || ctx.message.from.id === 1905920358) {
     await ctx.telegram.sendMessage(ctx.chat.id, "Головне меню", {
       parse_mode: "html",
       reply_markup: {
