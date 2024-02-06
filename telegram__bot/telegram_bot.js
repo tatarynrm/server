@@ -226,7 +226,7 @@ GROUP BY
              console.log(dataData);
              if (dataData.rows > 0) {
               const data = dataData.rows[0]
-              console.log(data);
+              console.log('----------DATA!@',data);
               await ctx.reply(` 
               ${data.NVIDDIL}\nК-сть.авто: ${data.KILAM}\nМаржа: ${data.GRN}
               `)
