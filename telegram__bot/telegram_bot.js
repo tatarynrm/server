@@ -396,8 +396,8 @@ bot.hears("Аналіз роботи відділів", async (ctx) => {
   if (viddil.rows.length > 0) {
     // Розділити масив на підмасиви довжиною три елементи
     const chunkedArray = [];
-    for (let i = 0; i < viddil.rows.length; i += 3) {
-      chunkedArray.push(viddil.rows.slice(i, i + 3));
+    for (let i = 0; i < viddil.rows.length; i += 2) {
+      chunkedArray.push(viddil.rows.slice(i, i + 2));
     }
 
     // Створити клавіатуру з кнопками по три в ряд
