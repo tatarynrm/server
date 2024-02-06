@@ -223,12 +223,12 @@ GROUP BY
     c.nviddil
              `)
 
-             console.log('111111111111111',dataData);
-             if (dataData.rows > 0) {
-              const data = dataData.rows[0]
-              console.log('----------DATA!@',data);
+     
+             if (dataData.rows[0]) {
+              const myData = dataData.rows[0]
+              console.log('----------MYDATA!@',myData);
               await ctx.reply(` 
-              ${data.NVIDDIL}\nК-сть.авто: ${data.KILAM}\nМаржа: ${data.GRN}
+              ${myData.NVIDDIL}\nК-сть.авто: ${myData.KILAM}\nМаржа: ${myData.GRN}
               `)
              }else {
               await ctx.reply('Сьогодні ще не було роботи.')
