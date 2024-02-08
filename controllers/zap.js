@@ -305,13 +305,14 @@ const copyZap = async (req, res) => {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `BEGIN
-            ICTDAT.p_zap.CopyZap(:pKodAutor,:pKodZap,:pKilAm,:pKodZapNew);
+            ICTDAT.p_zap.CopyZap(:pKodAutor,:pKodZap,:pKilAm,:pKodZapNew,:pZapNumNew);
         END;`,
       {
         pKodAutor,
         pKodZap,
         pKilAm,
         pKodZapNew: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        pZapNumNew: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
       }
     );
     res.status(200).json(result);
