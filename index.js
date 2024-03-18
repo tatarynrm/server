@@ -180,17 +180,17 @@ if (zapData !== null || zapData !== undefined) {
     console.log(data);
     io.emit("showEditZapText", data);
   });
-  socket.on("newComment", (data) => {
-    console.log(data.selectedZap);
-    if (data.telegramId !== null) {
-      // БОТ
-      bot.telegram.sendMessage(
-        data.telegramId,
-        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
-      );
-    }
-    io.emit("showNewComment", data);
-  });
+  // socket.on("newComment", (data) => {
+  //   // console.log(data.selectedZap);
+  //   if (data.telegramId !== null) {
+  //     // БОТ
+  //     bot.telegram.sendMessage(
+  //       data.telegramId,
+  //       `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+  //     );
+  //   }
+  //   io.emit("showNewComment", data);
+  // });
 
   socket.on("deleteComm", (data) => {
     io.emit("deleteCommAllUsers", data);
@@ -202,7 +202,6 @@ if (zapData !== null || zapData !== undefined) {
     io.to(userToSend.socketId).emit("showMyZapComment", data);
   });
   socket.on("changeCountAm", (data) => {
-    console.log("0000000000", data);
     io.emit("showChangeCountAm", data);
     if (data.userToWarn?.length > 0) {
       for (let i = 0; i < data?.userToWarn?.length; i++) {
