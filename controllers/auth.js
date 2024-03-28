@@ -52,6 +52,7 @@ const login = async (req, res) => {
 
   try {
     const connection = await oracledb.getConnection(pool);
+  
     const user = await connection.execute(`SELECT
         a.KOD,
         a.PRIZV,
@@ -80,6 +81,7 @@ const login = async (req, res) => {
           });
         }
         if (user.rows.length === 0) {
+      
           return res.status(404).json({
             message: "Користувача не знайдено",
           });

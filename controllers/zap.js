@@ -150,7 +150,8 @@ const createZap = async (req, res) => {
     pPunktZ,
     pPunktR,
     pFrahtOur,
-    pFrahtPer
+    pFrahtPer,
+    pZbir
   } = req.body;
 
   try {
@@ -205,7 +206,7 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -228,10 +229,11 @@ const createZap = async (req, res) => {
           pRLon,
           pKodZam: pKodZam || null,
           pZapText,
+          pZbir: pZbir ? +pZbir : 0,
           pZapCina,
           pKilAm: +pKilAm,
-          pFrahtOur:pFrahtOur ?pFrahtOur: null,
-          pFrahtPer:pFrahtPer ?pFrahtPer : null,
+          pFrahtOur:pFrahtOur ? pFrahtOur: null,
+          pFrahtPer:pFrahtPer ? pFrahtPer : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
