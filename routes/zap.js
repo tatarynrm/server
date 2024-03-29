@@ -14,6 +14,7 @@ const {
   getManagersIsCommentZap,
   editZapCinaStatus,
   copyZap,
+  getAllFreeTrucks,
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -32,5 +33,6 @@ router.route("/edit-zap-cina").post(editZapCinaStatus);
 router.route("/all").post(getAllTimeZap);
 router.route("/by-date").post(getClosedZapByDate);
 router.route("/coments-in-zap").post(getManagersIsCommentZap);
+router.route("/free-trucks").get(getAllFreeTrucks);
 
 module.exports = router;

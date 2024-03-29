@@ -546,6 +546,35 @@ group by a.kod_os,
     console.log(error);
   }
 };
+// Вільний транспорт
+const getAllFreeTrucks = async (req, res) => {
+ 
+  try {
+    const connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const result = await connection.execute(
+      `select a.*,
+      b.ntype,
+      c.idd,
+      d.nobl,
+      e.pip
+from ampor a
+left join tztype b on a.kod_tztype = b.kod
+left join kraina c on a.kod_kraina = c.kod
+left join obl d on a.kod_obl = d.kod
+left join os e on a.kod_men = e.kod
+where a.dat >= trunc(sysdate, 'DD') - 2 and
+     a.actual > 0 and
+     a.lat <> 0 and a.lon <> 0`
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
 module.exports = {
   createZap,
   getAllZap,
@@ -561,4 +590,6 @@ module.exports = {
   zakrZap,
   getManagersIsCommentZap,
   copyZap,
+  // Вільний транспорт
+  getAllFreeTrucks
 };
