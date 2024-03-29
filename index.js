@@ -7,6 +7,7 @@ const http = require("http");
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
+const cron = require('node-cron');
 const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
 const path = require("path");
@@ -683,7 +684,42 @@ app.get('/files', async (req, res) => {
 
 
 
+cron.schedule('* 9,14,16 * * 1-5', () => {
+  const getAllZap = async ()=>{
+    try {
+      const connection = await oracledb.getConnection(pool);
+      connection.currentSchema = "ICTDAT";
+      const result = await connection.execute(`
+      select a.*,b.telegramid from zap a
+      left join us b on a.kod_os = b.kod_os
+      where a.status = 0 AND SYSDATE - a.DATUPDATE > 2`);
+      console.log(result.rows);
+      let arrayOfTG = []
+for (let i = 0; i < result.rows.length; i++) {
+  const element = result.rows[i];
+  if (!arrayOfTG.includes(element.TELEGRAMID)) {
+    arrayOfTG.push(element.TELEGRAMID)
+  }
+}
 
+if (arrayOfTG.length > 0) {
+  for (let i = 0; i < arrayOfTG.length; i++) {
+    const element = arrayOfTG[i];
+      bot.telegram.sendMessage(
+        element,
+    `💻 Перегляньте свої заявки.Одна або більше заявок не оновлялись більше 2 днів`
+  );
+  }
+
+}
+arrayOfTG.length = 0;
+console.log(arrayOfTG);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  getAllZap()
+});
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
