@@ -717,9 +717,6 @@ if (arrayOfTG.length > 0) {
 }
 arrayOfTG = []
 
-setTimeout(()=>{
-console.log(arrayOfTG);
-},5000)
 
     } catch (error) {
       console.log(error);
