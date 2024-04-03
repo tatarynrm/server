@@ -718,13 +718,16 @@ if (arrayOfTG.length > 0) {
 arrayOfTG = []
 
 
+
     } catch (error) {
       console.log(error);
     }
   }
   getAllZap()
 });
-
+setTimeout(()=>{
+  console.log(arrayOfTG);
+  },10000)
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
