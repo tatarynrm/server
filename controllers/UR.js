@@ -59,6 +59,7 @@ const getAllExpeditions = async (req, res) => {
 };
 const getContrAgents = async (req, res) => {
   const { search } = req.body;
+console.log(search);
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
