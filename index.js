@@ -725,9 +725,9 @@ arrayOfTG = []
   }
   getAllZap()
 });
-setTimeout(()=>{
-  console.log(arrayOfTG);
-  },10000)
+// setTimeout(()=>{
+//   console.log(arrayOfTG);
+//   },10000)
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
