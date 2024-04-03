@@ -684,7 +684,7 @@ app.get('/files', async (req, res) => {
 
 
 let arrayOfTG = []
-cron.schedule('* 9,14,16 * * 1-5', () => {
+cron.schedule('30 9,14,17 * * 1-5', () => {
 // 10 sec --- */10 * * * * *
 // Той що треба * 9,14,16 * * 1-5
   const getAllZap = async ()=>{
