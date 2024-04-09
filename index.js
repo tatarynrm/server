@@ -685,8 +685,13 @@ app.get('/files', async (req, res) => {
 
 let arrayOfTG = []
 cron.schedule('30 9,14,17 * * 1-5', () => {
+
+// Запускатиме  задачу (нагадування менеджерам у яких заявка в CRM має більше 2 днів) 
+// о 09:30, 14:30 та 17:30, кожного дня з понеділка по п'ятницю.
 // 10 sec --- */10 * * * * *
 // Той що треба * 9,14,16 * * 1-5
+
+
   const getAllZap = async ()=>{
     try {
       const connection = await oracledb.getConnection(pool);

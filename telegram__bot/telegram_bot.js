@@ -70,6 +70,11 @@ bot.hears("Моя експедиція", async (ctx) => {
   );
   const KOD_OS = myKod?.rows[0]?.KOD_OS;
 
+  if (!KOD_OS) {
+   
+      await ctx.reply("Я не знайшов ваших заявок.");
+   
+  }
   if (KOD_OS) {
     const result = await connection.execute(
       `select b.datzav as datzav,
@@ -156,9 +161,7 @@ order by recnum desc
     } else {
       await ctx.reply("У вас немає заявок за останні 30 днів.");
     }
-  } else {
-    await ctx.reply("Я не знайшов ваших заявок.");
-  }
+  } 
 });
 
 bot.on("callback_query", async (ctx) => {
@@ -353,8 +356,13 @@ bot.hears("Некомплект документів", async (ctx) => {
   const getManagerId = await connection.execute(
     `select * from us where TELEGRAMID = ${ctx.message.from.id}`
   );
+console.log(getManagerId);
+  const managerKOD = getManagerId?.rows[0]?.KOD_OS;
+  if (!managerKOD) {
 
-  const managerKOD = getManagerId.rows[0].KOD_OS;
+      await ctx.reply("Виникла якась помилка на сервері...");
+
+  }
   if (managerKOD) {
     const manager = await connection.execute(` 
     SELECT *
@@ -379,9 +387,7 @@ bot.hears("Некомплект документів", async (ctx) => {
     } else {
       await ctx.reply("У вас немає некомплектів документів");
     }
-  } else {
-    await ctx.reply("Виникла якась помилка на сервері...");
-  }
+  } 
 });
 bot.hears("Аналіз роботи відділів", async (ctx) => {
   const connection = await oracledb.getConnection(pool);
