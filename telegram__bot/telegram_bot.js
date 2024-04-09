@@ -9,49 +9,52 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const firstName = (ctx) => ctx.message.from.first_name;
 let managers = [];
 const moment = require("moment");
+const { mainMenuFunc } = require("./menu/mainManu");
 require("moment/locale/uk.js");
 
 bot.start(async (ctx) => {
   // ctx.message.from.id === 282039969 ||
-  if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969 || ctx.message.from.id === 526930289 || ctx.message.from.id === 5298432643 || ctx.message.from.id === 1905920358) {
-    await ctx.telegram.sendMessage(ctx.chat.id, "Головне меню", {
-      parse_mode: "html",
-      reply_markup: {
-        keyboard: [
-          [
-            { text: "Активні користувачі", callback_data: "activeUsers" },
-            { text: "Перезавантажити дані", callback_data: "reloadData" },
-          ],
-          [{ text: "Менеджери з логістики", callback_data: "allLogists" }],
-          [{ text: "Аналіз роботи відділів", callback_data: "viddilJob" }],
-          [
-            {
-              text: "Звіт по роботі менеджерів",
-              callback_data: "managersWorkData",
-            },
-          ],
-          [
-            {
-              text: "Нагадування:Актуальність заявок",
-              callback_data: "managerZapReminder",
-            },
-          ],
-        ],
-        resize_keyboard: true,
-      },
-    });
-  } else {
-    await ctx.telegram.sendMessage(ctx.chat.id, "Ви в режимі користувача.");
-    await ctx.reply("Функції користувача", {
-      reply_markup: {
-        keyboard: [
-          [{ text: "Моя експедиція" }],
-          [{ text: "Некомплект документів" }],
-        ],
-        resize_keyboard: true,
-      },
-    });
-  }
+  await mainMenuFunc(ctx)
+
+  // if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969 || ctx.message.from.id === 526930289 || ctx.message.from.id === 5298432643 || ctx.message.from.id === 1905920358) {
+  //   await ctx.telegram.sendMessage(ctx.chat.id, "Головне меню", {
+  //     parse_mode: "html",
+  //     reply_markup: {
+  //       keyboard: [
+  //         [
+  //           { text: "Активні користувачі", callback_data: "activeUsers" },
+  //           { text: "Перезавантажити дані", callback_data: "reloadData" },
+  //         ],
+  //         [{ text: "Менеджери з логістики", callback_data: "allLogists" }],
+  //         [{ text: "Аналіз роботи відділів", callback_data: "viddilJob" }],
+  //         [
+  //           {
+  //             text: "Звіт по роботі менеджерів",
+  //             callback_data: "managersWorkData",
+  //           },
+  //         ],
+  //         [
+  //           {
+  //             text: "Нагадування:Актуальність заявок",
+  //             callback_data: "managerZapReminder",
+  //           },
+  //         ],
+  //       ],
+  //       resize_keyboard: true,
+  //     },
+  //   });
+  // } else {
+  //   await ctx.telegram.sendMessage(ctx.chat.id, "Ви в режимі користувача.");
+  //   await ctx.reply("Функції користувача", {
+  //     reply_markup: {
+  //       keyboard: [
+  //         [{ text: "Моя експедиція" }],
+  //         [{ text: "Некомплект документів" }],
+  //       ],
+  //       resize_keyboard: true,
+  //     },
+  //   });
+  // }
 });
 
 bot.hears("test", async (ctx) => {
@@ -356,7 +359,7 @@ bot.hears("Некомплект документів", async (ctx) => {
   const getManagerId = await connection.execute(
     `select * from us where TELEGRAMID = ${ctx.message.from.id}`
   );
-console.log(getManagerId);
+
   const managerKOD = getManagerId?.rows[0]?.KOD_OS;
   if (!managerKOD) {
 
