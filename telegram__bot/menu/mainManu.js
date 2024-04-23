@@ -22,6 +22,12 @@
                   callback_data: "managerZapReminder",
                 },
               ],
+              [
+                {
+                  text: "Сплачені перевезення",
+                  callback_data: "sumMonth",
+                },
+              ],
             ],
             resize_keyboard: true,
           },

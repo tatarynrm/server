@@ -45,6 +45,7 @@ const feedbackNorisRoute = require("./routes/noris/feedback");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
+const { getOsPIP } = require("./helpers/os/osFunctions");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -190,7 +191,8 @@ if (zapData !== null || zapData !== undefined) {
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
       );
     }
-    io.emit("showNewComment", data);
+    // Видалив після розмови з Андрієм 16:25 --- 23.04.2024 року
+    // io.emit("showNewComment", data);
   });
 
   socket.on("deleteComm", (data) => {
@@ -202,14 +204,16 @@ if (zapData !== null || zapData !== undefined) {
     );
     io.to(userToSend.socketId).emit("showMyZapComment", data);
   });
-  socket.on("changeCountAm", (data) => {
+  socket.on("changeCountAm", async (data) => {
     io.emit("showChangeCountAm", data);
-    if (data.userToWarn?.length > 0) {
+
+const resultName = await getOsPIP(data?.pKodMen)
+    if (resultName && data.userToWarn?.length > 0) {
       for (let i = 0; i < data?.userToWarn?.length; i++) {
         const element = data?.userToWarn[i];
         bot.telegram.sendMessage(
           element.TELEGRAMID,
-          `По заявці \n${data.zapDeleteData?.zav}\n${data.zapDeleteData?.rozv}\nзакрито ${data.pKilAmZakr} авто `,
+          `По заявці \n${data.zapDeleteData?.zav}\n${data.zapDeleteData?.rozv}\nзакрито ${data.pKilAmZakr} авто - ${resultName} `,
           { parse_mode: "HTML" }
         );
       }
@@ -690,8 +694,6 @@ cron.schedule('30 9,14,17 * * 1-5', () => {
 // о 09:30, 14:30 та 17:30, кожного дня з понеділка по п'ятницю.
 // 10 sec --- */10 * * * * *
 // Той що треба * 9,14,16 * * 1-5
-
-
   const getAllZap = async ()=>{
     try {
       const connection = await oracledb.getConnection(pool);
@@ -700,16 +702,12 @@ cron.schedule('30 9,14,17 * * 1-5', () => {
       select a.*,b.telegramid from zap a
       left join us b on a.kod_os = b.kod_os
       where a.status = 0 AND SYSDATE - a.DATUPDATE > 2`);
-      console.log(result.rows);
-
 for (let i = 0; i < result.rows.length; i++) {
   const element = result.rows[i];
   if (!arrayOfTG.includes(element.TELEGRAMID)) {
     arrayOfTG.push(element.TELEGRAMID)
   }
 }
-
-console.log(arrayOfTG);
 if (arrayOfTG.length > 0) {
   for (let i = 0; i < arrayOfTG.length; i++) {
     const element = arrayOfTG[i];
@@ -721,9 +719,6 @@ if (arrayOfTG.length > 0) {
 
 }
 arrayOfTG = []
-
-
-
     } catch (error) {
       console.log(error);
     }
