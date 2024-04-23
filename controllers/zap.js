@@ -337,7 +337,8 @@ const editZap = async (req, res) => {
     pZapCina,
     pKilAm,
     pFrahtOur,
-    pFrahtPer
+    pFrahtPer,
+    pZbir
   } = req.body;
 
   try {
@@ -372,7 +373,7 @@ const editZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
       END;`,
         {
           pKodAuthor,
@@ -389,6 +390,7 @@ const editZap = async (req, res) => {
           pRLon,
           pKodZam: pKodZam || null,
           pZapText,
+          pZbir:0,
           pZapCina,
           pKilAm,
           pFrahtOur:pFrahtOur ?pFrahtOur: null,
