@@ -191,8 +191,8 @@ if (zapData !== null || zapData !== undefined) {
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
       );
     }
-    // Видалив після розмови з Андрієм 16:25 --- 23.04.2024 року
-    // io.emit("showNewComment", data);
+ 
+    io.emit("showNewComment", data);
   });
 
   socket.on("deleteComm", (data) => {
