@@ -2,11 +2,12 @@ const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const cookieParser = require("cookie-parser");
 // const pool = require("../db/index");
-const pool = require("../db/pool");
+
 const jwt = require("jsonwebtoken");
-const generateRandomNumber = require("../helpers/randomNumber");
-const { bot } = require("../telegram__bot/telegram_bot");
-const { sendOTPCode } = require("../telegram__bot/bot__functions");
+
+
+
+const pool = require("../../db/pool");
 
 
 const addWebGuestZap = async (req, res) => {
