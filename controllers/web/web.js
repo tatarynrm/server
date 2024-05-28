@@ -13,7 +13,7 @@ const pool = require("../../db/pool");
 const addWebGuestZap = async (req, res) => {
     const { name, tel, email, text } = req.body;
   
-  
+  console.log(req.body);
     try {
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
