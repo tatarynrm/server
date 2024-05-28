@@ -18,7 +18,7 @@ const addWebGuestZap = async (req, res) => {
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
         `BEGIN
-              ICTDAT.p_webguest.WebGuestZapAdd(:pGuestName,:pGuestTel,:pGuestEMail,:pZapText);
+              ICTDAT.p_webguest.WebGuestZapAdd(:pGuestName,:pGuestTel,:pGuestEMail,:pZapTxt);
           END;`,
         {
           pGuestName:name,
