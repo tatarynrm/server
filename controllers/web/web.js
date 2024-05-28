@@ -24,7 +24,7 @@ const addWebGuestZap = async (req, res) => {
           pGuestName:name,
           pGuestTel:tel,
           pGuestEMail:email,
-          pGuestText:text,
+          pGuestTxt:text,
         }
       );
       res.status(200).json(result);
