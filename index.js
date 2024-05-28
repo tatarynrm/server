@@ -41,6 +41,7 @@ const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
 const cartRoutes = require("./routes/cart/cart");
 const emailRoutes = require('./routes/emails')
+const webRoutes = require('./routes/web/web')
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
@@ -93,6 +94,13 @@ app.use("/groups", groupsRoutes);
 app.use("/cart", cartRoutes);
 app.use("/feedback", feedbackNorisRoute);
 app.use("/email", emailRoutes);
+
+// WEB
+app.use("/web", webRoutes);
+
+// WEB--------------
+
+
 // ROUTES------------------------------------------------------------------------------------------------------
 // app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
 
