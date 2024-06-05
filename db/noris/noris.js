@@ -7,8 +7,20 @@ const norisdb = new Pool({
   password: "noris",
   port: 5432, // PostgreSQL default port
 });
+const ictmainsite = new Pool({
+  user: "postgres",
+  // host: "185.25.117.64",
+  host: "localhost",
+  database: "ict_main_site",
+  password: "Aa527465182",
+  port: 5432, // PostgreSQL default port
+});
 
-module.exports = norisdb;
+module.exports ={
+  norisdb,
+  ictmainsite
+}
+
 
 
 

@@ -731,7 +731,7 @@ arrayOfTG = []
       console.log(error);
     }
   }
-  getAllZap()
+  // getAllZap()
 });
 // setTimeout(()=>{
 //   console.log(arrayOfTG);
