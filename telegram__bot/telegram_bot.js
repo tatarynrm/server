@@ -13,7 +13,7 @@ const { mainMenuFunc } = require("./menu/mainManu");
 require("moment/locale/uk.js");
 
 bot.start(async (ctx) => {
-  // ctx.message.from.id === 282039969 ||
+  
   await mainMenuFunc(ctx)
 
   // if (ctx.message.from.id === 941236974 || ctx.message.from.id === 282039969 || ctx.message.from.id === 526930289 || ctx.message.from.id === 5298432643 || ctx.message.from.id === 1905920358) {
@@ -56,6 +56,88 @@ bot.start(async (ctx) => {
   //   });
   // }
 });
+
+bot.on('contact', async(ctx) => {
+  const contact = ctx.message.contact;
+
+  // Витягнення інформації з об'єкта contact
+  const phoneNumber = contact.phone_number;
+  const firstName = contact.first_name;
+  const lastName = contact.last_name || ''; // Прізвище може бути відсутнім
+  const userId = contact.user_id;
+console.log('DASSDSAD',ctx.message.from.id);
+  const connection = await oracledb.getConnection(pool);
+  const findUser = await connection.execute(`SELECT * FROM ICTDAT.OSTEL WHERE VALIDX  LIKE '%${phoneNumber.slice(2,phoneNumber.length)}%'`)
+  // const findUser = await connection.execute(`SELECT * FROM ICTDAT.OSTEL WHERE VALIDX  LIKE '%0505001107%'`)
+  console.log(findUser.rows);
+  let checkArrayOfUserKod = []
+//  console.log(phoneNumber.slice(2,phoneNumber.length));
+for (let i = 0; i < findUser.rows.length; i++) {
+  const element = findUser.rows[i];
+  // console.log(element);
+  let isTrueUser = await  connection.execute(`select * from ictdat.os where KOD = ${element.KOD_OS} and ZVILDAT is null`)
+  console.log(isTrueUser.rows[0]?.KOD);
+  checkArrayOfUserKod.push(isTrueUser.rows[0]?.KOD)
+//  if (isTrueUser.rows[0]?.KOD !== undefined) {
+
+//  console.log(checkArrayOfUserKod);
+//  }else {
+//   return null
+//  }
+}
+
+const uniq = checkArrayOfUserKod.filter(item => item !== undefined);
+console.log(uniq[0]);
+if (uniq[0]) {
+  try {
+    const query = `UPDATE ictdat.us SET telegramid = :telegramid WHERE kod_os = :kod_os`;
+    const binds = {
+        telegramid: ctx.message.from.id,
+        kod_os: uniq[0],
+
+    };
+
+    // Виконання запиту на оновлення даних
+    const result = await connection.execute(query, binds, { autoCommit: true });
+
+    console.log('Дані оновлені успішно:', result);
+} catch (err) {
+    console.error('Помилка оновлення даних:', err);
+} finally {
+    // Закриття пула підключень
+    if (connection) {
+        await connection.close();
+    }
+}
+  await ctx.reply(`Дякуємо, ${firstName} ${lastName}. Ми отримали ваш номер телефону: +${phoneNumber}.`);
+  await ctx.telegram.sendMessage(ctx.chat.id, "Ви в режимі користувача.");
+  await ctx.reply("Функції користувача", {
+    reply_markup: {
+      keyboard: [
+        [{ text: "Моя експедиція" }],
+        [{ text: "Некомплект документів" }],
+      ],
+      resize_keyboard: true,
+    },
+  });
+}else {
+  const hideKeyboard = {
+    remove_keyboard: true
+};
+
+// Відправка повідомлення з відключеною клавіатурою
+await ctx.telegram.sendMessage(ctx.chat.id, "ВИ НЕ МОЖЕТЕ ВИКОРИСТОВУВАТИ ДАНИЙ СЕРВІС!", {
+    reply_markup: hideKeyboard
+});
+}
+  // Відправка відповіді користувачеві
+
+
+  // Ви можете виконати додаткові дії, наприклад, зберегти контакт у базі даних або надіслати його кудись
+//  console.log(`Отримано контакт: ${firstName} ${lastName} (ID: ${userId}), номер телефону: ${phoneNumber}`);
+});
+
+
 
 bot.hears("test", async (ctx) => {
   ctx.replyWithPhoto(
