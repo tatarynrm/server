@@ -159,7 +159,7 @@ io.on("connection", (socket) => {
     io.emit("deleteZapAllUsers", data);
   });
   socket.on("refreshZap", (data) => {
-    io.emit("refreshAllZap", data);
+    // io.emit("refreshAllZap", data);
 
     if (data !==undefined || data !== null) {
    
@@ -171,7 +171,7 @@ io.on("connection", (socket) => {
           console.log(result.rows[0]);
           const zapData = result.rows[0]
 if (zapData !== null || zapData !== undefined) {
-  io.emit('refreshMsg',zapData)
+  // io.emit('refreshMsg',zapData)
 }
         } catch (error) {
           console.log(error);
