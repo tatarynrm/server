@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
   // ЗАПИТИ
 
   socket.on("newZap", (data) => {
-    io.emit("showNewZap", data);
+    // io.emit("showNewZap", data);
     // // БОТ
 // console.log(data);
     if (data.pZapCina === 1) {
