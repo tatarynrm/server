@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
   // ЗАПИТИ
 
   socket.on("newZap", (data) => {
-    // io.emit("showNewZap", data);
+    io.emit("showNewZap", data);
     // // БОТ
 // console.log(data);
     if (data.pZapCina === 1) {
@@ -159,7 +159,7 @@ io.on("connection", (socket) => {
     io.emit("deleteZapAllUsers", data);
   });
   socket.on("refreshZap", (data) => {
-    // io.emit("refreshAllZap", data);
+    io.emit("refreshAllZap", data);
 
     if (data !==undefined || data !== null) {
    
@@ -191,7 +191,7 @@ if (zapData !== null || zapData !== undefined) {
     io.emit("showEditZapText", data);
   });
   socket.on("newComment", (data) => {
-    // console.log(data.selectedZap);
+  
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(
