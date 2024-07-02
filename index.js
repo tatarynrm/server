@@ -149,11 +149,11 @@ io.on("connection", (socket) => {
     io.emit("showNewZap", data);
     // // БОТ
 // console.log(data);
-    if (data.pZapCina === 1) {
-      sendMessageToGroupZapCina(bot, data);
-    } else {
-      sendMessageToGroup(bot, data);
-    }
+    // if (data.pZapCina === 1) {
+    //   sendMessageToGroupZapCina(bot, data);
+    // } else {
+    //   sendMessageToGroup(bot, data);
+    // }
   });
   socket.on("deleteZap", (data) => {
     io.emit("deleteZapAllUsers", data);
@@ -187,8 +187,12 @@ if (zapData !== null || zapData !== undefined) {
     io.emit("showEditZap", data);
   });
   socket.on("editZapText", (data) => {
-    console.log(data);
+
     io.emit("showEditZapText", data);
+  });
+  socket.on("editKilAm", (data) => {
+    console.log(data);
+    io.emit("showEditKilAm", data);
   });
   socket.on("newComment", (data) => {
   
