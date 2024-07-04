@@ -72,6 +72,26 @@ app.use(
     },
   })
 );
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "https://carriers.ict.lviv.ua",
+    "http://localhost:3000",
+    "https://ictwork.site",
+  ];
+  // const allowedOrigins = [
+  //   process.env.ALLOW_ORIGIN_1,
+  //   process.env.ALLOW_ORIGIN_2,
+  //   process.env.ALLOW_ORIGIN_3,
+  // ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Controll-Allow-Origin", origin);
+  }
+  res.header("Access-Controll-Allow-Methods", "GET,OPTIONS");
+  res.header("Access-Controll-Allow-Headers", "Content-Type,Authorization");
+  res.header("Access-Controll-Allow-Credentials", true);
+  return next();
+});
 // app.use(express.static('public'));
 // app.use(express.static('/uploads'));
 // app.use('/uploads',express.static('public'));
