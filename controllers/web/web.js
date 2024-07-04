@@ -77,7 +77,29 @@ const recordVisit = async (req,res) => {
   }
 };
 
+const getVisitorsMonth = async (req,res)=>{
+  const client = await ictmainsite.connect();
+  try {
+   const result = await client.query(`
+    SELECT date, 
+       array_agg(json_build_object('page', page, 'visits', counter)) AS page_visits
+FROM visitors
+WHERE date >= date_trunc('month', current_date) 
+  AND date < date_trunc('month', current_date) + interval '1 month'
+GROUP BY date
+ORDER BY date
+    `)
+
+
+    res.status(200).json(result.rows)
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   addWebGuestZap,
   recordVisit,
+  getVisitorsMonth
 };
