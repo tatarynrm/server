@@ -142,6 +142,7 @@ const createZap = async (req, res) => {
     pZav,
     pRozv,
     pZapText,
+    pZapTextPriv,
     zavInfo,
     rozvInfo,
     pKodZam,
@@ -206,7 +207,7 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -229,11 +230,12 @@ const createZap = async (req, res) => {
           pRLon,
           pKodZam: pKodZam || null,
           pZapText,
+          pZapTextPriv: pZapTextPriv ? pZapTextPriv : null ,
           pZbir: pZbir ? +pZbir : 0,
           pZapCina,
           pKilAm: +pKilAm,
-          pFrahtOur:pFrahtOur ? pFrahtOur: null,
-          pFrahtPer:pFrahtPer ? pFrahtPer : null,
+          pFrahtOur:pFrahtOur ? +pFrahtOur: null,
+          pFrahtPer:pFrahtPer ? +pFrahtPer : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -332,6 +334,7 @@ const editZap = async (req, res) => {
     pRozv,
     pKodZam,
     pZapText,
+    pZapTextPriv,
     zavInfo,
     rozvInfo,
     pZapCina,
@@ -373,7 +376,7 @@ const editZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
       END;`,
         {
           pKodAuthor,
@@ -390,6 +393,7 @@ const editZap = async (req, res) => {
           pRLon,
           pKodZam: pKodZam || null,
           pZapText,
+          pZapTextPriv,
           pZbir:0,
           pZapCina,
           pKilAm,
