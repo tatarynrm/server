@@ -34,7 +34,6 @@ const addWebGuestZap = async (req, res) => {
 
 const recordVisit = async (req,res) => {
   const {page} = req.body;
-  console.log(page);
   const client = await ictmainsite.connect();
   const todayDate = new Date();
   const year = todayDate.getFullYear();
@@ -56,7 +55,7 @@ const recordVisit = async (req,res) => {
         `UPDATE visitors SET  counter = counter + 1 WHERE date = $1 and page = $2 RETURNING counter`,
         [today,page]
       );
-      console.log("Updated counter:", updateRes.rows[0].counter);
+     
     } else {
       // Якщо запису немає, створюємо новий запис
 
@@ -64,7 +63,7 @@ const recordVisit = async (req,res) => {
         "INSERT INTO visitors (date, counter,page) VALUES ($1,1,$2) RETURNING counter",
         [today,page]
       );
-      console.log("Inserted new counter:", insertRes.rows[0].counter);
+
     }
 
     await client.query("COMMIT");
@@ -77,71 +76,144 @@ const recordVisit = async (req,res) => {
   }
 };
 
-const getVisitorsMonth = async (req,res)=>{
-  const client = await ictmainsite.connect();
-  try {
-   const result = await client.query(`
-    SELECT date, 
-       array_agg(json_build_object('page', page, 'visits', counter)) AS page_visits
-FROM visitors
-WHERE date >= date_trunc('month', current_date) 
-  AND date < date_trunc('month', current_date) + interval '1 month'
-GROUP BY date
-ORDER BY date
-    `)
+// const getVisitorsMonth = async (req,res)=>{
+//   const client = await ictmainsite.connect();
+//   try {
+//    const result = await client.query(`
+//     SELECT date, 
+//        array_agg(json_build_object('page', page, 'visits', counter)) AS page_visits
+// FROM visitors
+// WHERE date >= date_trunc('month', current_date) 
+//   AND date < date_trunc('month', current_date) + interval '1 month'
+// GROUP BY date
+// ORDER BY date
+//     `)
 
 
-    res.status(200).json(result.rows)
+//     res.status(200).json(result.rows)
 
-  } catch (error) {
-    console.log(error);
-  }
-}
-const getVisitorsMonthGroup = async (req,res)=>{
-  const client = await ictmainsite.connect();
-  try {
-   const result = await client.query(`
-SELECT 
-    month,
-    SUM(total_visits) AS total_visits,
-    array_agg(json_build_object('page', page, 'visits', total_visits)) AS page_visits
-FROM (
-    SELECT 
-        date_trunc('month', date) AS month,
-        page,
-        SUM(counter) AS total_visits
-    FROM visitors
-    WHERE date >= date_trunc('month', current_date) 
-      AND date < date_trunc('month', current_date) + interval '1 month'
-    GROUP BY month, page
-) AS subquery
-GROUP BY month
-ORDER BY month;
-    `)   
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+// const getVisitorsMonthGroup = async (req,res)=>{
+//   const client = await ictmainsite.connect();
+//   try {
+//    const result = await client.query(`
+// SELECT 
+//     month,
+//     SUM(total_visits) AS total_visits,
+//     array_agg(json_build_object('page', page, 'visits', total_visits)) AS page_visits
+// FROM (
+//     SELECT 
+//         date_trunc('month', date) AS month,
+//         page,
+//         SUM(counter) AS total_visits
+//     FROM visitors
+//     WHERE date >= date_trunc('month', current_date) 
+//       AND date < date_trunc('month', current_date) + interval '1 month'
+//     GROUP BY month, page
+// ) AS subquery
+// GROUP BY month
+// ORDER BY month
+//     `)   
 
-    res.status(200).json(result.rows)
+//     res.status(200).json(result.rows)
 
-  } catch (error) {
-    console.log(error);
-  }
-}
-const selectAllWebGuestZap = async (req, res) => {
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+// const selectAllWebGuestZap = async (req, res) => {
 
 
  
-  try {
-    const connection = await oracledb.getConnection(pool);
-    const result = await connection.execute(
-      `select * from ictdat.webguestzap`
-    );
+//   try {
+//     const connection = await oracledb.getConnection(pool);
+//     const result = await connection.execute(
+//       `select * from ictdat.webguestzap`
+//     );
     
+//     res.status(200).json(result.rows);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+
+const getVisitorsMonth = async (req, res) => {
+  const client = await ictmainsite.connect();
+  try {
+    const result = await client.query(`
+      SELECT date, 
+        array_agg(json_build_object('page', page, 'visits', counter)) AS page_visits
+      FROM visitors
+      WHERE date >= date_trunc('month', current_date) 
+        AND date < date_trunc('month', current_date) + interval '1 month'
+      GROUP BY date
+      ORDER BY date
+    `);
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.log(error);
+    res.status(500).send('Error fetching data');
+  } finally {
+    client.release(); // Закриття сесії
   }
 };
+const getVisitorsMonthGroup = async (req, res) => {
+  const client = await ictmainsite.connect();
+  try {
+    const result = await client.query(`
+      SELECT 
+        month,
+        SUM(total_visits) AS total_visits,
+        array_agg(json_build_object('page', page, 'visits', total_visits)) AS page_visits
+      FROM (
+        SELECT 
+          date_trunc('month', date) AS month,
+          page,
+          SUM(counter) AS total_visits
+        FROM visitors
+        WHERE date >= date_trunc('month', current_date) 
+          AND date < date_trunc('month', current_date) + interval '1 month'
+        GROUP BY month, page
+      ) AS subquery
+      GROUP BY month
+      ORDER BY month
+    `);
 
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error fetching data');
+  } finally {
+    client.release(); // Закриття сесії
+  }
+};
+const selectAllWebGuestZap = async (req, res) => {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `SELECT * FROM ictdat.webguestzap`
+    );
 
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error fetching data');
+  } finally {
+    if (connection) {
+      try {
+        await connection.close(); // Закриття сесії
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+};
 
 module.exports = {
   addWebGuestZap,

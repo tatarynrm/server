@@ -163,7 +163,6 @@ ORDER BY
     a.pip ASC`);
 
     res.status(200).json({ ...user.rows[0] });
-    console.log('YULIA',user.rows[0]);
     if (!user) {
       return res.status(404).json({
         message: "Користувача не знайдено",
