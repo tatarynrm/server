@@ -76,7 +76,9 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "https://carriers.ict.lviv.ua",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://ictwork.site",
+    "https://ict.lviv.ua",
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
@@ -422,6 +424,8 @@ const resultName = await getOsPIP(data?.pKodMen)
     }
   });
 
+
+
   socket.on("logoutAll", () => {
     io.emit("logoutAllUsers", 1);
     for (let i = 0; i < onlineUsers.length; i++) {
@@ -456,6 +460,38 @@ socket.on('start_feedback',()=>{
 })
 
 
+
+// ЗАПИТИ З ОСНОВНОГО САЙТУ
+
+socket.on('newWebZap',data =>{
+  console.log(data);
+  const date = moment(new Date()).format('LLLL');
+
+const adminTg = [
+  {who:'Татарин Роман',id:5248905716},
+  {who:'Корецька Ольга',id:1612647542},
+  {who:'Риптик Володимир',id:5298432643},
+]
+
+for (let i = 0; i < adminTg.length; i++) {
+  const el = adminTg[i];
+  console.log('ELLLLLLLL ID TELEGRAM',el);
+  
+  bot.telegram.sendMessage(
+    el.id,
+    `<i>Новий запит з корпоративного сайту компанії ${date}</i>\n\n<b>${data.name}</b>\n<b>${data.tel}</b>\n<b>${data.email}</b>\n<b>${data.text}</b>`,
+    { parse_mode: "HTML" }
+  );
+  
+  
+  
+}
+
+
+
+  
+  
+})
   // ADMIN TELEGRAM
   // ВИЙТИ
   socket.on("disconnect", () => {
