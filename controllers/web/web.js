@@ -117,10 +117,7 @@ FROM (
 ) AS subquery
 GROUP BY month
 ORDER BY month;
-    `)
-
-    console.log(result);
-    
+    `)   
 
     res.status(200).json(result.rows)
 
@@ -135,10 +132,9 @@ const selectAllWebGuestZap = async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
-      `select * from ictdat.webguestzap`,
-
+      `select * from ictdat.webguestzap`
     );
-    console.log('RESULT',result);
+    
     res.status(200).json(result.rows);
   } catch (error) {
     console.log(error);
