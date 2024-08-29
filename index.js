@@ -48,7 +48,7 @@ const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
 const { getOsPIP } = require("./helpers/os/osFunctions");
-const { getDataFromLogistPro } = require("./parser/logist-pro/logist-pro-parser");
+const { getDataFromLogistPro, multiplyLogistData, getAndWriteDataLogistPro } = require("./parser/logist-pro/logist-pro-parser");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -798,7 +798,9 @@ arrayOfTG = []
 });
 cron.schedule('*/10 * * * *', async () => {
   try {
-    await getDataFromLogistPro();
+    await getAndWriteDataLogistPro();
+    console.log("КАЖДДИЙ 10 МІНУУТА!!!!!!!!!!--------------");
+    
   } catch (err) {
     console.error('Error during scheduled task execution:', err);
   }
@@ -808,19 +810,11 @@ cron.schedule('*/10 * * * *', async () => {
 //   console.log(arrayOfTG);
 //   },10000)
 
-const getLogistProDataOneTime= async ()=>{
-  try {
-    await getDataFromLogistPro();
-  } catch (error) {
-    console.log(error);
-    
-  }
-}
-getLogistProDataOneTime()
+
 // logewq
 
 
-
+getAndWriteDataLogistPro();
 
 if (process.env.SERVER === 'LOCAL') {
   console.log('LOCAL_SERVER');

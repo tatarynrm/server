@@ -6,22 +6,17 @@ const { norisdb } = require('../../db/noris/noris');
 
 puppeteer.use(StealthPlugin());
 
-
-
-let allData = [];
-
 const getDataFromLogistPro = async ()=>{
-let browser;
+    let allData = [];
+
+    let browser;
 
     if (process.env.SERVER === 'LOCAL') {
-         browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: executablePath() });
+         browser = await puppeteer.launch({ headless: false,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: executablePath() });
     }else {
         browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: '/usr/bin/google-chrome' });
     }
-    
-
-    const page = await browser.newPage()
-
+    const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0); // Disable timeout
     await page.setRequestInterception(true);
     page.on('request', request => {
@@ -31,20 +26,9 @@ let browser;
             request.continue();
         }
     });
-
     await page.goto('https://logistpro.sctp.com.ua/carrier#!/offers/all/')
-
-
-
-
-
-
-
     await page.waitForSelector('.demo-dialog__close');
     await page.click('.demo-dialog__close');
-
-
-
 
     // Wait for the input field to be available in the DOM
     await page.waitForSelector('input[data-v-cf3026aa][type="text"]');
@@ -69,11 +53,8 @@ let browser;
     await newPage.waitForSelector('body');
     await newPage.waitForSelector('#offers-table');
 
-
     // You can now interact with the new tab
     console.log('New tab opened:', await newPage.title());
-
-
 
     // Function to extract data from the current page
     const extractDataFromPage = async () => {
@@ -153,127 +134,119 @@ let browser;
             return pageNumbers.length > 0 ? Math.max(...pageNumbers) : 10; // Return max or 1 if empty
         });
     };
-    const clickNextPage = async () => {
-        await newPage.evaluate(() => {
-            const nextButton = document.querySelector('.pagination-container .pagination .footable-page-arrow:last-child');
 
-            console.log('NEXT BUTTON',nextButton);
-            
-            if (nextButton) {
-                nextButton.click();
-            } else {
-                console.error('Next button not found');
-            }
-        });
-    };
 
     let currentPage = 1;
     const currentPageNumber = await getCurrentPageNumber()
     let totalPages = await getTotalPages();
 
+ 
+
     while (currentPage <= totalPages) {
         // Extract data from the current page
-
-
         const pageData = await extractDataFromPage();
-  
-        
         allData = allData.concat(pageData);
     
-
         // Get the total number of pages (in case it changes dynamically)
         totalPages = await getTotalPages();
-        await multiplyLogistData(allData)
-
+    
         if (currentPage < totalPages) {
             // Click the next page button
-     // Wait for the page to load by checking for a specific element
-     await newPage.waitForSelector('#offers-table'); // Adjust selector as needed
-
-    //  await newPage.click('#wrapper > div > div.wrapper.wrapper-content.animated.fadeInRight > div > div > div > div > div > div > div:nth-child(2) > div.ibox-title > div > ul > li:nth-child(7) > a > i'); // Adjust selector as needed
-     await newPage.click('.pagination .footable-page-arrow .fa-angle-right'); // Adjust selector as needed
-   
+            await newPage.click('.pagination .footable-page-arrow .fa-angle-right');
+    
+            // Додайте затримку, щоб дочекатися нових даних
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Затримка в 2 секунди, можна змінити за потреби
+    
             // Update the current page number
             currentPage = await getCurrentPageNumber();
-
-          
-            
         } else {
             break;
         }
     }
-
-
-    async function multiplyLogistData(dataArray) {
-        const client = await norisdb.connect();
-        try {
-          await client.query('BEGIN'); // Почати транзакцію
-      
-          for (const data of dataArray) {
-            // Спочатку спробуємо оновити існуючий запис
-            const updateQuery = `
-              UPDATE logist_pro_data
-              SET comment = $2,
-                  loading_date = $3,
-                  delivering_date = $4,
-                  route = $5,
-                  loading_location = $6,
-                  unloading_location = $7,
-                  transport = $8,
-                  cargo = $9,
-                  price = $10,
-                  time_left = $11,
-                  client = $12,
-                  customs = $13,
-                  crossing = $14
-              WHERE code = $1;
-            `;
-            const updateValues = [
-              data.number,
-              data.comment,
-              data.loadingDate,
-              data.deliveringDate,
-              data.route,
-              data.loadingLocation,
-              data.unloadingLocation,
-              data.transport,
-              data.cargo,
-              data.price,
-              data.timeLeft,
-              data.client,
-              data.customs,
-              data.crossing
-            ];
-      
-            const updateResult = await client.query(updateQuery, updateValues);
-      
-            // Якщо оновлення не знайде жодного рядка, виконуємо вставку
-            if (updateResult.rowCount === 0) {
-              const insertQuery = `
-                INSERT INTO logist_pro_data (code, comment, loading_date, delivering_date, route, loading_location, unloading_location,
-                                             transport, cargo, price, time_left, client,customs,crossing)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14);
-              `;
-              await client.query(insertQuery, updateValues);
-            }
-          }
-      
-          await client.query('COMMIT'); // Застосувати транзакцію
-          console.log('Insert/Update for multiple records successful');
-        } catch (err) {
-          await client.query('ROLLBACK'); // Відкотити транзакцію в разі помилки
-          console.error('Error during Insert/Update:', err.stack);
-        } finally {
-          client.release();
-        }
-      }
-
-console.log(allData);
-
     await browser.close();
+ 
+console.log('ALDATAAAAAAAAAAAAAAAA',allData);
+
+    return allData;
 }
 
 
-module.exports = {getDataFromLogistPro}
+async function multiplyLogistData(dataArray) {
+    const client = await norisdb.connect();
+    try {
+        await client.query('BEGIN'); // Почати транзакцію
+
+        for (const data of dataArray) {
+            // console.log('Processing data:', data);
+
+            // Перевіряємо, чи існує запис з таким code
+            const checkQuery = `
+                SELECT 1 FROM logist_pro_data WHERE code = $1;
+            `;
+            const checkResult = await client.query(checkQuery, [data.number]);
+
+            // Якщо запису немає, виконуємо вставку
+            if (checkResult.rowCount === 0) {
+                const insertQuery = `
+                    INSERT INTO logist_pro_data (
+                        code, comment, loading_date, delivering_date, route, loading_location, 
+                        unloading_location, transport, cargo, price, time_left, client, customs, crossing
+                    ) VALUES (
+                        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                    );
+                `;
+                const insertValues = [
+                    data.number,
+                    data.comment,
+                    data.loadingDate,
+                    data.deliveringDate,
+                    data.route,
+                    data.loadingLocation,
+                    data.unloadingLocation,
+                    data.transport,
+                    data.cargo,
+                    data.price,
+                    data.timeLeft,
+                    data.client,
+                    data.customs,
+                    data.crossing
+                ];
+
+                const result = await client.query(insertQuery, insertValues);
+                // console.log('Inserted:', result.rowCount);
+            } else {
+                console.log('Record with code', data.number, 'already exists, skipping insert.');
+            }
+        }
+
+        await client.query('COMMIT'); // Застосувати транзакцію
+        console.log('Insert for multiple records successful');
+    } catch (err) {
+        await client.query('ROLLBACK'); // Відкотити транзакцію в разі помилки
+        console.error('Error during Insert:', err.stack);
+    } finally {
+        client.release();
+    }
+}
+  const getAndWriteDataLogistPro = async ()=>{
+try {
+    const data = await getDataFromLogistPro();
+
+    // console.log(data.length,'DATA LENNGTH');
+    
+  if (data) {
+    multiplyLogistData(data)
+  }else {
+    console.log('ERROR DURING WRITE DATA LOGIST PRO');
+    
+  }
+    
+} catch (error) {
+    console.log(error);
+    
+}
+  }
+
+module.exports = {getDataFromLogistPro,multiplyLogistData,getAndWriteDataLogistPro}
 
 
