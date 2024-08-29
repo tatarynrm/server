@@ -806,6 +806,15 @@ cron.schedule('*/10 * * * *', async () => {
 //   console.log(arrayOfTG);
 //   },10000)
 
+const getLogistProDataOneTime= async ()=>{
+  try {
+    await getDataFromLogistPro();
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+getLogistProDataOneTime()
 // logewq
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
