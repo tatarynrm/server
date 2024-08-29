@@ -47,7 +47,7 @@ const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
 const { getOsPIP } = require("./helpers/os/osFunctions");
-const { getDataFromLogistPro } = require("./parser/logist-pro/logist-pro-parser");
+// const { getDataFromLogistPro } = require("./parser/logist-pro/logist-pro-parser");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
