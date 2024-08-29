@@ -43,6 +43,7 @@ const cartRoutes = require("./routes/cart/cart");
 const emailRoutes = require('./routes/emails')
 const webRoutes = require('./routes/web/web')
 const feedbackNorisRoute = require("./routes/noris/feedback");
+const tendersRoute = require("./routes/tenders");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
@@ -117,6 +118,7 @@ app.use("/groups", groupsRoutes);
 app.use("/cart", cartRoutes);
 app.use("/feedback", feedbackNorisRoute);
 app.use("/email", emailRoutes);
+app.use("/tenders", tendersRoute);
 
 // WEB
 app.use("/web", webRoutes);
@@ -816,6 +818,18 @@ const getLogistProDataOneTime= async ()=>{
 }
 getLogistProDataOneTime()
 // logewq
+
+
+
+
+if (process.env.SERVER === 'LOCAL') {
+  console.log('LOCAL_SERVER');
+  
+}else {
+  console.log('MAIN SERVER');
+  
+}
+
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });

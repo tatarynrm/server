@@ -11,7 +11,14 @@ puppeteer.use(StealthPlugin());
 let allData = [];
 
 const getDataFromLogistPro = async ()=>{
-    const browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: executablePath() });
+let browser;
+
+    if (process.env.SERVER === 'LOCAL') {
+         browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: executablePath() });
+    }else {
+        browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: '/usr/bin/google-chrome' });
+    }
+    
 
     const page = await browser.newPage()
 
@@ -79,15 +86,17 @@ const getDataFromLogistPro = async ()=>{
                 const comment = row.querySelector('td.offer-column.comment')?.innerText.trim();
                 const loadingDate = row.querySelector('td.loading_date')?.innerText.trim();
                 const deliveringDate = row.querySelector('td.delivering_date')?.innerText.trim();
-                const route = row.querySelector('td:nth-child(6)')?.innerText.trim();
-                const loadingLocation = row.querySelector('td:nth-child(7) p')?.innerText.trim();
-                const unloadingLocation = row.querySelector('td:nth-child(9) p')?.innerText.trim();
+                const route = row.querySelector('td:nth-child(6)')?.innerText;
+                const loadingLocation = row.querySelector('td:nth-child(7) p')?.innerText;
+                const unloadingLocation = row.querySelector('td:nth-child(9) p')?.innerText;
                 const transport = row.querySelector('td:nth-child(10)')?.innerText.trim();
                 const cargo = row.querySelector('td:nth-child(11)')?.innerText.trim();
                 const price = row.querySelector('td:nth-child(12) h3')?.innerText.trim();
                 const timeLeft = row.querySelector('td:nth-child(13) h3 p')?.innerText.trim();
                 const client = row.querySelector('td:nth-child(14)')?.innerText.trim();
-
+                const customsElements = row.querySelectorAll('td:nth-child(8) p');
+                const customs = Array.from(customsElements).map(p => p.innerText.trim());
+               
 
                 dataArray.push({
                     number:number.replace(/Номер\/?\n/, ''),
@@ -101,10 +110,14 @@ const getDataFromLogistPro = async ()=>{
                     cargo:cargo.replace(/Вантаж\/?\n/,''),
                     price,
                     timeLeft,
-                    client:client.replace(/Клієнт\/?\n/,'').replace(/\n/g, ' ')
+                    client:client.replace(/Клієнт\/?\n/,'').replace(/\n/g, ' '),
+                    customs:customs[0],
+                    crossing:customs[1]
+
 
                 });
             });
+
 
             return dataArray;
         });
@@ -166,11 +179,11 @@ const getDataFromLogistPro = async ()=>{
   
         
         allData = allData.concat(pageData);
-        await multiplyLogistData(allData)
+    
 
         // Get the total number of pages (in case it changes dynamically)
         totalPages = await getTotalPages();
-
+        await multiplyLogistData(allData)
 
         if (currentPage < totalPages) {
             // Click the next page button
@@ -183,8 +196,7 @@ const getDataFromLogistPro = async ()=>{
             // Update the current page number
             currentPage = await getCurrentPageNumber();
 
-            await multiplyLogistData(allData)
-            console.log(currentPage);
+          
             
         } else {
             break;
@@ -211,7 +223,9 @@ const getDataFromLogistPro = async ()=>{
                   cargo = $9,
                   price = $10,
                   time_left = $11,
-                  client = $12
+                  client = $12,
+                  customs = $13,
+                  crossing = $14
               WHERE code = $1;
             `;
             const updateValues = [
@@ -227,6 +241,8 @@ const getDataFromLogistPro = async ()=>{
               data.price,
               data.timeLeft,
               data.client,
+              data.customs,
+              data.crossing
             ];
       
             const updateResult = await client.query(updateQuery, updateValues);
@@ -235,8 +251,8 @@ const getDataFromLogistPro = async ()=>{
             if (updateResult.rowCount === 0) {
               const insertQuery = `
                 INSERT INTO logist_pro_data (code, comment, loading_date, delivering_date, route, loading_location, unloading_location,
-                                             transport, cargo, price, time_left, client)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+                                             transport, cargo, price, time_left, client,customs,crossing)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,$13,$14);
               `;
               await client.query(insertQuery, updateValues);
             }
@@ -252,6 +268,7 @@ const getDataFromLogistPro = async ()=>{
         }
       }
 
+console.log(allData);
 
     await browser.close();
 }
