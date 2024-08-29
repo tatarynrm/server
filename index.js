@@ -794,13 +794,13 @@ arrayOfTG = []
   }
   // getAllZap()
 });
-cron.schedule('*/10 * * * *', async () => {
-  try {
-    await getDataFromLogistPro();
-  } catch (err) {
-    console.error('Error during scheduled task execution:', err);
-  }
-});
+// cron.schedule('*/10 * * * *', async () => {
+//   try {
+//     await getDataFromLogistPro();
+//   } catch (err) {
+//     console.error('Error during scheduled task execution:', err);
+//   }
+// });
 
 // setTimeout(()=>{
 //   console.log(arrayOfTG);
