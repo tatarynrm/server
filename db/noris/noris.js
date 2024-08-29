@@ -20,6 +20,8 @@ const ictmainsite = new Pool({
   port: 5432, // PostgreSQL default port
 });
 
+
+
 module.exports ={
   norisdb,
   ictmainsite

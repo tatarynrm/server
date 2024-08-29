@@ -47,6 +47,7 @@ const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
 const { getOsPIP } = require("./helpers/os/osFunctions");
+const { getDataFromLogistPro } = require("./parser/logist-pro/logist-pro-parser");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -793,6 +794,14 @@ arrayOfTG = []
   }
   // getAllZap()
 });
+cron.schedule('*/10 * * * *', async () => {
+  try {
+    await getDataFromLogistPro();
+  } catch (err) {
+    console.error('Error during scheduled task execution:', err);
+  }
+});
+
 // setTimeout(()=>{
 //   console.log(arrayOfTG);
 //   },10000)

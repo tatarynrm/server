@@ -165,7 +165,7 @@ const getVisitorsMonth = async (req, res) => {
 const getVisitorsMonthGroup = async (req, res) => {
   const client = await ictmainsite.connect();
   try {
-    const result = await client.query(`
+    const result = await client.query(` 
       SELECT 
         month,
         SUM(total_visits) AS total_visits,
