@@ -805,6 +805,8 @@ arrayOfTG = []
 // setTimeout(()=>{
 //   console.log(arrayOfTG);
 //   },10000)
+
+// logewq
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
 });
