@@ -165,7 +165,9 @@ const getDataFromLogistPro = async ()=>{
     }
     await browser.close();
  
-console.log('ALDATAAAAAAAAAAAAAAAA',allData);
+
+
+
 
     return allData;
 }
@@ -173,12 +175,13 @@ console.log('ALDATAAAAAAAAAAAAAAAA',allData);
 
 async function multiplyLogistData(dataArray) {
     const client = await norisdb.connect();
+    
     try {
         await client.query('BEGIN'); // Почати транзакцію
-
+        const deleteFromTable = await client.query(`delete  from logist_pro_data`); //Очищаємо таблицю перед записом!
         for (const data of dataArray) {
             // console.log('Processing data:', data);
-
+            
             // Перевіряємо, чи існує запис з таким code
             const checkQuery = `
                 SELECT 1 FROM logist_pro_data WHERE code = $1;
