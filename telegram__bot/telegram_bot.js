@@ -8,6 +8,7 @@ const pool = require("../db/pool");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const firstName = (ctx) => ctx.message.from.first_name;
 let managers = [];
+
 const moment = require("moment");
 const { mainMenuFunc } = require("./menu/mainManu");
 require("moment/locale/uk.js");
@@ -65,11 +66,11 @@ bot.on('contact', async(ctx) => {
   const firstName = contact.first_name;
   const lastName = contact.last_name || ''; // Прізвище може бути відсутнім
   const userId = contact.user_id;
-console.log('DASSDSAD',ctx.message.from.id);
+
   const connection = await oracledb.getConnection(pool);
   const findUser = await connection.execute(`SELECT * FROM ICTDAT.OSTEL WHERE VALIDX  LIKE '%${phoneNumber.slice(2,phoneNumber.length)}%'`)
   // const findUser = await connection.execute(`SELECT * FROM ICTDAT.OSTEL WHERE VALIDX  LIKE '%0505001107%'`)
-  console.log(findUser.rows);
+  
   let checkArrayOfUserKod = []
 //  console.log(phoneNumber.slice(2,phoneNumber.length));
 for (let i = 0; i < findUser.rows.length; i++) {
@@ -87,7 +88,7 @@ for (let i = 0; i < findUser.rows.length; i++) {
 }
 
 const uniq = checkArrayOfUserKod.filter(item => item !== undefined);
-console.log(uniq[0]);
+// console.log(uniq[0]);
 if (uniq[0]) {
   try {
     const query = `UPDATE ictdat.us SET telegramid = :telegramid WHERE kod_os = :kod_os`;

@@ -814,7 +814,7 @@ cron.schedule('*/10 * * * *', async () => {
 // logewq
 
 
-getAndWriteDataLogistPro();
+// getAndWriteDataLogistPro();
 
 if (process.env.SERVER === 'LOCAL') {
   console.log('LOCAL_SERVER');

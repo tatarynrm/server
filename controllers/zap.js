@@ -152,6 +152,8 @@ const createZap = async (req, res) => {
     pPunktR,
     pFrahtOur,
     pFrahtPer,
+    pKodTzType,
+    pVantInfo,
     pZbir
   } = req.body;
 
@@ -207,7 +209,8 @@ const createZap = async (req, res) => {
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName,:pKodZap,:pZapNum);
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,
+              :pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtPer,:pKodTzType,:pVantInfo,:pZamName,:pKodZap,:pZapNum);
       END;`,
         {
           pKodAutor,
@@ -234,8 +237,9 @@ const createZap = async (req, res) => {
           pZbir: pZbir ? +pZbir : 0,
           pZapCina,
           pKilAm: +pKilAm,
-          pFrahtOur:pFrahtOur ? +pFrahtOur: null,
           pFrahtPer:pFrahtPer ? +pFrahtPer : null,
+          pKodTzType:pKodTzType ? +pKodTzType : 51,
+          pVantInfo:pVantInfo ? pVantInfo : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -341,6 +345,8 @@ const editZap = async (req, res) => {
     pKilAm,
     pFrahtOur,
     pFrahtPer,
+    pKodTzType,
+    pVantInfo,
     pZbir
   } = req.body;
 
@@ -375,8 +381,9 @@ const editZap = async (req, res) => {
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
         `BEGIN
-          ICTDAT.p_zap.EditZap(:pKodAuthor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtOur,:pFrahtPer,:pZamName);
+          ICTDAT.p_zap.EditZap(:pKodAutor, :pKodZap, :pZav,:pRozv,
+              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,
+              :pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtPer,:pKodTzType,:pVantInfo
       END;`,
         {
           pKodAuthor,
@@ -397,8 +404,9 @@ const editZap = async (req, res) => {
           pZbir:0,
           pZapCina,
           pKilAm,
-          pFrahtOur:pFrahtOur ?pFrahtOur: null,
-          pFrahtPer:pFrahtPer ?pFrahtPer : null,
+          pFrahtPer:pFrahtPer ? +pFrahtPer : null,
+          pKodTzType:pKodTzType ? +pKodTzType : 51,
+          pVantInfo:pVantInfo ? pVantInfo : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
         }
       );
@@ -600,6 +608,19 @@ where a.dat >= trunc(sysdate, 'DD') - 2 and
   }
 };
 
+const getTzType = async (req,res) =>{
+  const connection = await oracledb.getConnection(pool);
+  connection.currentSchema = "ICTDAT";
+  try {
+    const result = await connection.execute(
+      `select * from tztype order by SORTID,NTYPE`
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
 
 
 module.exports = {
@@ -619,5 +640,6 @@ module.exports = {
   copyZap,
   // Вільний транспорт
   getAllFreeTrucks,
-  editZapKilAm
+  editZapKilAm,
+  getTzType
 };

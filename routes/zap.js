@@ -16,6 +16,7 @@ const {
   copyZap,
   getAllFreeTrucks,
   editZapKilAm,
+  getTzType
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -36,5 +37,6 @@ router.route("/by-date").post(getClosedZapByDate);
 router.route("/coments-in-zap").post(getManagersIsCommentZap);
 router.route("/free-trucks").get(getAllFreeTrucks);
 router.route("/edit-kilam").post(editZapKilAm);
+router.route("/tztype").get(getTzType);
 
 module.exports = router;

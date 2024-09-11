@@ -39,7 +39,7 @@ const mainMenuFunc = async (ctx,findUser) => {
     const connection = await oracledb.getConnection(pool);
     const checkUser = await connection.execute(`select * from ictdat.us where telegramid = ${ctx.message.from.id}`)
     const findUser = checkUser.rows[0]
-    console.log('DSADASASD',findUser);
+ 
     if (findUser?.KOD_OS) {
       await ctx.telegram.sendMessage(ctx.chat.id, "Ви в режимі користувача.");
       await ctx.reply("Функції користувача", {
