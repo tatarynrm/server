@@ -154,8 +154,10 @@ const createZap = async (req, res) => {
     pFrahtPer,
     pKodTzType,
     pVantInfo,
-    pZbir
+    pZbir,
+    pTzType
   } = req.body;
+
 
   try {
     const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
@@ -238,7 +240,7 @@ const createZap = async (req, res) => {
           pZapCina,
           pKilAm: +pKilAm,
           pFrahtPer:pFrahtPer ? +pFrahtPer : null,
-          pKodTzType:pKodTzType ? +pKodTzType : 51,
+          pKodTzType:pTzType ? +pTzType : 51,
           pVantInfo:pVantInfo ? pVantInfo : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
