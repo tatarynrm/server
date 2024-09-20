@@ -5,7 +5,7 @@ const axios = require("axios");
 const getAllZap = async (req, res) => {
   let connection;
   const { KOD_OS } = req.body;
-  // console.log("----getAllZap--", KOD_OS);
+
   try {
     connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
@@ -35,7 +35,7 @@ const getAllZap = async (req, res) => {
   join zaplst l on a.kod = l.kod_zap
   WHERE a.status = 0`
     );
-    console.log(result);
+
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
@@ -157,8 +157,9 @@ const createZap = async (req, res) => {
     pKodTzType,
     pVantInfo,
     pZbir,
-    pTzType
+ 
   } = req.body;
+
 
 
   try {
@@ -210,6 +211,9 @@ const createZap = async (req, res) => {
       const pRLat = data2.result.geometry.location.lat;
       const pRLon = data2.result.geometry.location.lng;
       const connection = await oracledb.getConnection(pool);
+
+      console.log('');
+      
       const result = await connection.execute(
         `BEGIN
           ICTDAT.p_zap.AddZap(:pKodAutor, :pKodGroup, :pZav,:pRozv,
@@ -242,13 +246,14 @@ const createZap = async (req, res) => {
           pZapCina,
           pKilAm: +pKilAm,
           pFrahtPer:pFrahtPer ? +pFrahtPer : null,
-          pKodTzType:pTzType ? +pTzType : 51,
+          pKodTzType:pKodTzType ? +pKodTzType : 51,
           pVantInfo:pVantInfo ? pVantInfo : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
       );
+console.log('RESULT CREATE',result);
 
       res.status(200).json(result);
     });
@@ -334,7 +339,6 @@ const copyZap = async (req, res) => {
 };
 
 const editZap = async (req, res) => {
-  // const { pKodAuthor, pKodZap, pZav, pRozv, pZapText } = req.body;
   const {
     pKodAuthor,
     pKodZap,
@@ -353,6 +357,7 @@ const editZap = async (req, res) => {
     pVantInfo,
     pZbir
   } = req.body;
+
 
   try {
     const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
@@ -377,40 +382,37 @@ const editZap = async (req, res) => {
         return (item.types = ["administrative_area_level_1", "political"]);
       });
 
-      const pZLat = data1.result.geometry.location.lat;
-      const pZLon = data1.result.geometry.location.lng;
-      const pRLat = data2.result.geometry.location.lat;
-      const pRLon = data2.result.geometry.location.lng;
-
+      const pZLat =  data1.result.geometry.location.lat;
+      const pZLon =  data1.result.geometry.location.lng;
+      const pRLat =  data2.result.geometry.location.lat;
+      const pRLon =  data2.result.geometry.location.lng;
       const connection = await oracledb.getConnection(pool);
       const result = await connection.execute(
         `BEGIN
-          ICTDAT.p_zap.EditZap(:pKodAutor, :pKodZap, :pZav,:pRozv,
-              :pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,
-              :pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtPer,:pKodTzType,:pVantInfo
+          ICTDAT.p_zap.EditZap(:pKodAutor,:pKodZap,:pZav,:pRozv,:pCodeKrainaZ,:pCodeKrainaR,:pOblZ,:pOblR,:pZLat,:pZLon,:pRLat,:pRLon,:pKodZam,:pZapText,:pZapTextPriv,:pZbir,:pZapCina,:pKilAm,:pFrahtPer,:pKodTzType,:pVantInfo,:pZamName);
       END;`,
         {
-          pKodAuthor,
+          pKodAutor:pKodAuthor,
           pKodZap,
           pZav,
           pRozv,
-          pCodeKrainaZ: pCodeKrainaZ.short_name,
-          pCodeKrainaR: pCodeKrainaR.short_name,
-          pOblZ: pOblZ.short_name,
-          pOblR: pOblR.short_name,
-          pZLat,
-          pZLon,
-          pRLat,
-          pRLon,
+          pCodeKrainaZ: pCodeKrainaZ?.short_name,
+          pCodeKrainaR: pCodeKrainaR?.short_name,
+          pOblZ: pOblZ?.short_name,
+          pOblR: pOblR?.short_name,
+          pZLat:pZLat,
+          pZLon:pZLon,
+          pRLat:pRLat,
+          pRLon:pRLon,
           pKodZam: pKodZam || null,
-          pZapText,
-          pZapTextPriv,
-          pZbir:0,
-          pZapCina,
-          pKilAm,
-          pFrahtPer:pFrahtPer ? +pFrahtPer : null,
-          pKodTzType:pKodTzType ? +pKodTzType : 51,
-          pVantInfo:pVantInfo ? pVantInfo : null,
+          pZapText: pZapText || null,
+          pZapTextPriv: pZapTextPriv || null,
+          pZbir:pZbir || null,
+          pZapCina:pZapCina || null,
+          pKilAm:pKilAm || null,
+          pFrahtPer: pFrahtPer || null,
+          pKodTzType:pKodTzType || null,
+          pVantInfo:pVantInfo || null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
         }
       );
