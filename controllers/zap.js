@@ -22,7 +22,8 @@ const getAllZap = async (req, res) => {
       p_zap.IsGroupAdm(${KOD_OS}, a.kod_group, 0) as isadm,
       p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam,
-      k.idgmap as kraina
+      k.idgmap as kraina,
+      f.ntype as tztype
   
   
   FROM zap a
@@ -30,6 +31,7 @@ const getAllZap = async (req, res) => {
   JOIN US c on a.kod_os = c.kod_os
   left join ur d on a.kod_zam = d.kod
   left join kraina k on a.kod_kraina = k.kod
+  left join tztype f on a.kod_tztype = f.kod
   join zaplst l on a.kod = l.kod_zap
   WHERE a.status = 0`
     );
