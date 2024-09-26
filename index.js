@@ -219,6 +219,10 @@ if (zapData !== null || zapData !== undefined) {
     console.log(data);
     io.emit("showEditKilAm", data);
   });
+  socket.on("editTzType", (data) => {
+    console.log(data);
+    io.emit("showEditTzType", data);
+  });
   socket.on("newComment", (data) => {
   
     if (data.telegramId !== null) {
