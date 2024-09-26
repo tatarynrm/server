@@ -223,6 +223,14 @@ if (zapData !== null || zapData !== undefined) {
     console.log(data);
     io.emit("showEditTzType", data);
   });
+  socket.on("editZapCina", (data) => {
+    console.log('ZAPCINA',data);
+    io.emit("showZapCina", data);
+  });
+  socket.on("editZapZbir", (data) => {
+    console.log('ZAPZBIR',data);
+    io.emit("showZapZbir", data);
+  });
   socket.on("newComment", (data) => {
   
     if (data.telegramId !== null) {
