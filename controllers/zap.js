@@ -157,10 +157,10 @@ const createZap = async (req, res) => {
     pKodTzType,
     pVantInfo,
     pZbir,
- 
   } = req.body;
 
 
+console.log('PKODTZTYPE',pKodTzType);
 
   try {
     const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
@@ -246,7 +246,7 @@ const createZap = async (req, res) => {
           pZapCina,
           pKilAm: +pKilAm,
           pFrahtPer:pFrahtPer ? +pFrahtPer : null,
-          pKodTzType:pKodTzType ? +pKodTzType : 51,
+          pKodTzType:pKodTzType || 51,
           pVantInfo:pVantInfo ? pVantInfo : null,
           pZamName: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
           pKodZap: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -467,7 +467,7 @@ const editZapKilAm = async (req, res) => {
 };
 const editTzType = async (req, res) => {
   const {pKodTzType,pKodZap} = req.body;
-console.log(req.body);
+
 
   try {
     const connection = await oracledb.getConnection(pool);
@@ -489,7 +489,7 @@ console.log(req.body);
 };
 const editZapZbir = async (req, res) => {
   const {pZapZbir,pKodZap} = req.body;
-console.log(req.body);
+
 
   try {
     const connection = await oracledb.getConnection(pool);
