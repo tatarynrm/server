@@ -81,7 +81,7 @@ app.use((req, res, next) => {
     "http://localhost:3001",
     "https://ictwork.site",
     "https://ict.lviv.ua",
-    "https://work.ict.lviv.ua/"
+    "https://work.ict.lviv.ua"
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
