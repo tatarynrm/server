@@ -487,6 +487,28 @@ const editTzType = async (req, res) => {
     console.log(error);
   }
 };
+const editZapZam = async (req, res) => {
+  const {pKodZapZam,pKodZap} = req.body;
+
+
+  try {
+    const connection = await oracledb.getConnection(pool);
+    const result = await connection.execute(
+      `UPDATE ICTDAT.ZAP
+      SET KOD_ZAM = :pKodZapZam
+      WHERE KOD = :pKodZap`,
+      {
+        pKodZapZam,
+        pKodZap,
+      },
+      { autoCommit: true }
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
 const editZapZbir = async (req, res) => {
   const {pZapZbir,pKodZap} = req.body;
 
@@ -690,6 +712,7 @@ module.exports = {
   copyZap,
   editTzType,
   editZapZbir,
+  editZapZam,
   // Вільний транспорт
   getAllFreeTrucks,
   editZapKilAm,

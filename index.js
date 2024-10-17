@@ -81,6 +81,7 @@ app.use((req, res, next) => {
     "http://localhost:3001",
     "https://ictwork.site",
     "https://ict.lviv.ua",
+    "https://work.ict.lviv.ua/"
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
@@ -230,6 +231,10 @@ if (zapData !== null || zapData !== undefined) {
   socket.on("editZapZbir", (data) => {
     console.log('ZAPZBIR',data);
     io.emit("showZapZbir", data);
+  });
+  socket.on("editZapZam", (data) => {
+    console.log('ZAPZAM',data);
+    // io.emit("showZapZbir", data);
   });
   socket.on("newComment", (data) => {
   
