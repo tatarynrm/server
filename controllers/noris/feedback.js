@@ -1,4 +1,4 @@
-const norisdb = require("../../db/noris/noris");
+const {norisdb} = require("../../db/noris/noris");
 
 
 
@@ -46,9 +46,31 @@ const getAllEmailsCount = async (req,res)=>{
     }
   }
 
+  const createNewFeedback = async (req,res)=>{
+    const {comment,pipfull} = req.body;
 
+
+    try {
+      const newFeedBack = await norisdb.query(
+        `
+         INSERT INTO purpose (comment,pipfull)
+         values ('${comment}','${pipfull}')
+         returning *
+         `
+      );
+  
+
+      
+      if (newFeedBack.rowCount) {
+        res.json(newFeedBack.rows)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 module.exports = {
     createFeedback,
     getAllFeedbacks,
-    getAllEmailsCount
+    getAllEmailsCount,
+    createNewFeedback
 }
