@@ -141,7 +141,7 @@ function scheduleEmails() {
 
 
 module.exports = {
-    sendNewYearEmail,
+  sendNewYearEmail,
   pathImage,
   scheduleEmails,
   sendEmail

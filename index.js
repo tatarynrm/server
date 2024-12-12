@@ -21,7 +21,7 @@ const moment = require("moment");
 require('moment/locale/uk.js');
 const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
-
+const {insertData} = require('./utils/saveEmailsToSend')
 
 const {
   sendMessageToGroup,
@@ -49,6 +49,8 @@ const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
 const { getOsPIP } = require("./helpers/os/osFunctions");
 const { getDataFromLogistPro, multiplyLogistData, getAndWriteDataLogistPro } = require("./parser/logist-pro/logist-pro-parser");
+const { getTables } = require("./utils/tables/emails-tabels");
+const { getAllTables } = require("./controllers/emails-controller");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -160,7 +162,7 @@ const getUser = (userId) => {
 };
 // ..
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
@@ -169,6 +171,17 @@ io.on("connection", (socket) => {
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
 
+
+
+  socket.on('get_emails_send_info', async data => {
+
+    const my_data = await getTables();
+
+    console.log('my_data',my_data);
+    
+
+    io.emit('show_get_emails_send_data', my_data)
+  })
   // ЗАПИТИ
 
   socket.on("newZap", (data) => {
@@ -657,122 +670,86 @@ function validateEmail(email) {
   // Електронний адрес не відповідає вимогам
   return false;
 }
-
-function formatEmail(email) {
-  // Упевнитися, що електронний адрес у нижньому регістрі (за бажанням)
-  email = email.toLowerCase();
-
-  // Додаткові етапи форматування можна додати за необхідності
-
-  return email;
-}
-let emailsAll = []
-const getAllUrEmail = async ()=>{
-  let emails = []
-  try {
-    const conn = await oracledb.getConnection(pool)
-    conn.currentSchema = 'ICTDAT'
-  //  const result  = await conn.execute(`select VAL from kontaktval`)
-   const result  = await conn.execute(`
-   select a.kod as kod_kontakt,
-       b.kod,
-       a.kod_ur,
-       c.drcode,
-       a.nkontakt,
-       a.prim,
-       b.val,
-       c.ntype,
-       e.nur,
-       e.perekmt,
-       e.peradr,
-       e.pernegabarit,
-       f.nkraina,
-       g.nobl
-from kontakt a
-left join kontaktval b on a.kod = b.kod_kontakt
-left join kontakttype c on b.kod_type = c.kod
-join ur e on a.kod_ur = e.kod
-left join kraina f on e.kod_kraina = f.kod
-left join obl g on e.kod_obl = g.kod
-where c.drcode = 'EMAIL' and
-      exists (select * from zaylst u where (u.kod_zam = a.kod_ur or u.kod_per = a.kod_ur) and u.perevdat >= to_date('01.01.2023','DD.MM.YYYY'))
-   `)
-
-console.log(result.rows);
-
-
-    // Обробка результатів запиту
-//     result.rows.forEach((row) => {
-//       const value = row.VAL;
-// // 
-//       // Перевірка, чи є значення електронною адресою
-//       if (isEmail(value)) {
-//         console.log(`Електронна адреса: ${value}`);
-//         // emails.push(value)
-//         if (validateEmail(value)) {
-//           emails.push(value)
-//         }
-     
-//       }
-//       // Перевірка, чи є значення номером телефону
-//       else if (isPhoneNumber(value)) {
-//         console.log(`Номер телефону: ${value}`);
-//       }
-//       // Інші варіанти обробки за необхідності
-//       else {
-//         console.log('NOTHING');
-//       }
-
-//     });
-  //   emailsAll.push(emails)
-  // return emailsAll
-  } catch (error) {
-    console.log(error);
-  }
-}
-// getAllUrEmail()
-// if (emailsAll.length > 0) {
-//   console.log(emailsAll,'-----------');
-// }
-// Налаштування Multer для збереження файлів у папці
+// Set up multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Папка для збереження файлів
+    const uploadDir = path.join(__dirname, 'uploads');
+    
+    // Create uploads folder if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+
+    cb(null, uploadDir); // Save files to the 'uploads' folder
   },
   filename: (req, file, cb) => {
-    cb(null, `new-year`+`.jpeg`);
-  },
+    // Use the custom file name if provided in the request
+    console.log(req.headers.fileName);
+    
+    const fileName = decodeURIComponent(req.headers['x-filename']) || file.originalname;
+    const fileExtension = path.extname(file.originalname); // Get file extension
+
+    // Ensure that the file name ends with the correct extension
+    const finalFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
+
+    cb(null, finalFileName); // Save with the custom file name
+  }
 });
 
+// Set up multer middleware for handling file uploads
 const upload = multer({ storage: storage });
 
-// sendNewYearEmail(photoBuffer,text)
-
-
-app.post('/upload', upload.single('photo'), (req, res) => {
-  try {
-    const photoBuffer = req.file.buffer;
-    // Handle the photo buffer as needed, e.g., save to disk or process it.
-    console.log('Received photo:', photoBuffer);
-
-    res.status(200).send('Photo uploaded successfully!');
-  } catch (error) {
-    console.error('Error handling photo:', error);
-    res.status(500).send('Internal Server Error');
+// Route for uploading files
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
   }
+
+const fileName = decodeURIComponent(req.headers['x-filename'])
+
+
+const extension = req.file.originalname.split('.').pop();// Slice after the dot
+console.log('extension',extension);  // 'xls'
+  // Send the file URL as a response
+  const fileUrl = `http://localhost:8800/uploads/${fileName}.${extension}`;
+  res.send({
+    message: 'File successfully uploaded',
+    fileUrl: fileUrl
+  });
 });
 
-app.get('/files', async (req, res) => {
-  const uploadsPath = path.join(__dirname, 'uploads');
+// Serve the uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-  try {
-    const files =  fs.readdirSync(uploadsPath);
-    res.json({ files });
-  } catch (error) {
-    console.error('Помилка отримання списку файлів', error);
-    res.status(500).json({ error: 'Помилка отримання списку файлів' });
-  }
+// Шлях до папки uploads
+const uploadsDir = path.join(__dirname, 'uploads');
+
+app.get('/xls-files', (req, res) => {
+  fs.readdir(uploadsDir, (err, files) => {
+    if (err) {
+      return res.status(500).send('Помилка при читанні папки');
+    }
+
+    // Фільтрація файлів за розширенням .xlsx та .xls
+    const xlsxFiles = files.filter(file => 
+      file.endsWith('.xlsx') || file.endsWith('.xls')
+    );
+
+    res.json(xlsxFiles);
+  });
 });
+
+// app.get('/files', async (req, res) => {
+//   const uploadsPath = path.join(__dirname, 'uploads');
+
+//   try {
+//     const files =  fs.readdirSync(uploadsPath);
+//     res.json({ files });
+//   } catch (error) {
+//     console.error('Помилка отримання списку файлів', error);
+//     res.status(500).json({ error: 'Помилка отримання списку файлів' });
+//   }
+// });
 
 
 let arrayOfTG = []
@@ -840,6 +817,48 @@ if (process.env.SERVER === 'LOCAL') {
   console.log('MAIN SERVER');
   
 }
+
+
+
+
+
+app.post('/delete-xls-file',(req,res) =>{
+  try {
+   // Назва файлу, який потрібно видалити
+const fileName = req.body.filename  // замініть на назву файлу, який хочете видалити
+
+// Формуємо абсолютний шлях до файлу в папці 'utils'
+const filePath = path.join(__dirname, 'uploads', fileName);
+
+// Видалення файлу асинхронно
+fs.unlink(filePath, (err) => {
+  if (err) {
+    console.error('Помилка при видаленні файлу:', err);
+    return;
+  }
+  console.log(`Файл ${fileName} успішно видалений!`);
+  res.status(200).json(fileName);
+});
+  } catch (error) {
+    console.log(error);
+    
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// insertData()
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
