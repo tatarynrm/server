@@ -177,7 +177,7 @@ io.on("connection", async (socket) => {
 
     const my_data = await getTables();
 
-    console.log('my_data',my_data);
+   
     
 
     io.emit('show_get_emails_send_data', my_data)
