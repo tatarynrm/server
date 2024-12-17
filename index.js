@@ -44,6 +44,7 @@ const emailRoutes = require('./routes/emails')
 const webRoutes = require('./routes/web/web')
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const tendersRoute = require("./routes/tenders");
+const printersRoute = require('./routes/noris/printer.route') 
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
@@ -118,10 +119,11 @@ app.use("/comments", commentsRoute);
 app.use("/events", eventsRoutes);
 app.use("/zay", zayRoutes);
 app.use("/groups", groupsRoutes);
-app.use("/cart", cartRoutes);
+// app.use("/cart", cartRoutes);
 app.use("/feedback", feedbackNorisRoute);
 app.use("/email", emailRoutes);
 app.use("/tenders", tendersRoute);
+app.use("/printers", printersRoute);
 
 // WEB
 app.use("/web", webRoutes);

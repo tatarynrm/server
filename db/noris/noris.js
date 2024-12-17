@@ -10,23 +10,30 @@ const norisdb = new Pool({
 const ictmainsite = new Pool({
   user: "noris",
   host: "91.239.235.132",
-// LOCAL
+  // LOCAL
   // host: "localhost",
   // password: "Aa527465182",
-//LOCAL
+  //LOCAL
   database: "ict_main_site",
   password: "Aa527465182",
 
   port: 5432, // PostgreSQL default port
 });
+const ict_printers = new Pool({
+  user: "noris",
+  host: "91.239.235.132",
+  // LOCAL
+  // host: "localhost",
+  // password: "Aa527465182",
+  //LOCAL
+  database: "ict_printers",
+  password: "Aa527465182",
 
+  port: 5432, // PostgreSQL default port
+});
 
-
-module.exports ={
+module.exports = {
   norisdb,
-  ictmainsite
-}
-
-
-
-
+  ictmainsite,
+  ict_printers,
+};
