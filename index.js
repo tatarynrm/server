@@ -672,87 +672,202 @@ function validateEmail(email) {
   // Електронний адрес не відповідає вимогам
   return false;
 }
-// Set up multer storage configuration
+// // Set up multer storage configuration
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     const uploadDir = path.join(__dirname, 'uploads');
+    
+//     // Create uploads folder if it doesn't exist
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir);
+//     }
+
+//     cb(null, uploadDir); // Save files to the 'uploads' folder
+//   },
+//   filename: (req, file, cb) => {
+//     // Use the custom file name if provided in the request
+//     console.log(req.headers.fileName);
+//     console.log(req);
+    
+    
+//     const fileName = decodeURIComponent(req.headers['x-filename']) || file.originalname;
+//     const fileExtension = path.extname(file.originalname); // Get file extension
+
+//     // Ensure that the file name ends with the correct extension
+//     const finalFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
+
+//     cb(null, finalFileName); // Save with the custom file name
+//   }
+// });
+
+// // Set up multer middleware for handling file uploads
+// const upload = multer({ storage: storage });
+
+// // Route for uploading files
+// app.post('/upload', upload.single('file'), (req, res) => {
+
+  
+//   if (!req.file) {
+//     return res.status(400).send('No file uploaded.');
+//   }
+
+// const fileName = decodeURIComponent(req.headers['x-filename'])
+
+
+// const extension = req.file.originalname.split('.').pop();// Slice after the dot
+// console.log('extension',extension);  // 'xls'
+//   // Send the file URL as a response
+//   const fileUrl = `http://localhost:8800/uploads/${fileName}.${extension}`;
+//   res.send({
+//     message: 'File successfully uploaded',
+//     fileUrl: fileUrl
+//   });
+// });
+
+// // Serve the uploaded files
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// // Шлях до папки uploads
+// const uploadsDir = path.join(__dirname, 'uploads');
+
+// app.get('/xls-files', (req, res) => {
+//   fs.readdir(uploadsDir, (err, files) => {
+//     if (err) {
+//       return res.status(500).send('Помилка при читанні папки');
+//     }
+
+//     // Фільтрація файлів за розширенням .xlsx та .xls
+//     const xlsxFiles = files.filter(file => 
+//       file.endsWith('.xlsx') || file.endsWith('.xls')
+//     );
+
+//     res.json(xlsxFiles);
+//   });
+// });
+
+
+// Функція для перевірки та створення папки, якщо вона не існує
+function ensureUploadDirExists(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+// Налаштування multer для збереження файлів
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, 'uploads');
-    
-    // Create uploads folder if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
+    // Визначення папки для збереження файлу залежно від типу
+    const fileType = file.mimetype.startsWith("image/") ? "images" : "files";
+    const uploadDir = path.join(__dirname, "uploads", fileType);
 
-    cb(null, uploadDir); // Save files to the 'uploads' folder
+    // Створюємо папку, якщо вона не існує
+    ensureUploadDirExists(uploadDir);
+
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Use the custom file name if provided in the request
-    console.log(req.headers.fileName);
+    // Отримання кастомного імені файлу з заголовка
+    const customFileName = req.headers["x-filename"]
+      ? decodeURIComponent(req.headers["x-filename"])
+      : file.originalname; // Використовуємо оригінальне ім'я, якщо заголовок відсутній
     
-    const fileName = decodeURIComponent(req.headers['x-filename']) || file.originalname;
-    const fileExtension = path.extname(file.originalname); // Get file extension
+    const fileExtension = path.extname(file.originalname); // Розширення файлу
 
-    // Ensure that the file name ends with the correct extension
-    const finalFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
+    // Забезпечення, що ім'я файлу має правильне розширення
+    const finalFileName = customFileName.endsWith(fileExtension)
+      ? customFileName
+      : `${customFileName}${fileExtension}`;
 
-    cb(null, finalFileName); // Save with the custom file name
-  }
+    cb(null, finalFileName); // Зберігаємо файл із кастомним або оригінальним іменем
+  },
 });
 
-// Set up multer middleware for handling file uploads
+// Ініціалізація multer
 const upload = multer({ storage: storage });
 
-// Route for uploading files
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
+// Маршрут для завантаження файлів
+app.post("/upload", (req, res, next) => {
+  
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(500).send({ message: "Error uploading the file.", error: err.message });
+    }
+    if (!req.file) {
+      return res.status(400).send({ message: "No file uploaded." });
+    }
 
-const fileName = decodeURIComponent(req.headers['x-filename'])
+    // Визначаємо тип файлу та його URL
+    const fileType = req.file.mimetype.startsWith("image/") ? "images" : "files";
+    const fileUrl = `http://localhost:8800/uploads/${fileType}/${req.file.filename}`;
 
-
-const extension = req.file.originalname.split('.').pop();// Slice after the dot
-console.log('extension',extension);  // 'xls'
-  // Send the file URL as a response
-  const fileUrl = `http://localhost:8800/uploads/${fileName}.${extension}`;
-  res.send({
-    message: 'File successfully uploaded',
-    fileUrl: fileUrl
+    res.send({
+      message: "File successfully uploaded.",
+      fileUrl: fileUrl,
+    });
   });
 });
+// Статичний доступ до завантажених файлів
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Serve the uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Забезпечуємо наявність базових папок
+ensureUploadDirExists(path.join(__dirname, "uploads/images"));
+ensureUploadDirExists(path.join(__dirname, "uploads/files"));
 
-// Шлях до папки uploads
-const uploadsDir = path.join(__dirname, 'uploads');
+// Запуск сервера
 
-app.get('/xls-files', (req, res) => {
-  fs.readdir(uploadsDir, (err, files) => {
+app.get("/xls-files", (req, res) => {
+  // Оновлений шлях до папки
+  const directoryPath = path.join(__dirname, "uploads", "files");
+
+  fs.readdir(directoryPath, (err, files) => {
     if (err) {
-      return res.status(500).send('Помилка при читанні папки');
+      return res.status(500).send("Помилка при читанні папки");
     }
 
     // Фільтрація файлів за розширенням .xlsx та .xls
-    const xlsxFiles = files.filter(file => 
-      file.endsWith('.xlsx') || file.endsWith('.xls')
+    const xlsxFiles = files.filter(file =>
+      file.endsWith(".xlsx") || file.endsWith(".xls")
+    );
+
+    res.json(xlsxFiles);
+  });
+});
+app.get("/xls-files", (req, res) => {
+  // Оновлений шлях до папки
+  const directoryPath = path.join(__dirname, "uploads", "files");
+
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return res.status(500).send("Помилка при читанні папки");
+    }
+
+    // Фільтрація файлів за розширенням .xlsx та .xls
+    const xlsxFiles = files.filter(file =>
+      file.endsWith(".xlsx") || file.endsWith(".xls")
     );
 
     res.json(xlsxFiles);
   });
 });
 
-// app.get('/files', async (req, res) => {
-//   const uploadsPath = path.join(__dirname, 'uploads');
+app.get("/image-files", (req, res) => {
+  // Оновлений шлях до папки
+  const directoryPath = path.join(__dirname, "uploads", "images");
 
-//   try {
-//     const files =  fs.readdirSync(uploadsPath);
-//     res.json({ files });
-//   } catch (error) {
-//     console.error('Помилка отримання списку файлів', error);
-//     res.status(500).json({ error: 'Помилка отримання списку файлів' });
-//   }
-// });
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return res.status(500).send("Помилка при читанні папки");
+    }
 
+    // Фільтрація файлів за розширенням для зображень
+    const imageFiles = files.filter(file =>
+      file.endsWith(".jpg") || file.endsWith(".jpeg") || file.endsWith(".png") || file.endsWith(".gif")
+    );
+
+    res.json(imageFiles);
+  });
+});
 
 let arrayOfTG = []
 cron.schedule('30 9,14,17 * * 1-5', () => {
@@ -822,32 +937,49 @@ if (process.env.SERVER === 'LOCAL') {
 
 
 
-
-
-app.post('/delete-xls-file',(req,res) =>{
+app.post('/delete-file', (req, res) => {
   try {
-   // Назва файлу, який потрібно видалити
-const fileName = req.body.filename  // замініть на назву файлу, який хочете видалити
+    // Назва файлу, який потрібно видалити
+    const { filename } = req.body;  // Отримуємо тільки filename
 
-// Формуємо абсолютний шлях до файлу в папці 'utils'
-const filePath = path.join(__dirname, 'uploads', fileName);
+    // Шляхи до папок, де можуть бути файли
+    const directories = [
+      path.join(__dirname, 'uploads', 'files'),
+      path.join(__dirname, 'uploads', 'images')
+    ];
 
-// Видалення файлу асинхронно
-fs.unlink(filePath, (err) => {
-  if (err) {
-    console.error('Помилка при видаленні файлу:', err);
-    return;
-  }
-  console.log(`Файл ${fileName} успішно видалений!`);
-  res.status(200).json(fileName);
-});
+    let filePath = null;
+
+    // Перевірка обох папок для наявності файлу
+    for (const directory of directories) {
+      const fullPath = path.join(directory, filename);
+
+      // Перевірка на наявність файлу в поточній директорії
+      if (fs.existsSync(fullPath)) {
+        filePath = fullPath;
+        break;
+      }
+    }
+
+    if (!filePath) {
+      return res.status(404).send('Файл не знайдено');
+    }
+
+    // Видалення файлу
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Помилка при видаленні файлу:', err);
+        return res.status(500).send('Помилка при видаленні файлу');
+      }
+
+      console.log(`Файл ${filename} успішно видалений з ${filePath}`);
+      res.status(200).json({ message: `${filename} успішно видалений` });
+    });
   } catch (error) {
-    console.log(error);
-    
+    console.error(error);
+    res.status(500).send('Сталася помилка');
   }
-})
-
-
+});
 
 
 

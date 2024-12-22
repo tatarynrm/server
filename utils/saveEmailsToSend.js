@@ -21,7 +21,7 @@ async function insertEmailsIntoTables(type,commentTitle,commentText,documentTitl
 
 
   // Отримуємо абсолютний шлях до файлу
-const filePath = path.join(__dirname,'..','uploads', `${documentTitle}`);
+const filePath = path.join(__dirname,'..','uploads/files', `${documentTitle}`);
 const workbook = xlsx.readFile(filePath);
 // 1. Зчитуємо Excel-файл
 

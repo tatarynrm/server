@@ -120,7 +120,8 @@ const createEmailListInDb = async (req, res) => {
 
 
 const sendEmailsDirectly = async (req, res) => {
-  const { table, title, text } = req.body;
+  const { table, title, text,photo } = req.body;
+console.log('PHOTO!!!!!!!!!',photo);
 
   try {
     // Функція для перевірки, чи процес призупинено для конкретної таблиці
@@ -157,7 +158,7 @@ const sendEmailsDirectly = async (req, res) => {
       for (const email of emailsBatch) {
         try {
           // Відправка листа (наприклад, через nodemailer)
-          await sendEmail(email.email, title, `"${text}"`);
+          await sendEmail(email.email, title, `${text}`,photo);
           console.log(`Email sent to: ${email.email}`);
 
           // Оновлення статусу `issend` в базі
