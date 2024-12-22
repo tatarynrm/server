@@ -1,5 +1,5 @@
 const express = require("express");
-const { createPrinter, getAllCartridges, getAllPrinters, getPrintersLocation, createCartridge, createPrinterLocation, createCartridgeChange, getAllData, getAllCartridgesChange, updatePrinter, updateCartridge, updateCartridgeChange } = require("../../controllers/noris/printers.controller");
+const { createPrinter, getAllCartridges, getAllPrinters, getPrintersLocation, createCartridge, createPrinterLocation, createCartridgeChange, getAllData, getAllCartridgesChange, updatePrinter, updateCartridge, updateCartridgeChange, updateLocation } = require("../../controllers/noris/printers.controller");
 
 
 const router = express.Router();
@@ -31,6 +31,7 @@ router.route("/cartridge-change").post(createCartridgeChange);
 router.route("/update-printer").post(updatePrinter);
 router.route("/update-cartridge").post(updateCartridge);
 router.route("/update-cartridge-change").post(updateCartridgeChange);
+router.route("/update-location-change").post(updateLocation);
 
 
 

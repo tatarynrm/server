@@ -221,6 +221,27 @@ const updateCartridgeChange = async (req,res) =>{
     console.error('Error updating printer:', error);
   }
 }
+const updateLocation = async (req,res) =>{
+  const {printer_id,location_id} = req.body;
+  try {
+    const query = `
+      UPDATE printer_location
+      SET printer_id = $1, location_id = $2
+      WHERE printer_id = $1
+    `;
+    const values = [printer_id,location_id];
+
+    const result = await ict_printers.query(query, values);
+    if (result.rowCount > 0) {
+      console.log(`Printer with ID ${printer_id} was updated.`);
+      res.status(200).json(result.rows)
+    } else {
+      console.log(`No Printer found with ID ${printer_id}.`);
+    }
+  } catch (error) {
+    console.error('Error updating printer:', error);
+  }
+}
 
 
 module.exports = {
@@ -241,5 +262,6 @@ module.exports = {
   // UPDATES
   updatePrinter,
   updateCartridge,
-  updateCartridgeChange
+  updateCartridgeChange,
+  updateLocation
 };
