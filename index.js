@@ -52,6 +52,7 @@ const { getOsPIP } = require("./helpers/os/osFunctions");
 const { getDataFromLogistPro, multiplyLogistData, getAndWriteDataLogistPro } = require("./parser/logist-pro/logist-pro-parser");
 const { getTables } = require("./utils/tables/emails-tabels");
 const { getAllTables } = require("./controllers/emails-controller");
+const { pool_emails_send } = require("./db/pg/email");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -983,7 +984,24 @@ app.post('/delete-file', (req, res) => {
 
 
 
+// Маршрут для видалення таблиці
+app.get("/drop-table/:tableName", async (req, res) => {
+  const { tableName } = req.params;
+  console.log('TABLE NAME',tableName);
+  try {
+    // Запит на видалення таблиці
+    const result = await pool_emails_send.query(`DROP TABLE IF EXISTS ${tableName}`);
+    
 
+    
+
+    // Якщо таблиця була видалена або не існувала, відповідаємо успіхом
+    res.status(200).send(`Таблицю "${tableName}" успішно видалено.`);
+  } catch (error) {
+    console.error("Помилка при видаленні таблиці:", error);
+    res.status(500).send("Не вдалося видалити таблицю.");
+  }
+});
 
 
 

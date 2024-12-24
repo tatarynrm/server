@@ -39,7 +39,7 @@ const transporter = nodemailer.createTransport({
 // };
 const sendEmail = async (to, subject, text, photo) => {
   const mailOptions = {
-    from: 'ict-info-logistics@ict.lviv.ua',
+    from: 'noreply@ict.lviv.ua',
     to,
     subject,
     text,
