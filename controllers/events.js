@@ -24,7 +24,7 @@ const getEvents = async (req, res) => {
 
 const createMessAll = async (req,res) =>{
   const {pKodAutor,pMess} = req.body;
-  console.log(req.body);
+
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
@@ -42,7 +42,7 @@ const createMessAll = async (req,res) =>{
 }
 const createMessOs = async (req,res) =>{
   const {pKodAutor,pMess} = req.body;
-  console.log(req.body);
+
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(

@@ -118,7 +118,7 @@ END;`,
       sendOTPCode(bot, telegramCode.rows[0]);
 
       req.session.username = user.rows[0].MAIL
-      console.log(req.session.username);
+    
       return res
         .status(200)
         .json({ ...user, token: token, OTP: telegramCode.rows[0].OTPCODE });

@@ -25,7 +25,6 @@ const createFeedback = async (req,res)=>{
   }
 const getAllFeedbacks = async (req,res)=>{
 
-    console.log(req.body);
     try {
         const result = await norisdb.query('select * from feedback')
      res.json(result.rows)
@@ -36,7 +35,6 @@ const getAllFeedbacks = async (req,res)=>{
   }
 const getAllEmailsCount = async (req,res)=>{
 
-    console.log(req.body);
     try {
         const result = await norisdb.query('select * from emails')
      res.json(result.rows)

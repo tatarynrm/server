@@ -45,6 +45,7 @@ const webRoutes = require('./routes/web/web')
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const tendersRoute = require("./routes/tenders");
 const printersRoute = require('./routes/noris/printer.route') 
+const greetingsRoute = require('./routes/noris/greeting-cards.route') 
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
@@ -125,6 +126,7 @@ app.use("/feedback", feedbackNorisRoute);
 app.use("/email", emailRoutes);
 app.use("/tenders", tendersRoute);
 app.use("/printers", printersRoute);
+app.use("/greetings", greetingsRoute);
 
 // WEB
 app.use("/web", webRoutes);
@@ -169,7 +171,7 @@ io.on("connection", async (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
-    // console.log(userId);
+  
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
@@ -190,7 +192,7 @@ io.on("connection", async (socket) => {
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
     // // БОТ
-// console.log(data);
+
     if (data.pZapCina === 1) {
       sendMessageToGroupZapCina(bot, data);
     } else {
@@ -210,7 +212,7 @@ io.on("connection", async (socket) => {
           const connection = await oracledb.getConnection(pool);
           connection.currentSchema = "ICTDAT";
           const result = await connection.execute(`select * from zap where KOD = ${data}`);
-          console.log(result.rows[0]);
+     
           const zapData = result.rows[0]
 if (zapData !== null || zapData !== undefined) {
   // io.emit('refreshMsg',zapData)
@@ -233,23 +235,23 @@ if (zapData !== null || zapData !== undefined) {
     io.emit("showEditZapText", data);
   });
   socket.on("editKilAm", (data) => {
-    console.log(data);
+  
     io.emit("showEditKilAm", data);
   });
   socket.on("editTzType", (data) => {
-    console.log(data);
+  
     io.emit("showEditTzType", data);
   });
   socket.on("editZapCina", (data) => {
-    console.log('ZAPCINA',data);
+  
     io.emit("showZapCina", data);
   });
   socket.on("editZapZbir", (data) => {
-    console.log('ZAPZBIR',data);
+  
     io.emit("showZapZbir", data);
   });
   socket.on("editZapZam", (data) => {
-    console.log('ZAPZAM',data);
+  
     // io.emit("showZapZbir", data);
   });
   socket.on("newComment", (data) => {
@@ -305,7 +307,7 @@ const resultName = await getOsPIP(data?.pKodMen)
     io.emit("windowReloadAllUsers", 1);
   });
   socket.on("textToAllUsers", (data) => {
-    console.log(data);
+ 
     io.emit("showTextToAllUsers", data);
     const allActiveUsers = data.activeUsers;
     if (allActiveUsers) {
@@ -367,7 +369,7 @@ const resultName = await getOsPIP(data?.pKodMen)
         //   io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
           const element = data.users[i];
-          console.log(element);
+    
           bot.telegram.sendMessage(
             element,
             `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
@@ -466,7 +468,7 @@ const resultName = await getOsPIP(data?.pKodMen)
     io.emit("logoutAllUsers", 1);
     for (let i = 0; i < onlineUsers.length; i++) {
       const el = onlineUsers[i];
-      console.log(el.TELEGRAMID);
+ 
       bot.telegram.sendPhoto(
         el.TELEGRAMID,
         { source: fs.createReadStream("./images/logo.png") },
@@ -511,7 +513,7 @@ const adminTg = [
 
 for (let i = 0; i < adminTg.length; i++) {
   const el = adminTg[i];
-  console.log('ELLLLLLLL ID TELEGRAM',el);
+
   
   bot.telegram.sendMessage(
     el.id,
@@ -579,7 +581,7 @@ app.get('/list-ur',async(req,res) =>{
     ) AS result
     FROM ur a
   `);
-  // console.log(data.rows);
+
   let myArray = [];
 
   const jsonString = data.rows[0].RESULT;
@@ -591,7 +593,7 @@ for (let i = 0; i < data.rows.length; i++) {
   const jsonData = JSON.parse(jsonString);
   
   const result = jsonData;
-  console.log(myArray);
+
 
 res.json(myArray)
   } catch (error) {
@@ -605,7 +607,7 @@ app.get('/photo',async (req,res)=>{
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const data = await connection.execute(`select a.foto from os a`)
-    console.log(data.rows[1].FOTO);
+
     // Функція для читання LOB-потоку і обробки його даних
 function readLobStream(lobStream) {
   return new Promise((resolve, reject) => {
@@ -627,7 +629,7 @@ function readLobStream(lobStream) {
 }
 readLobStream(data.rows[0].FOTO)
   .then((data) => {
-    console.log('Read LOB data:', data);
+
     // Тут ви можете використовувати data, наприклад, відобразити зображення в React
     res.json(data)
   })
@@ -987,7 +989,7 @@ app.post('/delete-file', (req, res) => {
 // Маршрут для видалення таблиці
 app.get("/drop-table/:tableName", async (req, res) => {
   const { tableName } = req.params;
-  console.log('TABLE NAME',tableName);
+
   try {
     // Запит на видалення таблиці
     const result = await pool_emails_send.query(`DROP TABLE IF EXISTS ${tableName}`);

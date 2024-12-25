@@ -533,7 +533,7 @@ const editZapZbir = async (req, res) => {
 };
 const editZapCinaStatus = async (req, res) => {
   const { pKodAuthor, pKodZap, pZapCina } = req.body;
-  console.log(req.body);
+
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(

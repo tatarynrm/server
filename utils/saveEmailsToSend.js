@@ -10,8 +10,7 @@ console.log(path.join(__dirname));
 
 // 3. Функція для вставки даних
 async function insertEmailsIntoTables(type,commentTitle,commentText,documentTitle) {
- 
-  console.log(documentTitle);
+
   const client = await pool_emails_send.connect();
   const date = new Date();
   const toTimestamp = (strDate) => Date.parse(strDate);

@@ -252,7 +252,7 @@ async function getTables() {
       }
     }
 
-    console.log("TABLES with counts and pause status:", tablesWithCounts);
+
 
     return tablesWithCounts; // Return array of tables with true_count, total_count, and is_pause
   } catch (error) {
