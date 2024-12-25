@@ -47,7 +47,7 @@ const changeStatusToActiveViewd = async (req, res) => {
       if (currentStatus === false) {
         // Якщо статус false, оновлюємо його на true
       const resultUpdate =  await ict_managers.query(
-          `UPDATE user_greeting_cards_status SET status = true WHERE user_id = $1 AND text_id = $2 retrning *`,
+          `UPDATE user_greeting_cards_status SET status = true WHERE user_id = $1 AND text_id = $2 returning *`,
           [user_id, text_id]
         );
         res.status(200).json(resultUpdate.rows[0]);
