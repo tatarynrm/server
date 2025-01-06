@@ -9,8 +9,29 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: "ict-info-logistics@ict.lviv.ua",
     pass: "Tfc34#sR51",
+  },  tls: {
+    rejectUnauthorized: false, // Ігнорує помилки сертифікатів
   },
 });
+const sendTelegramJoin = async (to, subject, htmlTemplate) => {
+  console.log(to,subject);
+  
+  const mailOptions = {
+    from: 'noreply@ict.lviv.ua',
+    to,
+    subject,
+    html: htmlTemplate, // Використовуємо HTML-шаблон
+  };
+
+
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email успішно надіслано');
+  } catch (error) {
+    console.error('Помилка при відправці email:', error);
+  }
+};
 // Helper function to send email (replace with your actual email sending logic)
 // const sendEmail = async (to, subject, text,photo) => {
 
@@ -85,8 +106,29 @@ const sendEmail = async (to, subject, text, photo) => {
     console.error('Помилка при відправці email:', error);
   }
 };
+const reportHtml = async (to, subject, htmlTemplate) => {
+  console.log(to,subject);
+  
+  const mailOptions = {
+    from: 'noreply@ict.lviv.ua',
+    to,
+    subject,
+    html: htmlTemplate, // Використовуємо HTML-шаблон
+  };
+
+
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email успішно надіслано');
+  } catch (error) {
+    console.error('Помилка при відправці email:', error);
+  }
+};
 module.exports = {
   transporter,
-  sendEmail
+  sendEmail,
+  sendTelegramJoin,
+  reportHtml
 
 };

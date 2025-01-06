@@ -54,6 +54,9 @@ const { getDataFromLogistPro, multiplyLogistData, getAndWriteDataLogistPro } = r
 const { getTables } = require("./utils/tables/emails-tabels");
 const { getAllTables } = require("./controllers/emails-controller");
 const { pool_emails_send } = require("./db/pg/email");
+const { sendTelegramJoin, reportHtml } = require("./nodemailer/emails_to_contragents");
+const { default: axios } = require("axios");
+const generateReportHTML = require("./htmlTemplates/reportsForNoris");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -1007,7 +1010,33 @@ app.get("/drop-table/:tableName", async (req, res) => {
 
 
 
+const joinTelegramChannelHtml = fs.readFileSync('./htmlTemplates/joinTelegramChannel.html','utf-8')
+// sendTelegramJoin('rs@ict.lviv.ua','Тестова розсилка',joinTelegramChannelHtml)
+sendTelegramJoin('tatarynrm@gmail.com','Тестова розсилка',joinTelegramChannelHtml)
 
+
+
+
+
+// const getFakeData = async ()=>{
+//   try {
+//     // const data = await axios.get('https://jsonplaceholder.typicode.com/posts');
+//  const data = await norisdb.ict_printers.query(`select * from  printers`);
+//  const result = data.rows
+
+// if (data) {
+//   const reportHtmls = await generateReportHTML(result)
+//    await reportHtml('tatarynrm@gmail.com','REPORT',reportHtmls)
+// }
+
+    
+//   } catch (error) {
+//     console.log(error);
+    
+//   }
+// }
+
+// getFakeData()
 
 
 
