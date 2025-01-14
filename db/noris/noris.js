@@ -55,6 +55,18 @@ const ict_managers = new Pool({
 
   port: 5432, // PostgreSQL default port
 });
+const ict_mobile = new Pool({
+  user: "noris",
+  host: "91.239.235.132",
+  // LOCAL
+  // host: "localhost",
+  // password: "Aa527465182",
+  //LOCAL
+  database: "mobile-app",
+  password: "Aa527465182",
+
+  port: 5432, // PostgreSQL default port
+});
 
 module.exports = {
   norisdb,
@@ -62,4 +74,5 @@ module.exports = {
   ict_printers,
   emails_send,
   ict_managers,
+  ict_mobile
 };

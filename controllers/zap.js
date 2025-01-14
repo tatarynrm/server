@@ -51,6 +51,49 @@ const getAllZap = async (req, res) => {
     }
   }
 };
+const getAllZapMobile = async (req, res) => {
+  let connection;
+  const { KOD_OS } = req.body;
+
+  try {
+    connection = await oracledb.getConnection(pool);
+    connection.currentSchema = "ICTDAT";
+    const result = await connection.execute(
+      `SELECT a.*,
+      l.kilamzakr,
+      l.kilamact,
+      b.pip,
+      c.TELEGRAMID,
+      d.nur as zam,
+      k.idgmap as kraina,
+      f.ntype as tztype
+  
+  
+  FROM zap a
+  JOIN OS b on a.kod_os = b.kod
+  JOIN US c on a.kod_os = c.kod_os
+  left join ur d on a.kod_zam = d.kod
+  left join kraina k on a.kod_kraina = k.kod
+  left join tztype f on a.kod_tztype = f.kod
+  join zaplst l on a.kod = l.kod_zap
+  WHERE a.status = 0`
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log("1---", error);
+  } finally {
+    if (connection) {
+      try {
+        // Close the Oracle database connection
+        await connection.close();
+        console.log("Connection closed successfully.");
+      } catch (error) {
+        console.error("Error closing connection: ", error);
+      }
+    }
+  }
+};
 const getClosedZap = async (req, res) => {
   const { KOD_OS, ZAP_STATUS } = req.body;
   try {

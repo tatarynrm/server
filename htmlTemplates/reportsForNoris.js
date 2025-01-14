@@ -87,8 +87,8 @@ const generateReportHTML = (trips) => {
             <table>
               <thead>
                 <tr>
-                  <th>Принтер модель</th>
-                  <th>Інвентарний номер</th>
+                  <th>Номер заявки</th>
+                  <th>Порядковий номер</th>
                 </tr>
               </thead>
               <tbody>

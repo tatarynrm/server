@@ -7,21 +7,21 @@ const http = require("http");
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
-const cron = require('node-cron');
+const cron = require("node-cron");
 const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const oracledb = require("oracledb");
-const multer = require('multer');
+const multer = require("multer");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const fs = require("fs");
 const moment = require("moment");
-require('moment/locale/uk.js');
+require("moment/locale/uk.js");
 const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
-const {insertData} = require('./utils/saveEmailsToSend')
+const { insertData } = require("./utils/saveEmailsToSend");
 
 const {
   sendMessageToGroup,
@@ -40,29 +40,44 @@ const eventsRoutes = require("./routes/events");
 const zayRoutes = require("./routes/zay");
 const groupsRoutes = require("./routes/groups");
 const cartRoutes = require("./routes/cart/cart");
-const emailRoutes = require('./routes/emails')
-const webRoutes = require('./routes/web/web')
+const emailRoutes = require("./routes/emails");
+const webRoutes = require("./routes/web/web");
 const feedbackNorisRoute = require("./routes/noris/feedback");
 const tendersRoute = require("./routes/tenders");
-const printersRoute = require('./routes/noris/printer.route') 
-const greetingsRoute = require('./routes/noris/greeting-cards.route') 
+const printersRoute = require("./routes/noris/printer.route");
+const greetingsRoute = require("./routes/noris/greeting-cards.route");
+const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
-const { pathImage, sendNewYearEmail } = require("./nodemailer/newYearNodemailer");
+const {
+  pathImage,
+  sendNewYearEmail,
+} = require("./nodemailer/newYearNodemailer");
 const { getOsPIP } = require("./helpers/os/osFunctions");
-const { getDataFromLogistPro, multiplyLogistData, getAndWriteDataLogistPro } = require("./parser/logist-pro/logist-pro-parser");
+const {
+  getDataFromLogistPro,
+  multiplyLogistData,
+  getAndWriteDataLogistPro,
+} = require("./parser/logist-pro/logist-pro-parser");
 const { getTables } = require("./utils/tables/emails-tabels");
 const { getAllTables } = require("./controllers/emails-controller");
 const { pool_emails_send } = require("./db/pg/email");
-const { sendTelegramJoin, reportHtml } = require("./nodemailer/emails_to_contragents");
+const {
+  sendTelegramJoin,
+  reportHtml,
+} = require("./nodemailer/emails_to_contragents");
 const { default: axios } = require("axios");
 const generateReportHTML = require("./htmlTemplates/reportsForNoris");
+const {
+  sendPushNotification,
+} = require("./controllers/mobile-app/notifications");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
+
 app.use(
   cors({
     origin: "*",
@@ -89,7 +104,7 @@ app.use((req, res, next) => {
     "http://localhost:3001",
     "https://ictwork.site",
     "https://ict.lviv.ua",
-    "https://work.ict.lviv.ua"
+    "https://work.ict.lviv.ua",
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
@@ -109,7 +124,7 @@ app.use((req, res, next) => {
 // app.use(express.static('/uploads'));
 // app.use('/uploads',express.static('public'));
 // app.use('/files',express.static('public'));
-app.use('/files', express.static(__dirname + '/uploads'));
+app.use("/files", express.static(__dirname + "/uploads"));
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -130,12 +145,12 @@ app.use("/email", emailRoutes);
 app.use("/tenders", tendersRoute);
 app.use("/printers", printersRoute);
 app.use("/greetings", greetingsRoute);
+app.use("/mobile/notifications", mobileNotificationsRoute);
 
 // WEB
 app.use("/web", webRoutes);
 
 // WEB--------------
-
 
 // ROUTES------------------------------------------------------------------------------------------------------
 // app.options("*", cors({ origin: 'http://localhost:3000', optionsSuccessStatus: 200 }));
@@ -174,22 +189,15 @@ io.on("connection", async (socket) => {
   // КОРИСТУВАЧІ
   socket.on("newUser", (userId) => {
     addNewUser(userId, socket.id);
-  
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
 
-
-
-  socket.on('get_emails_send_info', async data => {
-
+  socket.on("get_emails_send_info", async (data) => {
     const my_data = await getTables();
 
-   
-    
-
-    io.emit('show_get_emails_send_data', my_data)
-  })
+    io.emit("show_get_emails_send_data", my_data);
+  });
   // ЗАПИТИ
 
   socket.on("newZap", (data) => {
@@ -208,57 +216,50 @@ io.on("connection", async (socket) => {
   socket.on("refreshZap", (data) => {
     io.emit("refreshAllZap", data);
 
-    if (data !==undefined || data !== null) {
-   
-      const refreshZapMessageToAllUsers = async (data)=>{
+    if (data !== undefined || data !== null) {
+      const refreshZapMessageToAllUsers = async (data) => {
         try {
           const connection = await oracledb.getConnection(pool);
           connection.currentSchema = "ICTDAT";
-          const result = await connection.execute(`select * from zap where KOD = ${data}`);
-     
-          const zapData = result.rows[0]
-if (zapData !== null || zapData !== undefined) {
-  // io.emit('refreshMsg',zapData)
-}
+          const result = await connection.execute(
+            `select * from zap where KOD = ${data}`
+          );
+
+          const zapData = result.rows[0];
+          if (zapData !== null || zapData !== undefined) {
+            // io.emit('refreshMsg',zapData)
+          }
         } catch (error) {
           console.log(error);
         }
-
-      }
-      refreshZapMessageToAllUsers(data)
-    }else {
-      console.log('UNDEFINED KOD');
+      };
+      refreshZapMessageToAllUsers(data);
+    } else {
+      console.log("UNDEFINED KOD");
     }
   });
   socket.on("editZap", (data) => {
     io.emit("showEditZap", data);
   });
   socket.on("editZapText", (data) => {
-
     io.emit("showEditZapText", data);
   });
   socket.on("editKilAm", (data) => {
-  
     io.emit("showEditKilAm", data);
   });
   socket.on("editTzType", (data) => {
-  
     io.emit("showEditTzType", data);
   });
   socket.on("editZapCina", (data) => {
-  
     io.emit("showZapCina", data);
   });
   socket.on("editZapZbir", (data) => {
-  
     io.emit("showZapZbir", data);
   });
   socket.on("editZapZam", (data) => {
-  
     // io.emit("showZapZbir", data);
   });
   socket.on("newComment", (data) => {
-  
     if (data.telegramId !== null) {
       // БОТ
       bot.telegram.sendMessage(
@@ -266,7 +267,7 @@ if (zapData !== null || zapData !== undefined) {
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
       );
     }
- 
+
     io.emit("showNewComment", data);
   });
 
@@ -282,7 +283,7 @@ if (zapData !== null || zapData !== undefined) {
   socket.on("changeCountAm", async (data) => {
     io.emit("showChangeCountAm", data);
 
-const resultName = await getOsPIP(data?.pKodMen)
+    const resultName = await getOsPIP(data?.pKodMen);
     if (resultName && data.userToWarn?.length > 0) {
       for (let i = 0; i < data?.userToWarn?.length; i++) {
         const element = data?.userToWarn[i];
@@ -310,7 +311,6 @@ const resultName = await getOsPIP(data?.pKodMen)
     io.emit("windowReloadAllUsers", 1);
   });
   socket.on("textToAllUsers", (data) => {
- 
     io.emit("showTextToAllUsers", data);
     const allActiveUsers = data.activeUsers;
     if (allActiveUsers) {
@@ -372,7 +372,7 @@ const resultName = await getOsPIP(data?.pKodMen)
         //   io.emit("showStartGoogleMeet", data.GOOGLEMEET);
         for (let i = 0; i < data.users.length; i++) {
           const element = data.users[i];
-    
+
           bot.telegram.sendMessage(
             element,
             `<i>ШВИДКА НАРАДА</i>\n<i>ПРОШУ  ПРИЄДНАТИСЯ</i>\n\n<b>${data.GOOGLEMEET}</b>`,
@@ -465,13 +465,11 @@ const resultName = await getOsPIP(data?.pKodMen)
     }
   });
 
-
-
   socket.on("logoutAll", () => {
     io.emit("logoutAllUsers", 1);
     for (let i = 0; i < onlineUsers.length; i++) {
       const el = onlineUsers[i];
- 
+
       bot.telegram.sendPhoto(
         el.TELEGRAMID,
         { source: fs.createReadStream("./images/logo.png") },
@@ -495,44 +493,32 @@ const resultName = await getOsPIP(data?.pKodMen)
     io.emit("showNewComment", data);
   });
 
+  socket.on("start_feedback", () => {
+    io.emit("show_msg_feedback");
+  });
 
-socket.on('start_feedback',()=>{
-  io.emit('show_msg_feedback')
-})
+  // ЗАПИТИ З ОСНОВНОГО САЙТУ
 
+  socket.on("newWebZap", (data) => {
+    console.log(data);
+    const date = moment(new Date()).format("LLLL");
 
+    const adminTg = [
+      { who: "Татарин Роман", id: 5248905716 },
+      { who: "Корецька Ольга", id: 1612647542 },
+      { who: "Риптик Володимир", id: 5298432643 },
+    ];
 
-// ЗАПИТИ З ОСНОВНОГО САЙТУ
+    for (let i = 0; i < adminTg.length; i++) {
+      const el = adminTg[i];
 
-socket.on('newWebZap',data =>{
-  console.log(data);
-  const date = moment(new Date()).format('LLLL');
-
-const adminTg = [
-  {who:'Татарин Роман',id:5248905716},
-  {who:'Корецька Ольга',id:1612647542},
-  {who:'Риптик Володимир',id:5298432643},
-]
-
-for (let i = 0; i < adminTg.length; i++) {
-  const el = adminTg[i];
-
-  
-  bot.telegram.sendMessage(
-    el.id,
-    `<i>Новий запит з корпоративного сайту компанії ${date}</i>\n\n<b>${data.name}</b>\n<b>${data.tel}</b>\n<b>${data.email}</b>\n<b>${data.text}</b>`,
-    { parse_mode: "HTML" }
-  );
-  
-  
-  
-}
-
-
-
-  
-  
-})
+      bot.telegram.sendMessage(
+        el.id,
+        `<i>Новий запит з корпоративного сайту компанії ${date}</i>\n\n<b>${data.name}</b>\n<b>${data.tel}</b>\n<b>${data.email}</b>\n<b>${data.text}</b>`,
+        { parse_mode: "HTML" }
+      );
+    }
+  });
   // ADMIN TELEGRAM
   // ВИЙТИ
   socket.on("disconnect", () => {
@@ -566,7 +552,7 @@ bot.hears("Перезавантажити дані", async (ctx) => {
 // REMINDERS / НАГАДУВАННЯ
 
 // Server run------------------------------------------------------------------------------------------------------
-app.get('/list-ur',async(req,res) =>{
+app.get("/list-ur", async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
@@ -585,65 +571,62 @@ app.get('/list-ur',async(req,res) =>{
     FROM ur a
   `);
 
-  let myArray = [];
+    let myArray = [];
 
-  const jsonString = data.rows[0].RESULT;
-for (let i = 0; i < data.rows.length; i++) {
-  const element = data.rows[i];
-  const jsonElement = JSON.parse(element.RESULT)
-  myArray.push(jsonElement)
-}
-  const jsonData = JSON.parse(jsonString);
-  
-  const result = jsonData;
+    const jsonString = data.rows[0].RESULT;
+    for (let i = 0; i < data.rows.length; i++) {
+      const element = data.rows[i];
+      const jsonElement = JSON.parse(element.RESULT);
+      myArray.push(jsonElement);
+    }
+    const jsonData = JSON.parse(jsonString);
 
+    const result = jsonData;
 
-res.json(myArray)
+    res.json(myArray);
   } catch (error) {
     console.log(error);
-    res.json(error)
+    res.json(error);
   }
-})
+});
 
-app.get('/photo',async (req,res)=>{
+app.get("/photo", async (req, res) => {
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
-    const data = await connection.execute(`select a.foto from os a`)
+    const data = await connection.execute(`select a.foto from os a`);
 
     // Функція для читання LOB-потоку і обробки його даних
-function readLobStream(lobStream) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
+    function readLobStream(lobStream) {
+      return new Promise((resolve, reject) => {
+        const chunks = [];
 
-    lobStream.on('data', (chunk) => {
-      chunks.push(chunk);
-    });
+        lobStream.on("data", (chunk) => {
+          chunks.push(chunk);
+        });
 
-    lobStream.on('end', () => {
-      const data = Buffer.concat(chunks);
-      resolve(data);
-    });
+        lobStream.on("end", () => {
+          const data = Buffer.concat(chunks);
+          resolve(data);
+        });
 
-    lobStream.on('error', (error) => {
-      reject(error);
-    });
-  });
-}
-readLobStream(data.rows[0].FOTO)
-  .then((data) => {
-
-    // Тут ви можете використовувати data, наприклад, відобразити зображення в React
-    res.json(data)
-  })
-  .catch((error) => {
-    console.error('Error reading LOB stream:', error);
-  });
+        lobStream.on("error", (error) => {
+          reject(error);
+        });
+      });
+    }
+    readLobStream(data.rows[0].FOTO)
+      .then((data) => {
+        // Тут ви можете використовувати data, наприклад, відобразити зображення в React
+        res.json(data);
+      })
+      .catch((error) => {
+        console.error("Error reading LOB stream:", error);
+      });
   } catch (error) {
     console.log(error);
   }
-})
-
+});
 
 // Перевірка, чи є значення електронною адресою
 function isEmail(value) {
@@ -682,7 +665,7 @@ function validateEmail(email) {
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
 //     const uploadDir = path.join(__dirname, 'uploads');
-    
+
 //     // Create uploads folder if it doesn't exist
 //     if (!fs.existsSync(uploadDir)) {
 //       fs.mkdirSync(uploadDir);
@@ -694,8 +677,7 @@ function validateEmail(email) {
 //     // Use the custom file name if provided in the request
 //     console.log(req.headers.fileName);
 //     console.log(req);
-    
-    
+
 //     const fileName = decodeURIComponent(req.headers['x-filename']) || file.originalname;
 //     const fileExtension = path.extname(file.originalname); // Get file extension
 
@@ -712,13 +694,11 @@ function validateEmail(email) {
 // // Route for uploading files
 // app.post('/upload', upload.single('file'), (req, res) => {
 
-  
 //   if (!req.file) {
 //     return res.status(400).send('No file uploaded.');
 //   }
 
 // const fileName = decodeURIComponent(req.headers['x-filename'])
-
 
 // const extension = req.file.originalname.split('.').pop();// Slice after the dot
 // console.log('extension',extension);  // 'xls'
@@ -743,14 +723,13 @@ function validateEmail(email) {
 //     }
 
 //     // Фільтрація файлів за розширенням .xlsx та .xls
-//     const xlsxFiles = files.filter(file => 
+//     const xlsxFiles = files.filter(file =>
 //       file.endsWith('.xlsx') || file.endsWith('.xls')
 //     );
 
 //     res.json(xlsxFiles);
 //   });
 // });
-
 
 // Функція для перевірки та створення папки, якщо вона не існує
 function ensureUploadDirExists(dirPath) {
@@ -776,7 +755,7 @@ const storage = multer.diskStorage({
     const customFileName = req.headers["x-filename"]
       ? decodeURIComponent(req.headers["x-filename"])
       : file.originalname; // Використовуємо оригінальне ім'я, якщо заголовок відсутній
-    
+
     const fileExtension = path.extname(file.originalname); // Розширення файлу
 
     // Забезпечення, що ім'я файлу має правильне розширення
@@ -793,18 +772,21 @@ const upload = multer({ storage: storage });
 
 // Маршрут для завантаження файлів
 app.post("/upload", (req, res, next) => {
-  
   upload.single("file")(req, res, (err) => {
     if (err) {
       console.error("Upload Error:", err);
-      return res.status(500).send({ message: "Error uploading the file.", error: err.message });
+      return res
+        .status(500)
+        .send({ message: "Error uploading the file.", error: err.message });
     }
     if (!req.file) {
       return res.status(400).send({ message: "No file uploaded." });
     }
 
     // Визначаємо тип файлу та його URL
-    const fileType = req.file.mimetype.startsWith("image/") ? "images" : "files";
+    const fileType = req.file.mimetype.startsWith("image/")
+      ? "images"
+      : "files";
     const fileUrl = `http://localhost:8800/uploads/${fileType}/${req.file.filename}`;
 
     res.send({
@@ -832,8 +814,8 @@ app.get("/xls-files", (req, res) => {
     }
 
     // Фільтрація файлів за розширенням .xlsx та .xls
-    const xlsxFiles = files.filter(file =>
-      file.endsWith(".xlsx") || file.endsWith(".xls")
+    const xlsxFiles = files.filter(
+      (file) => file.endsWith(".xlsx") || file.endsWith(".xls")
     );
 
     res.json(xlsxFiles);
@@ -849,8 +831,8 @@ app.get("/xls-files", (req, res) => {
     }
 
     // Фільтрація файлів за розширенням .xlsx та .xls
-    const xlsxFiles = files.filter(file =>
-      file.endsWith(".xlsx") || file.endsWith(".xls")
+    const xlsxFiles = files.filter(
+      (file) => file.endsWith(".xlsx") || file.endsWith(".xls")
     );
 
     res.json(xlsxFiles);
@@ -867,22 +849,25 @@ app.get("/image-files", (req, res) => {
     }
 
     // Фільтрація файлів за розширенням для зображень
-    const imageFiles = files.filter(file =>
-      file.endsWith(".jpg") || file.endsWith(".jpeg") || file.endsWith(".png") || file.endsWith(".gif")
+    const imageFiles = files.filter(
+      (file) =>
+        file.endsWith(".jpg") ||
+        file.endsWith(".jpeg") ||
+        file.endsWith(".png") ||
+        file.endsWith(".gif")
     );
 
     res.json(imageFiles);
   });
 });
 
-let arrayOfTG = []
-cron.schedule('30 9,14,17 * * 1-5', () => {
-
-// Запускатиме  задачу (нагадування менеджерам у яких заявка в CRM має більше 2 днів) 
-// о 09:30, 14:30 та 17:30, кожного дня з понеділка по п'ятницю.
-// 10 sec --- */10 * * * * *
-// Той що треба * 9,14,16 * * 1-5
-  const getAllZap = async ()=>{
+let arrayOfTG = [];
+cron.schedule("30 9,14,17 * * 1-5", () => {
+  // Запускатиме  задачу (нагадування менеджерам у яких заявка в CRM має більше 2 днів)
+  // о 09:30, 14:30 та 17:30, кожного дня з понеділка по п'ятницю.
+  // 10 sec --- */10 * * * * *
+  // Той що треба * 9,14,16 * * 1-5
+  const getAllZap = async () => {
     try {
       const connection = await oracledb.getConnection(pool);
       connection.currentSchema = "ICTDAT";
@@ -890,36 +875,34 @@ cron.schedule('30 9,14,17 * * 1-5', () => {
       select a.*,b.telegramid from zap a
       left join us b on a.kod_os = b.kod_os
       where a.status = 0 AND SYSDATE - a.DATUPDATE > 2`);
-for (let i = 0; i < result.rows.length; i++) {
-  const element = result.rows[i];
-  if (!arrayOfTG.includes(element.TELEGRAMID)) {
-    arrayOfTG.push(element.TELEGRAMID)
-  }
-}
-if (arrayOfTG.length > 0) {
-  for (let i = 0; i < arrayOfTG.length; i++) {
-    const element = arrayOfTG[i];
-      bot.telegram.sendMessage(
-        element,
-    `💻 Перегляньте свої заявки.Одна або більше заявок не оновлялись більше 2 днів`
-  );
-  }
-
-}
-arrayOfTG = []
+      for (let i = 0; i < result.rows.length; i++) {
+        const element = result.rows[i];
+        if (!arrayOfTG.includes(element.TELEGRAMID)) {
+          arrayOfTG.push(element.TELEGRAMID);
+        }
+      }
+      if (arrayOfTG.length > 0) {
+        for (let i = 0; i < arrayOfTG.length; i++) {
+          const element = arrayOfTG[i];
+          bot.telegram.sendMessage(
+            element,
+            `💻 Перегляньте свої заявки.Одна або більше заявок не оновлялись більше 2 днів`
+          );
+        }
+      }
+      arrayOfTG = [];
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   // getAllZap()
 });
-cron.schedule('*/10 * * * *', async () => {
+cron.schedule("*/10 * * * *", async () => {
   try {
     await getAndWriteDataLogistPro();
     console.log("КАЖДДИЙ 10 МІНУУТА!!!!!!!!!!--------------");
-    
   } catch (err) {
-    console.error('Error during scheduled task execution:', err);
+    console.error("Error during scheduled task execution:", err);
   }
 });
 
@@ -927,31 +910,25 @@ cron.schedule('*/10 * * * *', async () => {
 //   console.log(arrayOfTG);
 //   },10000)
 
-
 // logewq
-
 
 // getAndWriteDataLogistPro();
 
-if (process.env.SERVER === 'LOCAL') {
-  console.log('LOCAL_SERVER');
-  
-}else {
-  console.log('MAIN SERVER');
-  
+if (process.env.SERVER === "LOCAL") {
+  console.log("LOCAL_SERVER");
+} else {
+  console.log("MAIN SERVER");
 }
 
-
-
-app.post('/delete-file', (req, res) => {
+app.post("/delete-file", (req, res) => {
   try {
     // Назва файлу, який потрібно видалити
-    const { filename } = req.body;  // Отримуємо тільки filename
+    const { filename } = req.body; // Отримуємо тільки filename
 
     // Шляхи до папок, де можуть бути файли
     const directories = [
-      path.join(__dirname, 'uploads', 'files'),
-      path.join(__dirname, 'uploads', 'images')
+      path.join(__dirname, "uploads", "files"),
+      path.join(__dirname, "uploads", "images"),
     ];
 
     let filePath = null;
@@ -968,14 +945,14 @@ app.post('/delete-file', (req, res) => {
     }
 
     if (!filePath) {
-      return res.status(404).send('Файл не знайдено');
+      return res.status(404).send("Файл не знайдено");
     }
 
     // Видалення файлу
     fs.unlink(filePath, (err) => {
       if (err) {
-        console.error('Помилка при видаленні файлу:', err);
-        return res.status(500).send('Помилка при видаленні файлу');
+        console.error("Помилка при видаленні файлу:", err);
+        return res.status(500).send("Помилка при видаленні файлу");
       }
 
       console.log(`Файл ${filename} успішно видалений з ${filePath}`);
@@ -983,22 +960,20 @@ app.post('/delete-file', (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Сталася помилка');
+    res.status(500).send("Сталася помилка");
   }
 });
-
-
 
 // Маршрут для видалення таблиці
 app.get("/drop-table/:tableName", async (req, res) => {
   const { tableName } = req.params;
 
   try {
+    //
     // Запит на видалення таблиці
-    const result = await pool_emails_send.query(`DROP TABLE IF EXISTS ${tableName}`);
-    
-
-    
+    const result = await pool_emails_send.query(
+      `DROP TABLE IF EXISTS ${tableName}`
+    );
 
     // Якщо таблиця була видалена або не існувала, відповідаємо успіхом
     res.status(200).send(`Таблицю "${tableName}" успішно видалено.`);
@@ -1008,15 +983,18 @@ app.get("/drop-table/:tableName", async (req, res) => {
   }
 });
 
+const joinTelegramChannelHtml = fs.readFileSync(
+  "./htmlTemplates/joinTelegramChannel.html",
+  "utf-8"
+);
+// sendTelegramJoin('rt@ict.lviv.ua','Тестова розсилка',joinTelegramChannelHtml)
+// sendTelegramJoin('vr@ict.lviv.ua','Тестова розсилка',joinTelegramChannelHtml)
 
-
-const joinTelegramChannelHtml = fs.readFileSync('./htmlTemplates/joinTelegramChannel.html','utf-8')
-// sendTelegramJoin('rs@ict.lviv.ua','Тестова розсилка',joinTelegramChannelHtml)
-sendTelegramJoin('tatarynrm@gmail.com','Тестова розсилка',joinTelegramChannelHtml)
-
-
-
-
+// Приклад виклику функції
+sendPushNotification(
+  "user_2rPe1CRmTwrKkQa9KQB3vdUDSre",
+  "Створити нову заявку👋"
+);
 
 // const getFakeData = async ()=>{
 //   try {
@@ -1026,20 +1004,16 @@ sendTelegramJoin('tatarynrm@gmail.com','Тестова розсилка',joinTel
 
 // if (data) {
 //   const reportHtmls = await generateReportHTML(result)
-//    await reportHtml('tatarynrm@gmail.com','REPORT',reportHtmls)
+//    await reportHtml('vr@ict.lviv.ua','REPORT',reportHtmls)
 // }
 
-    
 //   } catch (error) {
 //     console.log(error);
-    
+
 //   }
 // }
 
 // getFakeData()
-
-
-
 
 // insertData()
 
