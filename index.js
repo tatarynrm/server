@@ -991,10 +991,12 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // sendTelegramJoin('vr@ict.lviv.ua','Тестова розсилка',joinTelegramChannelHtml)
 
 // Приклад виклику функції
-sendPushNotification(
-  "user_2rPe1CRmTwrKkQa9KQB3vdUDSre",
-  "Створити нову заявку👋"
-);
+
+
+// sendPushNotification(
+//   "user_2rPe1CRmTwrKkQa9KQB3vdUDSre",
+//   "Ти найкраща👋"
+// );
 
 // const getFakeData = async ()=>{
 //   try {

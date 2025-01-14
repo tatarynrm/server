@@ -23,9 +23,10 @@ const getAllZap = async (req, res) => {
       p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam,
       k.idgmap as kraina,
-      f.ntype as tztype
+      f.ntype as tztype,
+      e.ntype
   
-  
+
   FROM zap a
   JOIN OS b on a.kod_os = b.kod
   JOIN US c on a.kod_os = c.kod_os
@@ -33,6 +34,7 @@ const getAllZap = async (req, res) => {
   left join kraina k on a.kod_kraina = k.kod
   left join tztype f on a.kod_tztype = f.kod
   join zaplst l on a.kod = l.kod_zap
+  
   WHERE a.status = 0`
     );
 
@@ -66,17 +68,21 @@ const getAllZapMobile = async (req, res) => {
       c.TELEGRAMID,
       d.nur as zam,
       k.idgmap as kraina,
-      f.ntype as tztype
+          os_$$pkg.GetTelRobMob(a.kod_os) as permentel,
+          os_$$pkg.GetEMailSl(a.kod_os) as permenemail,
+          c1.idd as zavkraina,
+          c2.idd as rozvkraina
+
   
-  
-  FROM zap a
-  JOIN OS b on a.kod_os = b.kod
-  JOIN US c on a.kod_os = c.kod_os
-  left join ur d on a.kod_zam = d.kod
-  left join kraina k on a.kod_kraina = k.kod
-  left join tztype f on a.kod_tztype = f.kod
-  join zaplst l on a.kod = l.kod_zap
-  WHERE a.status = 0`
+      FROM zap a
+      JOIN OS b on a.kod_os = b.kod
+      JOIN US c on a.kod_os = c.kod_os
+      left join kraina k on a.kod_kraina = k.kod
+       left join ur d on a.kod_zam = d.kod
+      left join zaplst l on a.kod = l.kod_zap
+      left join kraina c1 on a.kod_krainaz = c1.kod
+      left join kraina c2 on a.kod_krainar = c2.kod
+      WHERE a.status = 0`
     );
 
     res.status(200).json(result.rows);
