@@ -19,13 +19,15 @@ const {
   getTzType,
   editTzType,
   editZapZbir,
-  editZapZam
+  editZapZam,
+  getAllZapMobile
 } = require("../controllers/zap");
 
 const router = express.Router();
 
 router.route("/add").post(createZap);
 router.route("/").post(getAllZap);
+router.route("/mobile").get(getAllZapMobile);
 router.route("/closed").post(getClosedZap);
 router.route("/groups").post(getGroups);
 router.route("/delete").post(deleteZap);
