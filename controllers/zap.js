@@ -55,7 +55,7 @@ const getAllZap = async (req, res) => {
 };
 const getAllZapMobile = async (req, res) => {
   let connection;
-  const { KOD_OS } = req.body;
+
 
   try {
     connection = await oracledb.getConnection(pool);
@@ -67,6 +67,7 @@ const getAllZapMobile = async (req, res) => {
       b.pip,
       c.TELEGRAMID,
       d.nur as zam,
+      e.ntype as tzntype1,
       k.idgmap as kraina,
           os_$$pkg.GetTelRobMob(a.kod_os) as permentel,
           os_$$pkg.GetEMailSl(a.kod_os) as permenemail,
@@ -78,13 +79,15 @@ const getAllZapMobile = async (req, res) => {
       JOIN OS b on a.kod_os = b.kod
       JOIN US c on a.kod_os = c.kod_os
       left join kraina k on a.kod_kraina = k.kod
-       left join ur d on a.kod_zam = d.kod
+      left join ur d on a.kod_zam = d.kod
       left join zaplst l on a.kod = l.kod_zap
       left join kraina c1 on a.kod_krainaz = c1.kod
       left join kraina c2 on a.kod_krainar = c2.kod
+      left join tztype e on a.kod_tztype = e.kod
       WHERE a.status = 0`
     );
 
+    console.log('1');
     res.status(200).json(result.rows);
   } catch (error) {
     console.log("1---", error);
