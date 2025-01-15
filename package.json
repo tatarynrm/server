@@ -43,6 +43,7 @@
     "sequelize": "^6.32.1",
     "socket.io": "^4.6.1",
     "telegraf": "^4.12.2",
+    "twilio": "^5.4.2",
     "xlsx": "^0.18.5"
   }
 }

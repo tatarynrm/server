@@ -23,8 +23,8 @@ const getAllZap = async (req, res) => {
       p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam,
       k.idgmap as kraina,
-      f.ntype as tztype,
-      e.ntype
+      f.ntype as tztype
+
   
 
   FROM zap a
