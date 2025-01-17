@@ -47,6 +47,9 @@ const tendersRoute = require("./routes/tenders");
 const printersRoute = require("./routes/noris/printer.route");
 const greetingsRoute = require("./routes/noris/greeting-cards.route");
 const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
+
+const mobileAuth = require('./routes/mobile-app/mobile-auth') 
+const mobileFaq = require('./routes/mobile-app/faq') 
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const {
@@ -105,6 +108,7 @@ app.use((req, res, next) => {
     "https://ictwork.site",
     "https://ict.lviv.ua",
     "https://work.ict.lviv.ua",
+    "*"
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
@@ -145,7 +149,9 @@ app.use("/email", emailRoutes);
 app.use("/tenders", tendersRoute);
 app.use("/printers", printersRoute);
 app.use("/greetings", greetingsRoute);
-app.use("/mobile/notifications", mobileNotificationsRoute);
+app.use("/mobile", mobileNotificationsRoute);
+app.use("/mobile", mobileAuth);
+app.use("/mobile", mobileFaq);
 
 // WEB
 app.use("/web", webRoutes);
@@ -296,6 +302,70 @@ io.on("connection", async (socket) => {
     }
   });
   // ЗАПИТИ
+// Функція для отримання userId по socket.id
+async function  getUserIdBySocketId(socketId) {
+  try {
+    // Виконуємо запит до бази даних
+    const result = await norisdb.ict_mobile.query('SELECT user_id FROM user_sessions WHERE socket_id = $1', [socketId]);
+
+    if (result.rows.length > 0) {
+      // Якщо запис знайдений, повертаємо user_id
+      return result.rows[0].user_id;
+    } else {
+      // Якщо socket.id не знайдений, повертаємо null
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching userId by socketId:', error);
+    return null;
+  }
+};
+// Функція для збереження socket.id та userId в БД
+async function saveSocketId(userId, socketId) {
+  try {
+    const res = await norisdb.ict_mobile.query(
+      'INSERT INTO user_sessions (user_id, socket_id) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET socket_id = $2',
+      [userId, socketId]
+    );
+    console.log(`Socket ID saved/updated for user: ${userId}`);
+  } catch (err) {
+    console.error('Error saving socket ID to DB:', err);
+  }
+}
+
+// Функція для видалення socket.id з БД при відключенні
+async function removeSocketId(userId) {
+  try {
+    const res = await norisdb.ict_mobile.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
+    console.log(`Socket ID removed for user: ${userId}`);
+  } catch (err) {
+    console.error('Error removing socket ID from DB:', err);
+  }
+}
+
+
+  // Реєстрація користувача за допомогою userId
+  socket.on('register-user', async (userId) => {
+    console.log(`Registering user with ID:--- ${userId} --- SocketId: ${socket.id}`);
+    await saveSocketId(userId, socket.id); // Зберігаємо socket.id для userId в БД
+  });
+
+  // Обробка приватних повідомлень (якщо потрібно)
+  socket.on('send-private-message', async (userId, message) => {
+    const targetSocketId = await getSocketId(userId); // Отримуємо socket.id для конкретного користувача
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('private-message', message); // Відправляємо повідомлення
+    } else {
+      console.log('User not found');
+    }
+  });
+
+
+  socket.on('show-greet-modal',()=>{
+
+    
+    io.emit('show-greet-modal-user')
+  })
 
   // ADMIN
 
@@ -521,9 +591,12 @@ io.on("connection", async (socket) => {
   });
   // ADMIN TELEGRAM
   // ВИЙТИ
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     removeUser(socket.id);
-    console.log("disconnect");
+    const userId = await getUserIdBySocketId(socket.id); // Отримуємо userId для socket.id
+    if (userId) {
+      await removeSocketId(userId); // Видаляємо socket.id для цього користувача
+    }
   });
 });
 
@@ -658,80 +731,10 @@ function validateEmail(email) {
     }
   }
 
-  // Електронний адрес не відповідає вимогам
+  
   return false;
 }
-// // Set up multer storage configuration
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const uploadDir = path.join(__dirname, 'uploads');
 
-//     // Create uploads folder if it doesn't exist
-//     if (!fs.existsSync(uploadDir)) {
-//       fs.mkdirSync(uploadDir);
-//     }
-
-//     cb(null, uploadDir); // Save files to the 'uploads' folder
-//   },
-//   filename: (req, file, cb) => {
-//     // Use the custom file name if provided in the request
-//     console.log(req.headers.fileName);
-//     console.log(req);
-
-//     const fileName = decodeURIComponent(req.headers['x-filename']) || file.originalname;
-//     const fileExtension = path.extname(file.originalname); // Get file extension
-
-//     // Ensure that the file name ends with the correct extension
-//     const finalFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
-
-//     cb(null, finalFileName); // Save with the custom file name
-//   }
-// });
-
-// // Set up multer middleware for handling file uploads
-// const upload = multer({ storage: storage });
-
-// // Route for uploading files
-// app.post('/upload', upload.single('file'), (req, res) => {
-
-//   if (!req.file) {
-//     return res.status(400).send('No file uploaded.');
-//   }
-
-// const fileName = decodeURIComponent(req.headers['x-filename'])
-
-// const extension = req.file.originalname.split('.').pop();// Slice after the dot
-// console.log('extension',extension);  // 'xls'
-//   // Send the file URL as a response
-//   const fileUrl = `http://localhost:8800/uploads/${fileName}.${extension}`;
-//   res.send({
-//     message: 'File successfully uploaded',
-//     fileUrl: fileUrl
-//   });
-// });
-
-// // Serve the uploaded files
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// // Шлях до папки uploads
-// const uploadsDir = path.join(__dirname, 'uploads');
-
-// app.get('/xls-files', (req, res) => {
-//   fs.readdir(uploadsDir, (err, files) => {
-//     if (err) {
-//       return res.status(500).send('Помилка при читанні папки');
-//     }
-
-//     // Фільтрація файлів за розширенням .xlsx та .xls
-//     const xlsxFiles = files.filter(file =>
-//       file.endsWith('.xlsx') || file.endsWith('.xls')
-//     );
-
-//     res.json(xlsxFiles);
-//   });
-// });
-
-// Функція для перевірки та створення папки, якщо вона не існує
 function ensureUploadDirExists(dirPath) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
@@ -895,24 +898,9 @@ cron.schedule("30 9,14,17 * * 1-5", () => {
       console.log(error);
     }
   };
-  // getAllZap()
-});
-cron.schedule("*/10 * * * *", async () => {
-  try {
-    await getAndWriteDataLogistPro();
-    console.log("КАЖДДИЙ 10 МІНУУТА!!!!!!!!!!--------------");
-  } catch (err) {
-    console.error("Error during scheduled task execution:", err);
-  }
+  getAllZap()
 });
 
-// setTimeout(()=>{
-//   console.log(arrayOfTG);
-//   },10000)
-
-// logewq
-
-// getAndWriteDataLogistPro();
 
 if (process.env.SERVER === "LOCAL") {
   console.log("LOCAL_SERVER");
@@ -993,10 +981,7 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // Приклад виклику функції
 
 
-// sendPushNotification(
-//   "user_2rPe1CRmTwrKkQa9KQB3vdUDSre",
-//   "Ти найкраща👋"
-// );
+// sendPushNotification(38231,"Ти найкраща👋")
 
 // const getFakeData = async ()=>{
 //   try {
@@ -1018,13 +1003,6 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // getFakeData()
 
 // insertData()
-
-
-
-
-
-
-
 
 
 

@@ -4,12 +4,12 @@ const expo = new Expo();
 const saveUserPushToken = async (req, res) => {
   const { userId, pushToken } = req.body;
 
-  console.log(userId, pushToken);
+  console.log('DASSSAAAAAAAAAAAAAAAAAA',userId, pushToken);
 
   try {
     // Перевіряємо, чи вже існує комбінація userId та pushToken
     const existingUser = await ict_mobile.query(
-      "SELECT * FROM users WHERE user_id = $1 AND push_token = $2",
+      "SELECT * FROM users_push_tokens WHERE user_id = $1 AND push_token = $2",
       [userId.toString(), pushToken]
     );
 
@@ -23,8 +23,8 @@ const saveUserPushToken = async (req, res) => {
     } else {
       // Якщо такої комбінації немає, додаємо новий запис
       const newUser = await ict_mobile.query(
-        "INSERT INTO users(user_id, push_token) VALUES($1, $2) RETURNING *",
-        [userId.toString(), pushToken]
+        "INSERT INTO users_push_tokens(user_id, push_token) VALUES($1, $2) RETURNING *",
+        [userId, pushToken]
       );
 
       return res.json({
@@ -43,8 +43,8 @@ const sendPushNotification = async (userId, message) => {
   try {
     // Отримуємо всі push токени користувача з бази даних
     const result = await ict_mobile.query(
-      "SELECT * FROM users WHERE user_id = $1",
-      [userId.toString()]
+      "SELECT * FROM users_push_tokens WHERE user_id = $1",
+      [userId]
     );
 
     if (result.rows.length > 0) {

@@ -1,0 +1,3 @@
+Hello {{name}},
+Your sales report for this month is as follows:
+Total Sales: {{sales}}
