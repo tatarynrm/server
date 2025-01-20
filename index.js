@@ -324,15 +324,14 @@ async function  getUserIdBySocketId(socketId) {
 async function saveSocketId(userId, socketId) {
   try {
     const res = await norisdb.ict_mobile.query(
-      'INSERT INTO user_sessions (user_id, socket_id) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET socket_id = $2',
+      'INSERT INTO user_sessions (user_id, socket_id) VALUES ($1, $2) ON CONFLICT (user_id, socket_id) DO NOTHING',
       [userId, socketId]
     );
-    console.log(`Socket ID saved/updated for user: ${userId}`);
+    console.log(`Socket ID saved for user: ${userId}, socket ID: ${socketId}`);
   } catch (err) {
     console.error('Error saving socket ID to DB:', err);
   }
 }
-
 // Функція для видалення socket.id з БД при відключенні
 async function removeSocketId(userId) {
   try {
@@ -346,7 +345,7 @@ async function removeSocketId(userId) {
 
   // Реєстрація користувача за допомогою userId
   socket.on('register-user', async (userId) => {
-    console.log(`Registering user with ID:--- ${userId} --- SocketId: ${socket.id}`);
+    
     await saveSocketId(userId, socket.id); // Зберігаємо socket.id для userId в БД
   });
 
@@ -361,10 +360,22 @@ async function removeSocketId(userId) {
   });
 
 
-  socket.on('show-greet-modal',()=>{
+  socket.on('show-greet-modal',async ()=>{
 
     
-    io.emit('show-greet-modal-user')
+
+const user = await norisdb.ict_mobile.query(`select * from user_sessions where user_id = $1`,[38231])
+    // io.emit('show-greet-modal-user')
+    console.log(user.rows[0]);
+
+    const users = user.rows;
+
+    users.forEach(item =>{
+      io.to(item.socket_id).emit('show-greet-modal-user');
+    })
+    
+
+   
   })
 
   // ADMIN
@@ -590,6 +601,20 @@ async function removeSocketId(userId) {
     }
   });
   // ADMIN TELEGRAM
+
+
+
+
+  socket.on('faq-add',() =>{
+ 
+  
+    io.emit('faq-add')
+  })
+  socket.on('new-order',() =>{
+ 
+  
+    io.emit('new-order')
+  })
   // ВИЙТИ
   socket.on("disconnect", async () => {
     removeUser(socket.id);

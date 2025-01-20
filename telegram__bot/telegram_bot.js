@@ -101,7 +101,7 @@ if (uniq[0]) {
     // Виконання запиту на оновлення даних
     const result = await connection.execute(query, binds, { autoCommit: true });
 
-    console.log('Дані оновлені успішно:', result);
+
 } catch (err) {
     console.error('Помилка оновлення даних:', err);
 } finally {
@@ -207,7 +207,7 @@ order by recnum desc
       myExpedition.push(...result.rows);
       let str = "";
       result.rows.sort((a, b) => a.DATZAV - b.DATZAV);
-      // console.log(result.rows);
+    
       for (let i = 0; i < result.rows.length; i++) {
         const el = result.rows[i];
 
@@ -243,7 +243,7 @@ order by recnum desc
       bot.telegram.sendMessage(ctx.message.from.id, "Оберіть заявку:", {
         reply_markup: keyboard,
       });
-      console.log(result.rows[0]);
+  
     } else {
       await ctx.reply("У вас немає заявок за останні 30 днів.");
     }
@@ -277,12 +277,12 @@ bot.on("callback_query", async (ctx) => {
   }
   
   else if (callbackData.startsWith('viddil_code_')) {
-    console.log('31231312');
+
          // Перевірка, чи починається callback_data з "viddil_code_"
            // Використовуємо регулярний вираз для отримання коду відділу
            const regex = /viddil_code_(\d+)/;
            const match = callbackData.match(regex);
-           console.log(match);
+          
           
            if (match) {
             const connection = await oracledb.getConnection(pool);
@@ -315,7 +315,7 @@ GROUP BY
      
              if (dataData.rows[0]) {
               const myData = dataData.rows[0]
-              console.log('----------MYDATA!@',myData);
+         
               await ctx.reply(` 
               ${myData.NVIDDIL}\nК-сть.авто: ${myData.KILAM}\nМаржа: ${myData.GRN}
               `)
@@ -361,7 +361,7 @@ bot.hears("Менеджери з логістики", async (ctx) => {
   for (let i = 0; i < result.rows.length; i++) {
     const el = result.rows[i];
     managers.push(el.PIP);
-    console.log(el.KOD);
+  
   }
   setTimeout(() => {}, 1000);
   myArray.push(...result.rows);
@@ -388,7 +388,7 @@ bot.hears("Аршулік М.В.", async (ctx) => {
   `);
 
   const res = result.rows;
-  console.log(res[0]);
+
   const my = Object.entries(res[0]).map(([key, value]) => {
     return `${key}:${value}`;
   });
@@ -409,7 +409,7 @@ function generateCalendarKeyboard() {
   }
   return keyboard;
 }
-console.log(generateCalendarKeyboard());
+
 // Обробник команди /start
 bot.hears("da", (msg) => {
   const chatId = msg.message.from.id;
@@ -456,7 +456,7 @@ bot.hears("Некомплект документів", async (ctx) => {
     WHERE kod_menz IN (35781)
       AND kod_menp IN (35781)
       AND pernekomplekt IS NOT NULL AND ROWNUM <= 20`);
-    console.log(manager.rows);
+ 
     if (manager.rows.length > 0) {
       let msg = "";
       let cont = [];
@@ -484,7 +484,7 @@ bot.hears("Аналіз роботи відділів", async (ctx) => {
   const viddil = await connection.execute(`
   select * from viddil where islog = 1
   `);
-  console.log(viddil);
+ 
   if (viddil.rows.length > 0) {
     // Розділити масив на підмасиви довжиною три елементи
     const chunkedArray = [];
@@ -528,7 +528,7 @@ bot.hears('сума',async ctx =>{
   from zaylst a
   where a.appdat >= to_date('01.01.2024','dd.mm.yyyy')  and
         a.appdat <= trunc(to_date('31.01.2024', 'dd.mm.yyyy'))`)
-        console.log(data1);
+    
 })
 // bot.hears('Сплачені перевезення',async ctx =>{
 //   const connection = await oracledb.getConnection(pool);
@@ -554,7 +554,7 @@ bot.hears('сума',async ctx =>{
 
 
 
-bot.launch();
+// bot.launch();
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));

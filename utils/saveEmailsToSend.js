@@ -5,7 +5,7 @@ const { pool_emails_send } = require('../db/pg/email');
 const moment = require('moment');
 moment.locale('uk');
 
-console.log(path.join(__dirname));
+
 
 
 // 3. Функція для вставки даних

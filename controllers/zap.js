@@ -23,7 +23,12 @@ const getAllZap = async (req, res) => {
       p_zap.IsZakrToKraina(${KOD_OS},a.kod_kraina) as zakrkraina,
       d.nur as zam,
       k.idgmap as kraina,
-      f.ntype as tztype
+      f.ntype as tztype,
+      e.ntype as tzntype1,
+              os_$$pkg.GetTelRobMob(a.kod_os) as permentel,
+          os_$$pkg.GetEMailSl(a.kod_os) as permenemail,
+          c1.idd as zavkraina,
+          c2.idd as rozvkraina
 
   
 
@@ -34,7 +39,10 @@ const getAllZap = async (req, res) => {
   left join kraina k on a.kod_kraina = k.kod
   left join tztype f on a.kod_tztype = f.kod
   join zaplst l on a.kod = l.kod_zap
-  
+  left join tztype e on a.kod_tztype = e.kod
+  left join kraina c1 on a.kod_krainaz = c1.kod
+  left join kraina c2 on a.kod_krainar = c2.kod
+  left join tztype e on a.kod_tztype = e.kod
   WHERE a.status = 0`
     );
 
@@ -55,8 +63,6 @@ const getAllZap = async (req, res) => {
 };
 const getAllZapMobile = async (req, res) => {
   let connection;
-
-
   try {
     connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";

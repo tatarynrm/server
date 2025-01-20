@@ -53,8 +53,6 @@ const getDataFromLogistPro = async ()=>{
     await newPage.waitForSelector('body');
     await newPage.waitForSelector('#offers-table');
 
-    // You can now interact with the new tab
-    console.log('New tab opened:', await newPage.title());
 
     // Function to extract data from the current page
     const extractDataFromPage = async () => {
@@ -108,7 +106,7 @@ const getDataFromLogistPro = async ()=>{
     const getCurrentPageNumber = async () => {
         return newPage.evaluate(() => {
             const activePage = document.querySelector('.pagination-container .pagination .footable-page.active a');
-            console.log('DSADSASD', activePage);
+      
 
             return activePage ? parseInt(activePage.innerText.trim()) : 1;
         });
@@ -119,17 +117,17 @@ const getDataFromLogistPro = async ()=>{
     const getTotalPages = async () => {
         return newPage.evaluate(() => {
             const pageLinks = document.querySelectorAll('.pagination-container .pagination .footable-page a');
-            console.log('Page Links:', pageLinks); // Log pageLinks to see what’s selected
+     
 
             const pageNumbers = Array.from(pageLinks)
                 .map(link => {
                     const text = link.innerText.trim();
-                    console.log('Page Number Text:', text); // Log the text to verify it's numeric
+        
                     return parseInt(text);
                 })
                 .filter(num => !isNaN(num)); // Filter out non-numeric values
 
-            console.log('Page Numbers:', pageNumbers); // Log pageNumbers to see the result
+         t
 
             return pageNumbers.length > 0 ? Math.max(...pageNumbers) : 10; // Return max or 1 if empty
         });
@@ -223,7 +221,7 @@ async function multiplyLogistData(dataArray) {
         }
 
         await client.query('COMMIT'); // Застосувати транзакцію
-        console.log('Insert for multiple records successful');
+    
     } catch (err) {
         await client.query('ROLLBACK'); // Відкотити транзакцію в разі помилки
         console.error('Error during Insert:', err.stack);
