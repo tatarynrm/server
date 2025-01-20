@@ -5,6 +5,6 @@ const { saveUserPushToken, sendPushNotification } = require("../../controllers/m
 const router = express.Router();
 
 router.route("/token-save").post(saveUserPushToken);
-router.route("/send-push").post(sendPushNotification);
+router.route("/sendpush").post(sendPushNotification);
 
 module.exports = router;

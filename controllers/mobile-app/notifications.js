@@ -39,7 +39,9 @@ const saveUserPushToken = async (req, res) => {
   }
 };
 
-const sendPushNotification = async (userId, message) => {
+const sendPushNotification = async (req, res) => {
+const {userId,message} = req.body;
+  
   try {
     // Отримуємо всі push токени користувача з бази даних
     const result = await ict_mobile.query(
@@ -47,6 +49,8 @@ const sendPushNotification = async (userId, message) => {
       [userId]
     );
 
+    console.log('ALL PUSH',result.rows[0]);
+    
     if (result.rows.length > 0) {
       // Перебираємо всі рядки результату (можливо, у користувача є кілька пристроїв)
       const messages = [];
@@ -81,7 +85,7 @@ const sendPushNotification = async (userId, message) => {
   } catch (error) {
     console.error("Error sending push notification:", error);
   }
-};
+}
 
 module.exports = {
   saveUserPushToken,
