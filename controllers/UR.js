@@ -100,15 +100,17 @@ const getAllExpeditions = async (req, res) => {
 
 const getContrAgents = async (req, res) => {
   const { search } = req.body;
+  console.log(search);
 
-  
-  // Використовуємо параметризовані запити для запобігання SQL Injection
+  // Створюємо параметризований запит
   const query = `
-    SELECT * FROM ictdat.ur 
-    WHERE 
-      (UPPER(NDOV) LIKE UPPER(:search) || '%' OR LOWER(NDOV) LIKE LOWER(:search) || '%')
-      OR (UPPER(ZKPO) LIKE UPPER(:search) || '%' OR LOWER(ZKPO) LIKE LOWER(:search) || '%')
-    FETCH FIRST 10 ROWS ONLY
+    SELECT * FROM (
+      SELECT * FROM ictdat.ur
+      WHERE 
+        (UPPER(NDOV) LIKE UPPER(:search) || '%' OR LOWER(NDOV) LIKE LOWER(:search) || '%')
+        OR (UPPER(ZKPO) LIKE UPPER(:search) || '%' OR LOWER(ZKPO) LIKE LOWER(:search) || '%')
+      ORDER BY NDOV
+    ) WHERE ROWNUM <= 10
   `;
 
   try {
