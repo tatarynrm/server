@@ -1006,7 +1006,7 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // Приклад виклику функції
 
 
-// sendPushNotification(38231,"Ти найкраща👋")
+sendPushNotification(38231,"Ти найкраща👋")
 
 // const getFakeData = async ()=>{
 //   try {
