@@ -40,7 +40,7 @@ const saveUserPushToken = async (req, res) => {
 };
 
 const sendPushNotification = async (req, res) => {
-const {userId,message} = req.body;
+const {userId,message,screen} = req.body;
   
   try {
     // Отримуємо всі push токени користувача з бази даних
@@ -65,7 +65,7 @@ const {userId,message} = req.body;
             to: pushToken,
             sound: "default",
             body: message,
-            data: { screen: "new-cargo" }, // Вказуємо, на який екран перейти
+            data: { screen: screen ? screen : null }, // Вказуємо, на який екран перейти
           });
         } else {
           console.log(`Invalid Expo push token: ${pushToken}`);
