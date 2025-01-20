@@ -57,44 +57,75 @@ const getAllExpeditions = async (req, res) => {
     console.log(error);
   }
 };
+// const getContrAgents = async (req, res) => {
+//   const { search } = req.body;
+// console.log(search);
+//   try {
+//     const connection = await oracledb.getConnection(pool);
+//     const result = await connection.execute(
+//       `select * from ictdat.ur 
+//       WHERE NDOV LIKE '${search}%'
+//       OR NDOV LIKE '$${search}'
+//       OR NDOV LIKE '${search}'
+//       OR ZKPO LIKE '${search}'
+//       OR ZKPO LIKE '${search}$' 
+//       OR ZKPO LIKE '$${search}'
+//       OR UPPER( NDOV ) LIKE '${search}%'
+//       OR UPPER( NDOV ) LIKE '%${search}_%'
+//       OR UPPER( NDOV ) LIKE '% ${search}'
+//       OR UPPER( NDOV ) LIKE '%${search} %'
+//       OR LOWER( NDOV ) LIKE '${search}%'
+//       OR LOWER( NDOV ) LIKE '%${search} %'
+//       OR LOWER( NDOV ) LIKE '%_${search}'
+//       OR LOWER( NDOV ) LIKE '%${search} %'
+//       OR NDOV LIKE '%_${search}_%'
+//       OR NDOV LIKE '${search}_%'
+//       OR NDOV LIKE '%_${search}'
+//       OR NDOV LIKE '_${search}'
+//       OR NDOV LIKE '_${search}_'
+//       OR NDOV LIKE '${search}_'
+//       OR NDOV LIKE '${search}_%'
+//       `
+//     );
+//     res.status(200).json(result.rows);
+//     if (!result) {
+//       res.status(401).json({ message: "error" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+
+
 const getContrAgents = async (req, res) => {
   const { search } = req.body;
-console.log(search);
+
+  
+  // Використовуємо параметризовані запити для запобігання SQL Injection
+  const query = `
+    SELECT * FROM ictdat.ur 
+    WHERE 
+      (UPPER(NDOV) LIKE UPPER(:search) || '%' OR LOWER(NDOV) LIKE LOWER(:search) || '%')
+      OR (UPPER(ZKPO) LIKE UPPER(:search) || '%' OR LOWER(ZKPO) LIKE LOWER(:search) || '%')
+    FETCH FIRST 10 ROWS ONLY
+  `;
+
   try {
     const connection = await oracledb.getConnection(pool);
-    const result = await connection.execute(
-      `select * from ictdat.ur 
-      WHERE NDOV LIKE '${search}%'
-      OR NDOV LIKE '$${search}'
-      OR NDOV LIKE '${search}'
-      OR ZKPO LIKE '${search}'
-      OR ZKPO LIKE '${search}$' 
-      OR ZKPO LIKE '$${search}'
-      OR UPPER( NDOV ) LIKE '${search}%'
-      OR UPPER( NDOV ) LIKE '%${search}_%'
-      OR UPPER( NDOV ) LIKE '% ${search}'
-      OR UPPER( NDOV ) LIKE '%${search} %'
-      OR LOWER( NDOV ) LIKE '${search}%'
-      OR LOWER( NDOV ) LIKE '%${search} %'
-      OR LOWER( NDOV ) LIKE '%_${search}'
-      OR LOWER( NDOV ) LIKE '%${search} %'
-      OR NDOV LIKE '%_${search}_%'
-      OR NDOV LIKE '${search}_%'
-      OR NDOV LIKE '%_${search}'
-      OR NDOV LIKE '_${search}'
-      OR NDOV LIKE '_${search}_'
-      OR NDOV LIKE '${search}_'
-      OR NDOV LIKE '${search}_%'
-      `
-    );
-    res.status(200).json(result.rows);
-    if (!result) {
-      res.status(401).json({ message: "error" });
+    const result = await connection.execute(query, [search]);
+
+    if (result.rows && result.rows.length > 0) {
+      res.status(200).json(result.rows); // Повертаємо 10 результатів
+    } else {
+      res.status(404).json({ message: "No results found" }); // Якщо не знайдено результатів
     }
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching contract agents:", error);
+    res.status(500).json({ message: "Internal server error" }); // Повідомлення про помилку
   }
 };
+
 const getOneAgent = async (req, res) => {
   const { id } = req.params;
   console.log(id);
