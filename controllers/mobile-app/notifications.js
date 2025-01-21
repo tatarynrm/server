@@ -4,7 +4,7 @@ const expo = new Expo();
 const saveUserPushToken = async (req, res) => {
   const { userId, pushToken } = req.body;
 
-  console.log('DASSSAAAAAAAAAAAAAAAAAA',userId, pushToken);
+  console.log("DASSSAAAAAAAAAAAAAAAAAA", userId, pushToken);
 
   try {
     // Перевіряємо, чи вже існує комбінація userId та pushToken
@@ -40,8 +40,9 @@ const saveUserPushToken = async (req, res) => {
 };
 
 const sendPushNotification = async (req, res) => {
-const {userId,message,screen,deepLink} = req.body;
-  
+  const { userId, message, screen, deepLink } = req.body;
+console.log('REQ BODY SEND NOTIFICATION',req.body);
+
   try {
     // Отримуємо всі push токени користувача з бази даних
     const result = await ict_mobile.query(
@@ -49,8 +50,8 @@ const {userId,message,screen,deepLink} = req.body;
       [userId]
     );
 
-    console.log('ALL PUSH',result.rows[0]);
-    
+    console.log("ALL PUSH", result.rows[0]);
+
     if (result.rows.length > 0) {
       // Перебираємо всі рядки результату (можливо, у користувача є кілька пристроїв)
       const messages = [];
@@ -65,7 +66,10 @@ const {userId,message,screen,deepLink} = req.body;
             to: pushToken,
             sound: "default",
             body: message,
-            data: { screen: screen ? screen : null,deepLink:deepLink ? deepLink : null }, // Вказуємо, на який екран перейти
+            data: {
+              screen: screen ? screen : null,
+              deepLink: deepLink ? deepLink : null,
+            }, // Вказуємо, на який екран перейти
           });
         } else {
           console.log(`Invalid Expo push token: ${pushToken}`);
@@ -85,7 +89,7 @@ const {userId,message,screen,deepLink} = req.body;
   } catch (error) {
     console.error("Error sending push notification:", error);
   }
-}
+};
 
 module.exports = {
   saveUserPushToken,
