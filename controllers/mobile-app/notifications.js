@@ -67,9 +67,8 @@ console.log('REQ BODY SEND NOTIFICATION',req.body);
             sound: "default",
             body: message,
             data: {
-              screen: screen ? screen : null,
-              deepLink: deepLink ? deepLink : null,
-            }, // Вказуємо, на який екран перейти
+              screen: screen ? screen : null
+            }, 
           });
         } else {
           console.log(`Invalid Expo push token: ${pushToken}`);
