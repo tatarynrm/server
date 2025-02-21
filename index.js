@@ -7,6 +7,9 @@ const http = require("http");
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-http-middleware');
+const Cookies = require('cookies'); // Для роботи з cookies
 const cron = require("node-cron");
 const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
@@ -208,7 +211,7 @@ io.on("connection", async (socket) => {
 
   socket.on("newZap", (data) => {
     io.emit("showNewZap", data);
-    // // БОТ
+    // БОТ
 
     if (data.pZapCina === 1) {
       sendMessageToGroupZapCina(bot, data);
@@ -265,13 +268,40 @@ io.on("connection", async (socket) => {
   socket.on("editZapZam", (data) => {
     // io.emit("showZapZbir", data);
   });
-  socket.on("newComment", (data) => {
+  socket.on("newComment",async  (data) => {
+
     if (data.telegramId !== null) {
+
       // БОТ
-      bot.telegram.sendMessage(
-        data.telegramId,
-        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+      // bot.telegram.sendMessage(
+      //   data.telegramId,
+      //   `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+      // );
+    
+      console.log('КОД ЗАЯВКИ',data.pKodZap);
+      const connection = await oracledb.getConnection(pool);
+      connection.currentSchema = "ICTDAT";
+      const resultMessages = await connection.execute(
+        `select a.*,b.telegramid
+         from zapcomm a 
+         left join us b on a.kod_os = b.kod_os
+         where a.KOD_ZAP = ${data.pKodZap}`
       );
+  
+   
+      
+      const uniqueTelegramIds = [...new Set(resultMessages.rows.map(item => item.TELEGRAMID))];
+
+      console.log(uniqueTelegramIds);
+      // БОТ
+   for (let i = 0; i < uniqueTelegramIds.length; i++) {
+    const element = uniqueTelegramIds[i];
+    bot.telegram.sendMessage(
+      element,
+      `💻 ${data.PIP}  Новий коментар до заявки ✅\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+    );
+    
+   }
     }
 
     io.emit("showNewComment", data);
@@ -1028,6 +1058,94 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // getFakeData()
 
 // insertData()
+// Кастомний бекенд для i18next, який читає переклади з PostgreSQL
+function PgBackend() {
+  return {
+    type: 'backend',
+    async read(language, namespace, callback) {
+      try {
+        // Запит до PostgreSQL для отримання перекладів
+        const res = await norisdb.ict_managers.query(
+          'SELECT key, value FROM translations WHERE language = $1',
+          [language]
+        );
+
+        // Перетворення результату запиту у формат, що підходить для i18next
+        const translations = {};
+        res.rows.forEach(row => {
+          translations[row.key] = row.value;
+        });
+
+        // Виклик колбеку з перекладами
+        callback(null, translations);
+      } catch (err) {
+        // У разі помилки викликаємо callback з помилкою
+        callback(err, false);
+      }
+    },
+    // Ви можете додати більше методів, якщо потрібно (наприклад, для кешування)
+  };
+}
+
+
+
+// Налаштування i18next з кастомним бекендом для PostgreSQL
+i18next
+  .use(i18nextMiddleware.LanguageDetector)
+  .use(PgBackend()) // Тепер ми правильно додаємо кастомний бекенд
+  .init({
+    fallbackLng: 'en',
+    debug: true,
+    backend: PgBackend(), // Також зазначаємо бекенд для завантаження перекладів
+  });
+
+// Middleware для обробки cookies і встановлення мови
+app.use((req, res, next) => {
+  const cookies = new Cookies(req, res);
+  let language = cookies.get('i18next'); // Перевіряємо, чи є мова в cookies
+
+  // Якщо мови немає в cookies, встановлюємо її через заголовок accept-language або за замовчуванням
+  if (!language) {
+    language = req.headers['accept-language']?.split(',')[0] || 'en';
+    cookies.set('i18next', language, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 днів
+  }
+
+  req.language = language; // Додаємо мову до запиту
+  next();
+});
+
+// Використовуємо i18next middleware для обробки запитів
+app.use(i18nextMiddleware.handle(i18next));
+
+// Створення API для завантаження перекладів
+app.get('/api/translations', (req, res) => {
+  const language = req.language; // Отримуємо мову з cookies
+ 
+  
+  const translations = i18next.services.resourceStore.data[language] || {}; // Завантажуємо переклади
+
+
+  res.json(translations); // Відправляємо переклади на клієнт
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

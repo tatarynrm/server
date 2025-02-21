@@ -70,7 +70,6 @@ const mainMenuFunc = async (ctx,findUser) => {
     reply_markup: keyboard
   });
     }
-
   }
 
 };
