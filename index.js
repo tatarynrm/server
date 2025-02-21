@@ -272,7 +272,7 @@ io.on("connection", async (socket) => {
 
     if (data.telegramId !== null) {
 
-      БОТ
+      // БОТ
       bot.telegram.sendMessage(
         data.telegramId,
         `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
