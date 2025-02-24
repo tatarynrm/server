@@ -273,12 +273,14 @@ io.on("connection", async (socket) => {
     if (data.telegramId !== null) {
 
       // БОТ
-      bot.telegram.sendMessage(
-        data.telegramId,
-        `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
-      );
+  if (data.pKodAuthor !== data.zapAuthor) {
+    bot.telegram.sendMessage(
+      data.telegramId,
+      `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+    );
+  }
     
-      console.log('КОД ЗАЯВКИ',data.pKodZap);
+      console.log('КОД ЗАЯВКИ',data);
       const connection = await oracledb.getConnection(pool);
       connection.currentSchema = "ICTDAT";
       const resultMessages = await connection.execute(
