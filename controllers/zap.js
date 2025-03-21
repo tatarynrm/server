@@ -351,19 +351,22 @@ const deleteZap = async (req, res) => {
   }
 };
 const zakrZap = async (req, res) => {
-  const { pKodAutor, pKodZap, pKodMen, pKilAmZakr } = req.body;
+  const { pKodAutor, pKodZap, pKodMen, pKilAmZakr,pKodValut,pSuma } = req.body;
+console.log('REQ BODY',req.body);
 
   try {
     const connection = await oracledb.getConnection(pool);
     const result = await connection.execute(
       `BEGIN
-            ICTDAT.p_zap.SetZapZakr(:pKodAutor,:pKodZap,:pKodMen,:pKilAmZakr);
+            ICTDAT.p_zap.SetZapZakr(:pKodAutor,:pKodZap,:pKodMen,:pSuma,:pKodValut,:pKilAmZakr);
         END;`,
       {
         pKodAutor,
         pKodZap,
         pKodMen,
-        pKilAmZakr,
+        pSuma,
+        pKodValut,
+        pKilAmZakr
       }
     );
     res.status(200).json(result);
@@ -743,6 +746,18 @@ const getTzType = async (req, res) => {
   }
 };
 
+const getZapInformationData = async (req,res)=>{
+  const connection = await oracledb.getConnection(pool);
+  connection.currentSchema = "ICTDAT";
+  try {
+    const result= await connection.execute(
+      `SELECT * FROM ictdat.valut WHERE KOD NOT IN (41,2611)`
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);  
+  }
+}
 module.exports = {
   createZap,
   getAllZap,
@@ -766,4 +781,5 @@ module.exports = {
   editZapKilAm,
   getTzType,
   getAllZapMobile,
+  getZapInformationData
 };

@@ -50,6 +50,7 @@ const tendersRoute = require("./routes/tenders");
 const printersRoute = require("./routes/noris/printer.route");
 const greetingsRoute = require("./routes/noris/greeting-cards.route");
 const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
+const mobileHomeScreenRoute = require('./routes/mobile-app/home.screen')
 
 const mobileAuth = require('./routes/mobile-app/mobile-auth') 
 const mobileFaq = require('./routes/mobile-app/faq') 
@@ -155,6 +156,7 @@ app.use("/greetings", greetingsRoute);
 app.use("/mobile", mobileNotificationsRoute);
 app.use("/mobile", mobileAuth);
 app.use("/mobile", mobileFaq);
+app.use("/mobile", mobileHomeScreenRoute);
 
 // WEB
 app.use("/web", webRoutes);

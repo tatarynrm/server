@@ -154,6 +154,9 @@ where dog_$$pkg.GetDogDatZakr(a.kod) is null
     if (!result) {
       res.status(401).json({ message: "error" });
     }
+
+    console.log(result);
+    
   } catch (error) {
     console.log(error);
   }
