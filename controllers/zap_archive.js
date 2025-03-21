@@ -75,7 +75,7 @@ const getAllZapArchive = async (req, res) => {
   let connection;
   const { KOD_OS, managerSurname, ZAV, ROZV, page = 1, limit = 100 } = req.body;
 
-  console.log('REQQ BODY', req.body);
+
 
   // Розраховуємо offset для пагінації
   const offset = (page - 1) * limit;
