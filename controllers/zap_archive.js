@@ -140,6 +140,10 @@ where rownum <= 100
       }
     }
 
+resultArray.forEach((item)=>{
+console.log(item.CLOSEMANAGER);
+
+})
 
     res.status(200).json(resultArray);
   } catch (error) {
