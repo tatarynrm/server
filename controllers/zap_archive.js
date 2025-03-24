@@ -107,32 +107,12 @@ const getAllZapArchive = async (req, res) => {
           LEFT JOIN valut d ON b.kod_valut = d.kod
           WHERE 1=1 ${filterClause}
           AND b.KOD_OS IS NOT NULL
-          ORDER BY a.DAT ASC
+          ORDER BY a.DAT DESC 
         ) 
-        WHERE rn > ${offset} AND rn <= ${offset + limit}`
+where rownum <= 100
+        `
     );
-//     const result = await connection.execute(
-//       `SELECT * FROM (
-//     SELECT a.*, b.KOD_OS AS menzakr, b.KILAMZAKR AS kilammenzark, b.KOD_ZAP AS ZAPKOD, 
-//            c.PIP AS MANAGERPIPCLOSE, b.suma, b.kod_valut, d.idv AS valuta_name,
-//            ROWNUM AS rn
-//     FROM (
-//         SELECT a.*, b.KOD_OS AS menzakr, b.KILAMZAKR AS kilammenzark, b.KOD_ZAP AS ZAPKOD, 
-//                c.PIP AS MANAGERPIPCLOSE, b.suma, b.kod_valut, d.idv AS valuta_name
-//         FROM zap a
-//         LEFT JOIN zapzakr b ON a.kod = b.kod_zap
-//         LEFT JOIN os c ON b.KOD_OS = c.KOD
-//         LEFT JOIN valut d ON b.kod_valut = d.kod
-//         WHERE 1=1 ${filterClause}
-//         AND b.KOD_OS IS NOT NULL
-//         ORDER BY a.DAT DESC
-//     ) a
-//     WHERE ROWNUM <= ${offset + limit}
-// )
-// WHERE rn > ${offset}`
-//     );
-   
-    
+
 
     const array = result.rows;
 
