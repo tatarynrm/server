@@ -223,6 +223,46 @@ io.on("connection", async (socket) => {
       console.error("Error saving message:", err);
     }
   });
+  socket.on("delete_message", async (messageId) => {
+    try {
+      // Видаляємо повідомлення з бази даних
+      const result = await norisdb.ict_managers.query(
+        "UPDATE chat SET deleted = true WHERE id = $1 RETURNING *", 
+        [messageId]
+      );
+  
+      if (result.rowCount > 0) {
+        // Якщо повідомлення успішно видалено, розсилаємо подію всім користувачам
+        io.emit("message_deleted", messageId); // Відправляємо id видаленого повідомлення
+      } else {
+        console.log("Message not found or already deleted");
+      }
+    } catch (err) {
+      console.error("Error deleting message:", err);
+    }
+  });
+  socket.on("update_message", async (messageData) => {
+    const { messageId, newMessage } = messageData; // Отримуємо ID повідомлення та новий текст
+  
+    try {
+      // Оновлюємо повідомлення в базі даних
+      const result = await norisdb.ict_managers.query(
+        "UPDATE chat SET message = $1, is_edited = true WHERE id = $2 RETURNING *",
+        [newMessage, messageId]
+      );
+  
+      if (result.rowCount > 0) {
+        // Якщо повідомлення успішно оновлено, відправляємо оновлене повідомлення всім користувачам
+        const updatedMessage = result.rows[0]; // Оновлене повідомлення з бази даних
+        io.emit("message_updated", updatedMessage); // Відправляємо оновлене повідомлення всім користувачам
+      } else {
+        console.log("Message not found");
+      }
+    } catch (err) {
+      console.error("Error updating message:", err);
+    }
+  });
+
   // ЧАТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   socket.on("get_emails_send_info", async (data) => {
     const my_data = await getTables();

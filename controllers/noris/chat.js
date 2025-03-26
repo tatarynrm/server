@@ -5,11 +5,12 @@ const getLastMessages = async (req, res) => {
     const result = await ict_managers.query(
       `
 SELECT * FROM chat
-ORDER BY created_at DESC
+where deleted = false
+ORDER BY created_at ASC
 LIMIT 100;
          `
     );
-console.log(result.rows);
+
 
     if (result.rows) {
       res.json(result.rows);
@@ -18,6 +19,33 @@ console.log(result.rows);
     console.log(error);
   }
 };
+const deleteOneMessage = async (req, res) => {
+    const { id } = req.body; // Отримуємо id повідомлення з тіла запиту
+    try {
+      const result = await ict_managers.query(
+        `
+        UPDATE chat 
+        SET deleted = true 
+        WHERE id = $1
+        `, 
+        [id] // id повідомлення, яке потрібно позначити як видалене
+      );
+  
+      if (result.rowCount > 0) {
+        // Якщо запис був успішно оновлений
+        res.status(200).json({ message: 'Message marked as deleted' });
+      } else {
+        // Якщо запис не знайдений
+        res.status(404).json({ message: 'Message not found' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error deleting message' });
+    }
+  };
+
+
 module.exports = {
-  getLastMessages
+  getLastMessages,
+  deleteOneMessage
 };
