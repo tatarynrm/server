@@ -7,9 +7,9 @@ const http = require("http");
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 const server = http.createServer(app);
-const i18next = require('i18next');
-const i18nextMiddleware = require('i18next-http-middleware');
-const Cookies = require('cookies'); // Для роботи з cookies
+const i18next = require("i18next");
+const i18nextMiddleware = require("i18next-http-middleware");
+const Cookies = require("cookies"); // Для роботи з cookies
 const cron = require("node-cron");
 const { bot } = require("./telegram__bot/telegram_bot");
 const { Server } = require("socket.io");
@@ -25,7 +25,7 @@ require("moment/locale/uk.js");
 const cookieParser = require("cookie-parser");
 const schedule = require("./services/schedule/shcedule");
 const { insertData } = require("./utils/saveEmailsToSend");
-
+const redis = require("redis");
 const {
   sendMessageToGroup,
   sendMessageToGroupZapCina,
@@ -50,10 +50,11 @@ const tendersRoute = require("./routes/tenders");
 const printersRoute = require("./routes/noris/printer.route");
 const greetingsRoute = require("./routes/noris/greeting-cards.route");
 const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
-const mobileHomeScreenRoute = require('./routes/mobile-app/home.screen')
+const mobileHomeScreenRoute = require("./routes/mobile-app/home.screen");
+const norisChatRoutes = require("./routes/noris/chat");
 
-const mobileAuth = require('./routes/mobile-app/mobile-auth') 
-const mobileFaq = require('./routes/mobile-app/faq') 
+const mobileAuth = require("./routes/mobile-app/mobile-auth");
+const mobileFaq = require("./routes/mobile-app/faq");
 const session = require("express-session");
 const norisdb = require("./db/noris/noris");
 const {
@@ -112,7 +113,7 @@ app.use((req, res, next) => {
     "https://ictwork.site",
     "https://ict.lviv.ua",
     "https://work.ict.lviv.ua",
-    "*"
+    "*",
   ];
   // const allowedOrigins = [
   //   process.env.ALLOW_ORIGIN_1,
@@ -161,6 +162,8 @@ app.use("/mobile", mobileHomeScreenRoute);
 // WEB
 app.use("/web", webRoutes);
 
+app.use("/chat", norisChatRoutes);
+
 // WEB--------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -203,7 +206,24 @@ io.on("connection", async (socket) => {
   });
   io.emit("getUsers", onlineUsers);
   // КОРИСТУВАЧІ
+  // ЧАТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  socket.on("chat_message", async (data) => {
+    // const timestamp = new Date().toLocaleTimeString();
 
+    try {
+      // Зберігаємо повідомлення в PostgreSQL
+      const msg = await norisdb.ict_managers.query(
+        "INSERT INTO chat (user_name, message, user_id) VALUES ($1, $2, $3) returning *",
+        [data.user_name, data.message, data.user_id]
+      );
+
+      // Розсилаємо повідомлення всім користувачам
+      io.emit("chat_message", msg);
+    } catch (err) {
+      console.error("Error saving message:", err);
+    }
+  });
+  // ЧАТ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   socket.on("get_emails_send_info", async (data) => {
     const my_data = await getTables();
 
@@ -270,19 +290,16 @@ io.on("connection", async (socket) => {
   socket.on("editZapZam", (data) => {
     // io.emit("showZapZbir", data);
   });
-  socket.on("newComment",async  (data) => {
-
+  socket.on("newComment", async (data) => {
     if (data.telegramId !== null) {
-
       // БОТ
-  if (data.pKodAuthor !== data.zapAuthor) {
-    bot.telegram.sendMessage(
-      data.telegramId,
-      `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
-    );
-  }
-    
-      console.log('КОД ЗАЯВКИ',data);
+      if (data.pKodAuthor !== data.zapAuthor) {
+        bot.telegram.sendMessage(
+          data.telegramId,
+          `💻 ${data.PIP}  прокоментував вашу заявку ✅${data.pKodZap}\n\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+        );
+      }
+
       const connection = await oracledb.getConnection(pool);
       connection.currentSchema = "ICTDAT";
       const resultMessages = await connection.execute(
@@ -291,21 +308,19 @@ io.on("connection", async (socket) => {
          left join us b on a.kod_os = b.kod_os
          where a.KOD_ZAP = ${data.pKodZap}`
       );
-  
-   
-      
-      const uniqueTelegramIds = [...new Set(resultMessages.rows.map(item => item.TELEGRAMID))];
 
-      console.log(uniqueTelegramIds);
+      const uniqueTelegramIds = [
+        ...new Set(resultMessages.rows.map((item) => item.TELEGRAMID)),
+      ];
+
       // БОТ
-   for (let i = 0; i < uniqueTelegramIds.length; i++) {
-    const element = uniqueTelegramIds[i];
-    bot.telegram.sendMessage(
-      element,
-      `💻 ${data.PIP}  Новий коментар до заявки ✅\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
-    );
-    
-   }
+      for (let i = 0; i < uniqueTelegramIds.length; i++) {
+        const element = uniqueTelegramIds[i];
+        bot.telegram.sendMessage(
+          element,
+          `💻 ${data.PIP}  Новий коментар до заявки ✅\n${data?.selectedZap.ZAV} --- ${data?.selectedZap.ROZV}\n💬 ${data.pComment}`
+        );
+      }
     }
 
     io.emit("showNewComment", data);
@@ -336,81 +351,82 @@ io.on("connection", async (socket) => {
     }
   });
   // ЗАПИТИ
-// Функція для отримання userId по socket.id
-async function  getUserIdBySocketId(socketId) {
-  try {
-    // Виконуємо запит до бази даних
-    const result = await norisdb.ict_mobile.query('SELECT user_id FROM user_sessions WHERE socket_id = $1', [socketId]);
+  // Функція для отримання userId по socket.id
+  async function getUserIdBySocketId(socketId) {
+    try {
+      // Виконуємо запит до бази даних
+      const result = await norisdb.ict_mobile.query(
+        "SELECT user_id FROM user_sessions WHERE socket_id = $1",
+        [socketId]
+      );
 
-    if (result.rows.length > 0) {
-      // Якщо запис знайдений, повертаємо user_id
-      return result.rows[0].user_id;
-    } else {
-      // Якщо socket.id не знайдений, повертаємо null
+      if (result.rows.length > 0) {
+        // Якщо запис знайдений, повертаємо user_id
+        return result.rows[0].user_id;
+      } else {
+        // Якщо socket.id не знайдений, повертаємо null
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching userId by socketId:", error);
       return null;
     }
-  } catch (error) {
-    console.error('Error fetching userId by socketId:', error);
-    return null;
   }
-};
-// Функція для збереження socket.id та userId в БД
-async function saveSocketId(userId, socketId) {
-  try {
-    const res = await norisdb.ict_mobile.query(
-      'INSERT INTO user_sessions (user_id, socket_id) VALUES ($1, $2) ON CONFLICT (user_id, socket_id) DO NOTHING',
-      [userId, socketId]
-    );
-    console.log(`Socket ID saved for user: ${userId}, socket ID: ${socketId}`);
-  } catch (err) {
-    console.error('Error saving socket ID to DB:', err);
+  // Функція для збереження socket.id та userId в БД
+  async function saveSocketId(userId, socketId) {
+    try {
+      const res = await norisdb.ict_mobile.query(
+        "INSERT INTO user_sessions (user_id, socket_id) VALUES ($1, $2) ON CONFLICT (user_id, socket_id) DO NOTHING",
+        [userId, socketId]
+      );
+      console.log(
+        `Socket ID saved for user: ${userId}, socket ID: ${socketId}`
+      );
+    } catch (err) {
+      console.error("Error saving socket ID to DB:", err);
+    }
   }
-}
-// Функція для видалення socket.id з БД при відключенні
-async function removeSocketId(userId) {
-  try {
-    const res = await norisdb.ict_mobile.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
-    console.log(`Socket ID removed for user: ${userId}`);
-  } catch (err) {
-    console.error('Error removing socket ID from DB:', err);
+  // Функція для видалення socket.id з БД при відключенні
+  async function removeSocketId(userId) {
+    try {
+      const res = await norisdb.ict_mobile.query(
+        "DELETE FROM user_sessions WHERE user_id = $1",
+        [userId]
+      );
+      console.log(`Socket ID removed for user: ${userId}`);
+    } catch (err) {
+      console.error("Error removing socket ID from DB:", err);
+    }
   }
-}
-
 
   // Реєстрація користувача за допомогою userId
-  socket.on('register-user', async (userId) => {
-    
+  socket.on("register-user", async (userId) => {
     await saveSocketId(userId, socket.id); // Зберігаємо socket.id для userId в БД
   });
 
   // Обробка приватних повідомлень (якщо потрібно)
-  socket.on('send-private-message', async (userId, message) => {
+  socket.on("send-private-message", async (userId, message) => {
     const targetSocketId = await getSocketId(userId); // Отримуємо socket.id для конкретного користувача
     if (targetSocketId) {
-      io.to(targetSocketId).emit('private-message', message); // Відправляємо повідомлення
+      io.to(targetSocketId).emit("private-message", message); // Відправляємо повідомлення
     } else {
-      console.log('User not found');
+      console.log("User not found");
     }
   });
 
-
-  socket.on('show-greet-modal',async ()=>{
-
-    
-
-const user = await norisdb.ict_mobile.query(`select * from user_sessions where user_id = $1`,[38231])
+  socket.on("show-greet-modal", async () => {
+    const user = await norisdb.ict_mobile.query(
+      `select * from user_sessions where user_id = $1`,
+      [38231]
+    );
     // io.emit('show-greet-modal-user')
-    console.log(user.rows[0]);
 
     const users = user.rows;
 
-    users.forEach(item =>{
-      io.to(item.socket_id).emit('show-greet-modal-user');
-    })
-    
-
-   
-  })
+    users.forEach((item) => {
+      io.to(item.socket_id).emit("show-greet-modal-user");
+    });
+  });
 
   // ADMIN
 
@@ -615,7 +631,6 @@ const user = await norisdb.ict_mobile.query(`select * from user_sessions where u
   // ЗАПИТИ З ОСНОВНОГО САЙТУ
 
   socket.on("newWebZap", (data) => {
-    console.log(data);
     const date = moment(new Date()).format("LLLL");
 
     const adminTg = [
@@ -636,19 +651,12 @@ const user = await norisdb.ict_mobile.query(`select * from user_sessions where u
   });
   // ADMIN TELEGRAM
 
-
-
-
-  socket.on('faq-add',() =>{
- 
-  
-    io.emit('faq-add')
-  })
-  socket.on('new-order',() =>{
- 
-  
-    io.emit('new-order')
-  })
+  socket.on("faq-add", () => {
+    io.emit("faq-add");
+  });
+  socket.on("new-order", () => {
+    io.emit("new-order");
+  });
   // ВИЙТИ
   socket.on("disconnect", async () => {
     removeUser(socket.id);
@@ -790,7 +798,6 @@ function validateEmail(email) {
     }
   }
 
-  
   return false;
 }
 
@@ -957,9 +964,8 @@ cron.schedule("30 9,14,17 * * 1-5", () => {
       console.log(error);
     }
   };
-  getAllZap()
+  getAllZap();
 });
-
 
 if (process.env.SERVER === "LOCAL") {
   console.log("LOCAL_SERVER");
@@ -1039,7 +1045,6 @@ const joinTelegramChannelHtml = fs.readFileSync(
 
 // Приклад виклику функції
 
-
 // sendPushNotification(38231,"Ти найкраща👋")
 
 // const getFakeData = async ()=>{
@@ -1065,18 +1070,18 @@ const joinTelegramChannelHtml = fs.readFileSync(
 // Кастомний бекенд для i18next, який читає переклади з PostgreSQL
 function PgBackend() {
   return {
-    type: 'backend',
+    type: "backend",
     async read(language, namespace, callback) {
       try {
         // Запит до PostgreSQL для отримання перекладів
         const res = await norisdb.ict_managers.query(
-          'SELECT key, value FROM translations WHERE language = $1',
+          "SELECT key, value FROM translations WHERE language = $1",
           [language]
         );
 
         // Перетворення результату запиту у формат, що підходить для i18next
         const translations = {};
-        res.rows.forEach(row => {
+        res.rows.forEach((row) => {
           translations[row.key] = row.value;
         });
 
@@ -1091,14 +1096,12 @@ function PgBackend() {
   };
 }
 
-
-
 // Налаштування i18next з кастомним бекендом для PostgreSQL
 i18next
   .use(i18nextMiddleware.LanguageDetector)
   .use(PgBackend()) // Тепер ми правильно додаємо кастомний бекенд
   .init({
-    fallbackLng: 'en',
+    fallbackLng: "en",
     debug: true,
     backend: PgBackend(), // Також зазначаємо бекенд для завантаження перекладів
   });
@@ -1106,12 +1109,15 @@ i18next
 // Middleware для обробки cookies і встановлення мови
 app.use((req, res, next) => {
   const cookies = new Cookies(req, res);
-  let language = cookies.get('i18next'); // Перевіряємо, чи є мова в cookies
+  let language = cookies.get("i18next"); // Перевіряємо, чи є мова в cookies
 
   // Якщо мови немає в cookies, встановлюємо її через заголовок accept-language або за замовчуванням
   if (!language) {
-    language = req.headers['accept-language']?.split(',')[0] || 'en';
-    cookies.set('i18next', language, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 днів
+    language = req.headers["accept-language"]?.split(",")[0] || "en";
+    cookies.set("i18next", language, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    }); // 30 днів
   }
 
   req.language = language; // Додаємо мову до запиту
@@ -1122,36 +1128,13 @@ app.use((req, res, next) => {
 app.use(i18nextMiddleware.handle(i18next));
 
 // Створення API для завантаження перекладів
-app.get('/api/translations', (req, res) => {
+app.get("/api/translations", (req, res) => {
   const language = req.language; // Отримуємо мову з cookies
- 
-  
-  const translations = i18next.services.resourceStore.data[language] || {}; // Завантажуємо переклади
 
+  const translations = i18next.services.resourceStore.data[language] || {}; // Завантажуємо переклади
 
   res.json(translations); // Відправляємо переклади на клієнт
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
