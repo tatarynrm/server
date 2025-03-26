@@ -1,15 +1,18 @@
 const { norisdb, ict_managers } = require("../../db/noris/noris");
 
 const getLastMessages = async (req, res) => {
+
+    const {room_id} = req.body;
   try {
     const result = await ict_managers.query(
       `
 SELECT * FROM chat
-where deleted = false
+where deleted = false and room_id =$1
 ORDER BY created_at ASC
 LIMIT 100;
-         `
+         `,[room_id]
     );
+
 
 
     if (result.rows) {
@@ -43,9 +46,27 @@ const deleteOneMessage = async (req, res) => {
       res.status(500).json({ message: 'Error deleting message' });
     }
   };
+const getChatRooms = async (req, res) => {
+    
+    try {
+      const result = await ict_managers.query(
+        `
+      select * from chat_rooms
+        ` 
+      );
+  
+res.json(result.rows)
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error deleting message' });
+    }
+  };
+
+  
 
 
 module.exports = {
   getLastMessages,
-  deleteOneMessage
+  deleteOneMessage,
+  getChatRooms
 };

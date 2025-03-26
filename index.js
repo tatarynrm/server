@@ -213,8 +213,8 @@ io.on("connection", async (socket) => {
     try {
       // Зберігаємо повідомлення в PostgreSQL
       const msg = await norisdb.ict_managers.query(
-        "INSERT INTO chat (user_name, message, user_id) VALUES ($1, $2, $3) returning *",
-        [data.user_name, data.message, data.user_id]
+        "INSERT INTO chat (user_name, message, user_id,room_id) VALUES ($1, $2, $3,$4) returning *",
+        [data.user_name, data.message, data.user_id,data.room_id]
       );
 
       // Розсилаємо повідомлення всім користувачам
