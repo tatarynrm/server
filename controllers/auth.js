@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const generateRandomNumber = require("../helpers/randomNumber");
 const { bot } = require("../telegram__bot/telegram_bot");
 const { sendOTPCode } = require("../telegram__bot/bot__functions");
+const { ict_managers } = require("../db/noris/noris");
 const mobileLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -162,7 +163,14 @@ WHERE
 ORDER BY
     a.pip ASC`);
 
-    res.status(200).json({ ...user.rows[0] });
+    const userProfilePicture = await ict_managers.query(`select * from user_images where user_id = $1`,[req.userId])
+
+const userPicture = userProfilePicture.rows[0] ?  userProfilePicture.rows[0].image_path: null;
+  
+
+
+
+res.status(200).json({ ...user.rows[0],userPicture:userPicture});
     if (!user) {
       return res.status(404).json({
         message: "Користувача не знайдено",

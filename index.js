@@ -52,6 +52,7 @@ const greetingsRoute = require("./routes/noris/greeting-cards.route");
 const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
 const mobileHomeScreenRoute = require("./routes/mobile-app/home.screen");
 const norisChatRoutes = require("./routes/noris/chat");
+const norisProfileRoutes = require("./routes/noris/profile");
 
 const mobileAuth = require("./routes/mobile-app/mobile-auth");
 const mobileFaq = require("./routes/mobile-app/faq");
@@ -85,6 +86,7 @@ const {
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(express.json());
+// Для того, щоб парсити form-data з файлів та текстових полів
 
 app.use(
   cors({
@@ -134,6 +136,8 @@ app.use((req, res, next) => {
 // app.use('/uploads',express.static('public'));
 // app.use('/files',express.static('public'));
 app.use("/files", express.static(__dirname + "/uploads"));
+app.use("/uploads", express.static(__dirname + "/uploads"));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Middlewares------------------------------------------------------------------------------------------------------
 
 // ROUTES------------------------------------------------------------------------------------------------------
@@ -163,6 +167,7 @@ app.use("/mobile", mobileHomeScreenRoute);
 app.use("/web", webRoutes);
 
 app.use("/chat", norisChatRoutes);
+app.use("/profile", norisProfileRoutes);
 
 // WEB--------------
 

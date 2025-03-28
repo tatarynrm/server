@@ -2,6 +2,7 @@ const oracledb = require("oracledb");
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const pool = require("../db/pool");
 const axios = require("axios");
+const { ict_managers } = require("../db/noris/noris");
 const getAllZap = async (req, res) => {
   let connection;
   const { KOD_OS } = req.body;
@@ -45,6 +46,8 @@ const getAllZap = async (req, res) => {
   left join tztype e on a.kod_tztype = e.kod
   WHERE a.status = 0`
     );
+
+
 
     res.status(200).json(result.rows);
   } catch (error) {
