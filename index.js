@@ -83,8 +83,10 @@ const {
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+// app.use(bodyParser.json({ limit: "30mb", extended: true }));
+// app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.json());
 // Для того, щоб парсити form-data з файлів та текстових полів
 
@@ -180,6 +182,36 @@ app.use("/profile", norisProfileRoutes);
 //   res.json('dsad')
 // })
 // NODEMAILER
+
+
+
+
+
+
+
+// MULTER
+// const multer = require('multer');
+// const path = require('path');
+// const fs = require('fs');
+
+// Налаштування multer для завантаження файлів
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
@@ -1180,6 +1212,20 @@ app.get("/api/translations", (req, res) => {
 
   res.json(translations); // Відправляємо переклади на клієнт
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);

@@ -134,7 +134,7 @@ END;`,
   }
 };
 const getMe = async (req, res) => {
-  console.log(req);
+
   try {
     const connection = await oracledb.getConnection(pool);
     const user = await connection.execute(`SELECT
