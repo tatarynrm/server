@@ -6,6 +6,7 @@ const { ict_managers } = require("../db/noris/noris");
 const getAllZap = async (req, res) => {
   let connection;
   const { KOD_OS } = req.body;
+console.log(KOD_OS);
 
   try {
     connection = await oracledb.getConnection(pool);
@@ -219,7 +220,7 @@ const createZap = async (req, res) => {
     pZbir,
   } = req.body;
 
-  console.log("PKODTZTYPE", pKodTzType);
+
 
   try {
     const zavUrl = `https://maps.googleapis.com/maps/api/place/details/json?language=uk&key=AIzaSyCL4bmZk4wwWYECFCW2wqt7X-yjU9iPG2o&place_id=${zavInfo.value.place_id}`;
@@ -312,7 +313,7 @@ const createZap = async (req, res) => {
           pZapNum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         }
       );
-      console.log("RESULT CREATE", result);
+  
 
       res.status(200).json(result);
     });
@@ -759,6 +760,15 @@ const getZapInformationData = async (req,res)=>{
     res.status(200).json(result.rows);
   } catch (error) {
     console.log(error);  
+  }
+}
+
+const getCommercialClosedByUs = async (req,res) =>{
+  try {
+    
+  } catch (error) {
+    console.log(error);
+    
   }
 }
 module.exports = {
