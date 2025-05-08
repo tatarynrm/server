@@ -33,24 +33,36 @@ async function getUserSettings(req, res) {
 }
 
 // Оновлення налаштувань користувача
+// Оновлення налаштувань користувача
 async function updateSettings(req, res) {
-  const { userId, settings } = req.body;
-
-  try {
-    // Оновлюємо всі налаштування в базі даних
-    const updatePromises = settings.map(({ type, enabled }) => {
-      const query = `UPDATE user_settings SET ${type} = $1 WHERE user_id = $2`;
-      return pool.query(query, [enabled, userId]);
-    });
-
-    // Очікуємо завершення всіх оновлень
-    await Promise.all(updatePromises);
-
-    res.json({ message: 'Settings updated successfully' });
-  } catch (error) {
-    console.error('Error updating settings:', error);
-    res.status(500).send('Error updating settings');
+    const { userId, settings } = req.body;
+  
+    try {
+      // Спочатку перевіряємо, чи існує користувач у таблиці user_settings
+      const userCheckQuery = 'SELECT * FROM user_settings WHERE user_id = $1';
+      const userResult = await pool.query(userCheckQuery, [userId]);
+  
+      // Якщо користувача немає в базі, створюємо новий запис
+      if (userResult.rows.length === 0) {
+        const createQuery = 'INSERT INTO user_settings (user_id) VALUES ($1) RETURNING user_id';
+        await pool.query(createQuery, [userId]);
+      }
+  
+      // Оновлюємо налаштування користувача
+      const updatePromises = settings.map(({ type, enabled }) => {
+        const query = `UPDATE user_settings SET ${type} = $1 WHERE user_id = $2`;
+        return pool.query(query, [enabled, userId]);
+      });
+  
+      // Очікуємо завершення всіх оновлень
+      await Promise.all(updatePromises);
+  
+      res.json({ message: 'Settings updated successfully' });
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      res.status(500).send('Error updating settings');
+    }
   }
-}
+  
 
 module.exports = { updateSettings, getUserSettings };
