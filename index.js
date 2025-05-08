@@ -53,6 +53,7 @@ const mobileNotificationsRoute = require("./routes/mobile-app/notifications");
 const mobileHomeScreenRoute = require("./routes/mobile-app/home.screen");
 const norisChatRoutes = require("./routes/noris/chat");
 const norisProfileRoutes = require("./routes/noris/profile");
+const userSettingsRoute = require("./routes/noris/user-settings");
 
 const mobileAuth = require("./routes/mobile-app/mobile-auth");
 const mobileFaq = require("./routes/mobile-app/faq");
@@ -164,6 +165,7 @@ app.use("/mobile", mobileNotificationsRoute);
 app.use("/mobile", mobileAuth);
 app.use("/mobile", mobileFaq);
 app.use("/mobile", mobileHomeScreenRoute);
+app.use("/settings", userSettingsRoute);
 
 // WEB
 app.use("/web", webRoutes);
