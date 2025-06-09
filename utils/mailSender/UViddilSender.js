@@ -63,8 +63,8 @@ function generateHTMLReport(rows) {
       (r) => `
     <tr>
       <td>${r.PIP}</td>
-      <td>${moment(r.DAT).format("LLL")}</td>
-      <td>${r.CHASIN}</td>
+      <td>${moment(r.DAT).format("LL")}</td>
+      <td>${r.CHASIN ? r.CHASIN : ""}</td>
       <td>${r.STAN}</td>
       <td>${r.PRIM || ""}</td>
     </tr>
