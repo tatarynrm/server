@@ -71,11 +71,11 @@ function generateHTMLReport(rows) {
     .map(
       (r) => `
     <tr>
-      <td>${r.pip}</td>
-      <td>${r.dat}</td>
-      <td>${r.chasin}</td>
-      <td>${r.stan}</td>
-      <td>${r.prim || ""}</td>
+      <td>${r.PIP}</td>
+      <td>${moment(r.DAT).format("LLL")}</td>
+      <td>${r.CHASIN}</td>
+      <td>${r.STAN}</td>
+      <td>${r.PRIM || ""}</td>
     </tr>
   `
     )
@@ -109,7 +109,7 @@ async function sendDailyReport() {
 
   const mailOptions = {
     from: `rt@ict.lviv.ua`,
-    to: ["rt@ict.lviv.ua",'oo@ict.lviv.ua'],
+    to: ["rt@ict.lviv.ua", "oo@ict.lviv.ua"],
     subject: `Щоденний звіт — ${formattedDate}`,
     html,
   };

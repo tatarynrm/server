@@ -1195,7 +1195,7 @@ app.get("/api/translations", (req, res) => {
 
 
 // // CRON — щодня о 09:00 (крім суботи та неділі)
-cron.schedule('15 12 * * 1-5', () => {
+cron.schedule('22 12 * * 1-5', () => {
   sendDailyReport();
 });
 
