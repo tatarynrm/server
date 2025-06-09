@@ -86,11 +86,11 @@ function generateHTMLReport(rows) {
     <table border="1" cellpadding="6" cellspacing="0">
       <thead>
         <tr>
-          <th>PIP</th>
-          <th>DAT</th>
-          <th>CHASIN</th>
-          <th>STAN</th>
-          <th>PRIM</th>
+          <th>ПІП</th>
+          <th>ДАТА</th>
+          <th>Час</th>
+          <th>Стан</th>
+          <th>Примітки</th>
         </tr>
       </thead>
       <tbody>
@@ -109,7 +109,7 @@ async function sendDailyReport() {
 
   const mailOptions = {
     from: `rt@ict.lviv.ua`,
-    to: ["rt@ict.lviv.ua"],
+    to: ["rt@ict.lviv.ua",'oo@ict.lviv.ua'],
     subject: `Щоденний звіт — ${formattedDate}`,
     html,
   };
