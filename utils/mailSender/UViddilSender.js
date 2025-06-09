@@ -45,16 +45,8 @@ async function fetchOracleLogs(date) {
 
     const my = new Date(date.toISOString().split("T")[0]); // передаємо тільки дату без часу
 
-    console.log("MY DATE", my);
-    console.log("result ", result);
 
-    return result.rows.map((row) => ({
-      pip: row[0],
-      dat: row[1],
-      chasin: row[2],
-      stan: row[3],
-      prim: row[4],
-    }));
+    return result.rows;
   } catch (err) {
     console.error("Помилка при запиті до Oracle:", err);
     return [];
@@ -87,7 +79,7 @@ function generateHTMLReport(rows) {
       <thead>
         <tr>
           <th>ПІП</th>
-          <th>ДАТА</th>
+          <th>Дата</th>
           <th>Час</th>
           <th>Стан</th>
           <th>Примітки</th>
@@ -109,7 +101,7 @@ async function sendDailyReport() {
 
   const mailOptions = {
     from: `rt@ict.lviv.ua`,
-    to: ["rt@ict.lviv.ua", "oo@ict.lviv.ua"],
+    to: ["rt@ict.lviv.ua"],
     subject: `Щоденний звіт — ${formattedDate}`,
     html,
   };
