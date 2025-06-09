@@ -45,7 +45,6 @@ async function fetchOracleLogs(date) {
 
     const my = new Date(date.toISOString().split("T")[0]); // передаємо тільки дату без часу
 
-
     return result.rows;
   } catch (err) {
     console.error("Помилка при запиті до Oracle:", err);
@@ -101,7 +100,7 @@ async function sendDailyReport() {
 
   const mailOptions = {
     from: `rt@ict.lviv.ua`,
-    to: ["rt@ict.lviv.ua"],
+    to: ["rt@ict.lviv.ua", "kav@ict.lviv.ua", "kar@ict.lviv.ua"],
     subject: `Щоденний звіт — ${formattedDate}`,
     html,
   };
