@@ -81,6 +81,7 @@ const generateReportHTML = require("./htmlTemplates/reportsForNoris");
 const {
   sendPushNotification,
 } = require("./controllers/mobile-app/notifications");
+const { sendDailyReport } = require("./utils/mailSender/UViddilSender");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -185,35 +186,12 @@ app.use("/profile", norisProfileRoutes);
 // })
 // NODEMAILER
 
-
-
-
-
-
-
 // MULTER
 // const multer = require('multer');
 // const path = require('path');
 // const fs = require('fs');
 
 // Налаштування multer для завантаження файлів
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // WEB SOCKETS------------------------------------------------------------------------
 const io = new Server(server, {
@@ -253,7 +231,7 @@ io.on("connection", async (socket) => {
       // Зберігаємо повідомлення в PostgreSQL
       const msg = await norisdb.ict_managers.query(
         "INSERT INTO chat (user_name, message, user_id,room_id) VALUES ($1, $2, $3,$4) returning *",
-        [data.user_name, data.message, data.user_id,data.room_id]
+        [data.user_name, data.message, data.user_id, data.room_id]
       );
 
       // Розсилаємо повідомлення всім користувачам
@@ -266,10 +244,10 @@ io.on("connection", async (socket) => {
     try {
       // Видаляємо повідомлення з бази даних
       const result = await norisdb.ict_managers.query(
-        "UPDATE chat SET deleted = true WHERE id = $1 RETURNING *", 
+        "UPDATE chat SET deleted = true WHERE id = $1 RETURNING *",
         [messageId]
       );
-  
+
       if (result.rowCount > 0) {
         // Якщо повідомлення успішно видалено, розсилаємо подію всім користувачам
         io.emit("message_deleted", messageId); // Відправляємо id видаленого повідомлення
@@ -282,14 +260,14 @@ io.on("connection", async (socket) => {
   });
   socket.on("update_message", async (messageData) => {
     const { messageId, newMessage } = messageData; // Отримуємо ID повідомлення та новий текст
-  
+
     try {
       // Оновлюємо повідомлення в базі даних
       const result = await norisdb.ict_managers.query(
         "UPDATE chat SET message = $1, is_edited = true WHERE id = $2 RETURNING *",
         [newMessage, messageId]
       );
-  
+
       if (result.rowCount > 0) {
         // Якщо повідомлення успішно оновлено, відправляємо оновлене повідомлення всім користувачам
         const updatedMessage = result.rows[0]; // Оновлене повідомлення з бази даних
@@ -1216,18 +1194,10 @@ app.get("/api/translations", (req, res) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+// // CRON — щодня о 09:00 (крім суботи та неділі)
+cron.schedule('15 12 * * 1-5', () => {
+  sendDailyReport();
+});
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
