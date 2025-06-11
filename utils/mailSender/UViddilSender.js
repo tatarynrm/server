@@ -100,7 +100,7 @@ async function sendDailyReport() {
 
   const mailOptions = {
     from: `rt@ict.lviv.ua`,
-    to: ["rt@ict.lviv.ua", "kav@ict.lviv.ua", "kar@ict.lviv.ua"],
+    to: ["rt@ict.lviv.ua", "kav@ict.lviv.ua", "kar@ict.lviv.ua","oo@ict.lviv.ua"],
     subject: `Щоденний звіт — ${formattedDate}`,
     html,
   };

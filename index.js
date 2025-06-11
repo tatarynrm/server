@@ -82,6 +82,7 @@ const {
   sendPushNotification,
 } = require("./controllers/mobile-app/notifications");
 const { sendDailyReport } = require("./utils/mailSender/UViddilSender");
+const { managersReminderCron } = require("./utils/reminder/managers.reminder");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -1197,6 +1198,9 @@ app.get("/api/translations", (req, res) => {
 // // CRON — щодня о 09:00 (крім суботи та неділі)
 cron.schedule('0 11 * * 1-5', () => {
   sendDailyReport();
+});
+cron.schedule('0 10 * * 1-5', () => {
+ managersReminderCron()
 });
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
