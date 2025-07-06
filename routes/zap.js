@@ -21,7 +21,8 @@ const {
   editZapZbir,
   editZapZam,
   getAllZapMobile,
-  getZapInformationData
+  getZapInformationData,
+  editComment
 } = require("../controllers/zap");
 
 const router = express.Router();
@@ -46,6 +47,7 @@ router.route("/edit-kilam").post(editZapKilAm);
 router.route("/edit-tztype").post(editTzType);
 router.route("/edit-zapzbir").post(editZapZbir);
 router.route("/edit-zapzam").post(editZapZam);
+router.route("/edit-zap-comment").post(editComment);
 router.route("/tztype").get(getTzType);
 router.route("/zap-information-data").get(getZapInformationData);
 

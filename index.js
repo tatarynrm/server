@@ -383,6 +383,11 @@ io.on("connection", async (socket) => {
 
     io.emit("showNewComment", data);
   });
+  socket.on("comment_update", async (data) => {
+console.log(data);
+
+    io.emit("show_comment_update", data);
+  });
 
   socket.on("deleteComm", (data) => {
     io.emit("deleteCommAllUsers", data);

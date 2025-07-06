@@ -771,6 +771,28 @@ const getCommercialClosedByUs = async (req,res) =>{
     
   }
 }
+
+const editComment = async (req, res) => {
+  const { KOD, PRIM } = req.body;
+
+  try {
+    const connection = await oracledb.getConnection(pool);
+    
+    const result = await connection.execute(
+      `UPDATE ICTDAT.ZAPCOMM
+       SET PRIM = :prim
+       WHERE KOD = :kod`,
+      { PRIM, KOD },
+      { autoCommit: true }
+    );
+
+    res.status(200).json({ message: "Коментар оновлено", rowsUpdated: result.rowsAffected });
+  } catch (error) {
+    console.error("Помилка при оновленні коментаря:", error);
+    res.status(500).json({ error: "Не вдалося оновити коментар" });
+  }
+};
+
 module.exports = {
   createZap,
   getAllZap,
@@ -789,6 +811,8 @@ module.exports = {
   editTzType,
   editZapZbir,
   editZapZam,
+  editComment,
+
   // Вільний транспорт
   getAllFreeTrucks,
   editZapKilAm,
