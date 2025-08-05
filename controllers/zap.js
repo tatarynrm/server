@@ -549,19 +549,24 @@ const editTzType = async (req, res) => {
 };
 const editZapZam = async (req, res) => {
   const { pKodZapZam, pKodZap } = req.body;
+console.log(req.body,'REQ BODY');
 
   try {
     const connection = await oracledb.getConnection(pool);
+
+    
     const result = await connection.execute(
       `UPDATE ICTDAT.ZAP
       SET KOD_ZAM = :pKodZapZam
       WHERE KOD = :pKodZap`,
       {
-        pKodZapZam,
-        pKodZap,
+        pKodZapZam:pKodZapZam,
+        pKodZap:pKodZap,
       },
       { autoCommit: true }
     );
+
+console.log(result,'RESULT');
 
     res.status(200).json(result);
   } catch (error) {

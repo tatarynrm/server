@@ -346,7 +346,7 @@ io.on("connection", async (socket) => {
     io.emit("showZapZbir", data);
   });
   socket.on("editZapZam", (data) => {
-    // io.emit("showZapZbir", data);
+    io.emit("editZapZam", data);
   });
   socket.on("newComment", async (data) => {
     if (data.telegramId !== null) {

@@ -130,27 +130,16 @@ const getContrAgents = async (req, res) => {
 
 const getOneAgent = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
+ 
   try {
     const connection = await oracledb.getConnection(pool);
     connection.currentSchema = "ICTDAT";
     const result = await connection.execute(
-      `select a.kod as kod_dog,
-      a.kod_ur,
-      c.idnt,
-      b.nur,
-      a.numdoc as dognum,
-      a.dat as dat1,
-      a.datk as dat2
-from dog a
-join ur b on a.kod_ur = b.kod
-join firma c on a.kod_firma = c.kod
-where dog_$$pkg.GetDogDatZakr(a.kod) is null 
-     and a.kod_ur = ${id}
+      `SELECT a.NUR,a.KOD FROM ictdat.ur a where a.kod = ${id}
       `
     );
     console.log(result.rows);
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows[0]);
     if (!result) {
       res.status(401).json({ message: "error" });
     }
