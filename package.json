@@ -40,7 +40,7 @@
     "nodemailer-express-handlebars": "^6.1.0",
     "nodemon": "^2.0.22",
     "oracledb": "^5.5.0",
-    "pg": "^8.13.1",
+    "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "pizzip": "^3.1.7",
     "puppeteer": "^23.2.1",

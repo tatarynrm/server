@@ -54,6 +54,7 @@ const mobileHomeScreenRoute = require("./routes/mobile-app/home.screen");
 const norisChatRoutes = require("./routes/noris/chat");
 const norisProfileRoutes = require("./routes/noris/profile");
 const userSettingsRoute = require("./routes/noris/user-settings");
+const parkingRoutes = require("./routes/parking/parking.route");
 
 const mobileAuth = require("./routes/mobile-app/mobile-auth");
 const mobileFaq = require("./routes/mobile-app/faq");
@@ -83,6 +84,7 @@ const {
 } = require("./controllers/mobile-app/notifications");
 const { sendDailyReport } = require("./utils/mailSender/UViddilSender");
 const { managersReminderCron } = require("./utils/reminder/managers.reminder");
+const startCrones = require("./cron-jobs");
 
 // Middlewares------------------------------------------------------------------------------------------------------
 
@@ -168,6 +170,7 @@ app.use("/mobile", mobileAuth);
 app.use("/mobile", mobileFaq);
 app.use("/mobile", mobileHomeScreenRoute);
 app.use("/settings", userSettingsRoute);
+app.use("/parking",parkingRoutes );
 
 // WEB
 app.use("/web", webRoutes);
@@ -1207,6 +1210,8 @@ cron.schedule('0 11 * * 1-5', () => {
 cron.schedule('0 10 * * 1-5', () => {
  managersReminderCron()
 });
+
+startCrones()
 
 server.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Listen ${process.env.PORT}`);
